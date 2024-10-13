@@ -35,14 +35,14 @@ Each named *ami* has a special ability that can be upgraded.
 
 Recruited citizens can be taught the special abilites of *amis* after the training upgrade has been purchased. Identical citizens will stack in some contexts, and an entire stack can be moved at once if the *Shift* button is held down while moving them.
 
-When recruiting citizens, its possible for Javert to sneak in. He will be indistinguishable from citizens, but will sabotabge any acitivity he is a part of. He can be dismissed from the barricade, gaining you 100 hope, but he may come back later.
+When recruiting citizens, its possible for Javert to sneak in. He will be indistinguishable from citizens, but will sabotage any activity he is a part of. He can be dismissed from the barricade, gaining you 100 hope, but he may come back later.
 
-Eventually, the French soldiers will attack from the west and the east in addition to attacking the central barricade, and they will get start using snipers and cannons. Scouting will warn you where and what enemies will attack for the next wave, and will give you up to 3 wave notice when a new side will start being attacked.
+Eventually, enemies will attack from the west and the east in addition to attacking the central barricade, and they will start using snipers and cannons. Scouting will warn you where and what enemies will attack for the next wave, and will give you up to 3 wave notice when a new side will start being attacked.
 
 A small eastern barricade will be automatically built during __Recover__ immediately before being attacked from the east. After the eastern barricade is built, the barricade is surrounded and all looting will come with a risk of death.
 
 Snipers can shoot any *ami*, including in buildings, and cannons will knock all the *amis* off a section of the barricade. 
 
-*Amis* in buildings can attack soldiers on either side of the building, and be attacked by snipers from either side.
+*Amis* in buildings can attack enemies on either side of the building, and be attacked by snipers from either side.
 
 Once you gain 10000 hope and purchase the revolution upgrade or recruit Victor Hugo for 2000 hope after wave 30, you win the game.
