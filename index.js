@@ -1315,7 +1315,6 @@ async function flash(element) {
         element.style.background = "gold";
     }
     await sleep(100);
-    console.log(old);
     if (isAmi(element)) {
         element.style.color = old;
     } else {
