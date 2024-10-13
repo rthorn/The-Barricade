@@ -30,8 +30,6 @@ var state_ = {
     javert_dead: false
 };
 
-var settings_ = {};
-
 var refs_ = {
     specialBonusLevels: [1.5, 2, 3, 5],
     reset_button: '<button type="button" class="resetButton" onClick="resetLoc(this)" hidden>&#x21bb;</button>',
@@ -74,19 +72,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeVars() {
-    settings_ = (function() {
-      var settings = null;
-      $.ajax({
-        'async': false,
-        'global': false,
-        'url': "/config.json",
-        'dataType': "json",
-        'success': function(data) {
-          settings = data;
-        }
-      });
-      return settings;
-    })();
     var ran = getRandomInt(5) - 2;
     settings_.mondetour_opens += ran;
     ran = getRandomInt(5) - 2;

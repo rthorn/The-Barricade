@@ -1,4 +1,4 @@
-{
+var settings_ = {
 	"wall_min": 1,
 	"hope_drink": 10,
 	"hope_wave": 10,
