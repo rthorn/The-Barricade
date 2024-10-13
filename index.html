@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Battle of the Barricade</title>
+    <script>document.write("<link rel='stylesheet' href='./style.css?v=" + Date.now() + "'>");</script>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <main>
+        <h1>The Barricade</h1>
+        <div id="recruit-screen">
+          <button type="button" id="close-recruit" onClick="closeRecruit()">X</button>
+          <div id="recruit-limit">Recruit limit: 8/20</div>
+        </div>
+        <div id="upgrade-screen">
+          <button type="button" id="close-upgrade" onClick="closeUpgrade()">X</button>
+        </div>
+        <div id="upgrader-screen">
+          <button type="button" id="close-upgrader" onClick="closeUpgrader()">X</button>
+        </div>
+        <h2 id="state">Wave 1</h2>
+        <h3 id="substate">Prepare</h3>
+        <div class="bar" id="progressbar" hidden>
+          <div id="progress" class="bar-fill" style="width:100%"></div>
+        </div>
+        <div id="hovertext" hidden></div>
+        <button type="button" id="ready" onClick="startWave()">Ready!</button>
+        <button type="button" id="recruit" onClick="recruit()" hidden>Recruit</button>
+        <button type="button" id="upgrade" onClick="upgrade()" hidden>Upgrade</button>
+        <button type="button" id="reset" onClick="resetAmis()">&#x21bb;</button>
+        <button type="button" id="autofill" onClick="autoFill()">Auto-fill</button>
+        <div id="lesenemies1"></div>
+        <div id="lesenemies2"></div>
+        <div id="lesenemiesmondetour1"></div>
+        <div id="lesenemiesmondetour2"></div>
+        <div id="lesenemiesprecheurs1"></div>
+        <div id="lesenemiesprecheurs2"></div>
+        <div id="chanvrerie">
+          <div class="amiLoc chanvrerie" id="chanvrerie1"><span id="chanvrerie1-label" class="recoverLabel"></span></div>
+          <div class="amiLoc chanvrerie" id="chanvrerie2"><span id="chanvrerie2-label" class="recoverLabel"></span></div>
+          <div class="amiLoc chanvrerie" id="chanvrerie3"><span id="chanvrerie3-label" class="recoverLabel"></span></div>
+        </div>
+        <div class="amiLoc" id="corinthe"><span id="corinthe-label" class="recoverLabel"></span></div>
+        <div id="mondetour">
+          <div class="amiLoc mondetour" id="mondetour1"><span id="mondetour1-label" class="recoverLabel"></span></div>
+          <div class="amiLoc mondetour" id="mondetour2"><span id="mondetour2-label" class="recoverLabel"></span></div>
+        </div>
+        <div class="amiLoc" id="rightside">
+          <div class="amiLoc" id="trainer" hidden><span id="trainer-label" class="recoverLabel"></span></div>
+          <span id="rightside-label" class="recoverLabel"></span>
+        </div>
+        <div id="precheurs" hidden>
+          <div class="amiLoc precheurs" id="precheurs1"><span id="precheurs1-label" class="recoverLabel"></span></div>
+          <div class="amiLoc precheurs" id="precheurs2"><span id="precheurs2-label" class="recoverLabel"></span></div>
+        </div>
+        <div id="lesamis"><span id="lesamis-label" class="recoverLabel"></span></div>
+        <div class="amiLoc" id="scout" hidden><span id="scout-label" class="recoverLabel"></span></div>
+        <div class="amiLoc" id="lootammo" hidden><span id="lootammo-label" class="recoverLabel"></span></div>
+        <div class="amiLoc" id="lootfood" hidden><span id="lootfood-label" class="recoverLabel"></span></div>
+        <div class="amiLoc" id="dismiss" hidden><span id="dismiss-label" class="recoverLabel"></span></div>
+        <div id="ammolabel" class="label">Ammo
+          <div id="ammo" class="number">1</div>
+        </div>
+        <div id="foodlabel" class="label">
+          <button type="button" id="feed" onClick="feedAll()" hidden disabled>Feed all</button>
+          Food
+          <div id="food" class="number">1</div>
+        </div>
+        <div id="hopelabel" class="label">Hope
+          <div id="hope" class="number">1</div>
+        </div>
+    </main>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>document.write("<script type='text/javascript' src='index.js?v=" + Date.now() + "'><\/script>");</script>
+  </body>
+</html>
