@@ -35,7 +35,7 @@ Each named *ami* has a special ability that can be upgraded.
 
 Recruited citizens can be taught the special abilites of *amis* after the training upgrade has been purchased. Identical citizens will stack in some contexts, and an entire stack can be moved at once if the *Shift* button is held down while moving them.
 
-When recruiting citizens, its possible for Javert to sneak in. He will be indistinguishable from citizens, but will sabotage any activity he is a part of. He can be dismissed from the barricade, gaining you 100 hope, but he may come back later.
+When recruiting citizens, it's possible for Javert to sneak in. He will be indistinguishable from citizens, but will sabotage any activity he is a part of. He can be dismissed from the barricade, gaining you 100 hope, but he may come back later.
 
 Eventually, enemies will attack from the west and the east in addition to attacking the central barricade, and they will start using snipers and cannons. Scouting will warn you where and what enemies will attack for the next wave, and will give you up to 3 wave notice when a new side will start being attacked.
 
