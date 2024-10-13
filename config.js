@@ -13,7 +13,7 @@ var settings_ = {
 	"base_hit_chance": 5,
 	"max_hit_chance": 75,
 	"scout_death": 20,
-	"loot_ammo": 100,
+	"loot_ammo": 50,
 	"loot_food": 10,
 	"heal_food": 33,
 	"food_use": 1,
@@ -25,7 +25,7 @@ var settings_ = {
 	"starting_food": 40,
 	"starting_ammo": 500,
 	"starting_hope": 30,
-	"mondetour_opens": 1,
+	"mondetour_opens": 7,
 	"precheurs_opens": 15,
 	"upgrades": {
 		"training1": {
