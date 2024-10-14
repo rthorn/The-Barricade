@@ -754,7 +754,7 @@ function setLabel(loc) {
         if (loc == refs_.lesamis) {
             refs_.lesamis_label.innerHTML = "Drink (+Hope)";
         } else if (loc == refs_.corinthe) {
-            refs_.corinthe_label.innerHTML = button + "Rest (+Health)";
+            refs_.corinthe_label.innerHTML = button + "Rest (+Health, dmg boost)";
         } else if (loc == refs_.trainer && state_.training) {
             refs_.trainer_label.innerHTML = button + "Trainer";
         } else if (loc == refs_.rightside && state_.training) {
@@ -1213,8 +1213,8 @@ function autoFill() {
             [...getChildren(refs_.lesamis)]
                 .sort((a, b) => getDamage(a) < getDamage(b) ? -1 : 1);
         if (state_.javert && state_.javert_label.textContent == "Javert" && high_health.includes(state_.javert)) {
-            high_health.splice(high_health.indexOf(state_.javert, 1));
-            high_dam.splice(high_dam.indexOf(state_.javert, 1));
+            high_health.splice(high_health.indexOf(state_.javert), 1);
+            high_dam.splice(high_dam.indexOf(state_.javert), 1);
         }
         while (high_health.length && barricadeHasSpace()) {
             for (const wall of refs_.barricade) {
