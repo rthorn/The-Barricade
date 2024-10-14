@@ -506,7 +506,7 @@ button[type=button]:enabled {
 .ami {
     display: inline-block;
     transition: color 0.1s ease-in-out;
-    width: 4.82vw;
+    width: 4.815vw;
     font-size: 2.81vw;
     text-align: center;
     z-index: 1;
@@ -572,7 +572,7 @@ button[type=button]:enabled {
 }
 
 .mariusButton {
-    width: 4.82vw;
+    width: 4.815vw;
     height: 2.25vw;
     margin-top: .16vw;
     margin-left: 0.4vw;
@@ -767,7 +767,7 @@ button[type=button]:enabled {
 
 .bullets {
     font-size: 0.96vw;
-    width: 4.82vw;
+    width: 4.815vw;
     text-align: center;
     position: absolute;
     margin-left: -2.4vw;

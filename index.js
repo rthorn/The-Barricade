@@ -731,11 +731,11 @@ function setWidth(ami) {
     if (isInBuilding(ami)) {
         var max = ami.parentElement == refs_.rightside ? state_.rightside_max : state_.corinthe_max;
         if (max == settings_.starting_building_limit) {
-            ami.style.marginLeft = "calc((100% - 4.82vw) / 2)";
-            ami.style.marginRight = "calc((100% - 4.82vw) / 2)";
+            ami.style.marginLeft = "calc((100% - 4.815vw) / 2)";
+            ami.style.marginRight = "calc((100% - 4.815vw) / 2)";
         } else if (max == (settings_.starting_building_limit * 2)) {
-            ami.style.marginLeft = "calc((100% - 9.63vw) / 4)";
-            ami.style.marginRight = "calc((100% - 9.63vw) / 4)";
+            ami.style.marginLeft = "calc((100% - 9.65vw) / 4)";
+            ami.style.marginRight = "calc((100% - 9.65vw) / 4)";
         }
     } else if (isOnBarricade(ami)) {
         if (state_.wall_num[ami.parentElement.id] == 1) {
