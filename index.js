@@ -1900,8 +1900,11 @@ function initEnemies(foresight = false) {
 // Functionality
 
 function feedAll() {
-    for (const ami of state_.needs_food) {
-        feedAmi(ami);
+    while (state_.needs_food.size) {
+        for (const ami of state_.needs_food) {
+            feedAmi(ami);
+            break;
+        }
     }
 }
 
