@@ -97,7 +97,6 @@ function initializeVars() {
         refs_.chanvrerie_labels[wall.id] = document.getElementById(wall.id + "-label");
         refs_.ami_locations.add(wall);
         state_.droppable.add(wall);
-        wall.style.background = "brown";
     }
     refs_.mondetour = new Set([document.getElementById('mondetour1'), document.getElementById('mondetour2')]);
     refs_.mondetour_labels = {};
@@ -105,14 +104,12 @@ function initializeVars() {
         refs_.mondetour_labels[wall.id] = document.getElementById(wall.id + "-label");
         refs_.ami_locations.add(wall);
         state_.droppable.add(wall);
-        wall.style.background = "brown";
     }
     refs_.barricade = new Set([...refs_.chanvrerie, ...refs_.mondetour]);
     refs_.precheurs = new Set([document.getElementById('precheurs1'), document.getElementById('precheurs2')]);
     refs_.precheurs_labels = {};
     for (const wall of refs_.precheurs) {
         refs_.precheurs_labels[wall.id] = document.getElementById(wall.id + "-label");
-        wall.style.background = "brown";
     }
     refs_.specials = {};
     for (const name in settings_.amis) {
@@ -824,7 +821,6 @@ function newPerson(id, type) {
 
 function newAmi(name) {
     var ami = newPerson(name, "ami");
-    ami.style.color = "black";
     state_.last_prepare[ami.id] = refs_.lesamis;
     state_.last_recover[ami.id] = refs_.lesamis;
     if (ami.id in state_.learned_specials) {
@@ -1314,17 +1310,19 @@ function getBarricadeHeight() {
 
 async function flash(element) {
     if (isAmi(element)) {
-        var old = element.style.color;
         element.style.color = "gold";
     } else {
-        var old = element.style.background;
         element.style.background = "gold";
     }
     await sleep(100);
     if (isAmi(element)) {
-        element.style.color = old;
+        if (getHealth(element) > 33) {
+            element.style.color = "black";
+        } else {
+            element.style.color = "red";
+        }
     } else {
-        element.style.background = old;
+        element.style.background = "brown";
     }
 }
 
