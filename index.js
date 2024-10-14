@@ -2468,7 +2468,7 @@ function resolveRecover() {
     if (javert_loc != refs_.corinthe) {
         for (const ami of getChildren(refs_.corinthe)) {
             var heal_amount = 50;
-            var temp_damage_amount = 50;
+            var temp_damage_amount = 20;
             for (const child of getChildren(refs_.corinthe)) {
                 if (sl = specialLevel(child, "Courfeyrac")) {
                     temp_damage_amount += 5 * sl;
