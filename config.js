@@ -13,7 +13,7 @@ var settings_ = {
 	"base_hit_chance": 5,
 	"max_hit_chance": 75,
 	"scout_death": 20,
-	"loot_ammo": 50,
+	"loot_ammo": 70,
 	"loot_food": 10,
 	"heal_food": 33,
 	"food_use": 1,
