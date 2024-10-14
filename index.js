@@ -1376,8 +1376,18 @@ function setHeight(wall, value) {
     wall.style.top = (9.63 + settings_.max_height - pixels) + "vw";
 }
 
+function getHealthDiv(person) {
+    for (const child of person.children) {
+        if (child.id.includes("-healthbar")) {
+            return child.firstChild;
+        }
+    }
+    console.error("No health found for person: " + person.id);
+    return null;
+}
+
 function getHealth(person) {
-    var health = document.getElementById(person.id + "-health");
+    var health = getHealthDiv(person);
     var shown = person.style.display;
     person.style.display = 'block';
     var h = 100 * health.getBoundingClientRect().width / health.parentElement.getBoundingClientRect().width;
@@ -1420,7 +1430,7 @@ function getHealthMax(person) {
 }
 
 function setHealth(person, value) {
-    var health = document.getElementById(person.id + "-health");
+    var health = getHealthDiv(person);
     health.style.width = Math.min(Math.max(value, 0), 100) + "%";
     if (isAmi(person)) {
         if (getHealth(person) > 33) {
@@ -1654,7 +1664,7 @@ function enemiesDead() {
 }
 
 function updateStats(ami) {
-    var health = document.getElementById(ami.id + "-healthbar");
+    var health = getHealthDiv(ami).parentElement;
     health.style.width = (2.4 * getHealthMax(ami)) + "vw";
     health.style.marginLeft = "calc((100% - " + health.style.width + ") / 2)";
     setHealth(ami, getHealth(ami));
