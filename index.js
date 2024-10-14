@@ -579,7 +579,10 @@ function hasSpace(target) {
 
 function barricadeHasSpace() {
     for (const wall of refs_.barricade) {
-        if (wall.id.includes("mondetour") && getWave() <= settings_.mondetour_opens) {
+        if (wall.id.includes("mondetour") && getWave() < settings_.mondetour_opens) {
+            continue;
+        }
+        if (wall.id.includes("mondetour") && getWave() == settings_.mondetour_opens && !state_.foresight) {
             continue;
         }
         if (hasSpace(wall)) {
@@ -1218,7 +1221,10 @@ function autoFill() {
         }
         while (high_health.length && barricadeHasSpace()) {
             for (const wall of refs_.barricade) {
-                if (wall.id.includes("mondetour") && getWave() <= settings_.mondetour_opens) {
+                if (wall.id.includes("mondetour") && getWave() < settings_.mondetour_opens) {
+                    continue;
+                }
+                if (wall.id.includes("mondetour") && getWave() == settings_.mondetour_opens && !state_.foresight) {
                     continue;
                 }
                 if (hasSpace(wall) && high_health.length) {
@@ -2145,6 +2151,7 @@ function transitionToRecover() {
     }
     setHope(getHope() + hope_wave + bonus);
     clearEnemies();
+    enemyOpacity(false);
     if (state_.foresight) {
         initEnemies(true);
     }
