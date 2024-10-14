@@ -14,7 +14,7 @@ This will start serving the game at http://localhost:8000, which you can access 
 
 ## Gameplay
 
-Waves of French soldiers are attacking your barricade. Before they arrive, you'll __Prepare__ for the upcoming battle by placing amis either on the central barricade or in the Corinthe building. Your *amis* can fire at the soldiers from either location, but if nobody is on a given section of the barricade it will fall quicker. Sadly, those on the barricade will be in the line of fire so prepare thoughfully.
+Waves of French soldiers are attacking your barricade. Before they arrive, you'll __Prepare__ for the upcoming battle by placing amis either on the central barricade or in the Corinthe building. Your *amis* can fire at the soldiers from either location, but if nobody is on a given section of the barricade it will fall quicker. Sadly, those on the barricade will be in the line of fire, so prepare thoughtfully.
 
 Once the battle begins, *amis* in Corinthe will not be able to leave and get on the barricade, but those on the barricade or not currently fighting will be able to move around freely.
 
