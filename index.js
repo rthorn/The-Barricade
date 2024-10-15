@@ -1833,7 +1833,7 @@ function enemiesPerWave(type, wave) {
     var adjusted_wave = wave - settings_.enemies[type].level + 1;
     var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58))
     if (type != "Soldier") {
-        return Math.ceil(num/3);
+        return Math.ceil(num/4);
     }
     return num;
 }
