@@ -219,6 +219,10 @@ function toVW(px) {
 
 // Event handlers
 
+document.addEventListener('contextmenu', event => {
+    event.preventDefault();
+});
+
 $(document).on('keydown keyup', function(e) {
     if (e.originalEvent.key != "Shift") {
         return;
