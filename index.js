@@ -1710,7 +1710,7 @@ function updateStats(ami) {
                         }
                         ami.appendChild(dot);
                         dot.style.marginLeft = marginLeft + "vw";
-                        marginLeft += 0.08;
+                        marginLeft += 0.8;
                     }
                 }
             }
@@ -2622,7 +2622,7 @@ function prepareForNextWave() {
     if (getWave() == settings_.mondetour_opens) {
         enableMondetour();
     }
-    if (state_.precheurs_open) {
+    if (state_.rightside_max > 0) {
         refs_.rightside.style.background = "teal";
     } else {
         refs_.rightside.style.background = "grey";
