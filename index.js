@@ -2527,6 +2527,7 @@ function resolveRecover() {
                     state_.learned_specials[ami.id].splice(remove, 1);
                 }
                 state_.learned_specials[ami.id].push(special);
+                state_.learned_specials[ami.id] = state_.learned_specials[ami.id].sort();
             }
             if (refs_.specials["Marius"].includes(special)) {
                 var power = document.createElement("button");
