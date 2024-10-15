@@ -5,6 +5,7 @@ var settings_ = {
 	"hope_death": 50,
 	"javert_hope": 100,
 	"javert_chance": 10,
+	"initial_javert_chance": 2,
 	"wall_repair": 3,
 	"max_height": 38.523,
 	"ami_damage": 3,

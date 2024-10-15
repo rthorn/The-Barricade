@@ -925,7 +925,8 @@ function addNewCitizen() {
     var ami = addNewAmi(id);
     stackChildren(refs_.lesamis);
     if (!state_.javert && !state_.javert_dead) {
-        if (getRandomInt(100) < settings_.javert_chance) {
+        var chance = i <= 6 ? settings_.initial_javert_chance : settings_.javert_chance;
+        if (getRandomInt(100) < chance) {
             state_.javert = ami;
             for (const child of ami.children) {
                 if (child.id == ami.id + "-label") {
