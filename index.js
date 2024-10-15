@@ -1121,6 +1121,13 @@ function getName(person) {
     return person.id.match(/[a-zA-Z \.]+/)[0];
 }
 
+function getNumber(person) {
+    if (!person || !person.id || (!isCitizen(person) && !isEnemy(person))) {
+        return null;
+    }
+    return person.id.match(/\d+/)[0];
+}
+
 function getWave() {
     return parseInt(refs_.state.innerText.match(/\d+/)[0]);
 }
@@ -1980,8 +1987,9 @@ function barricadeFor(enemy_loc) {
 }
 
 function enemyFire(i) {
+    console.log(getEnemies());
     for (const enemy of getEnemies()) {
-        if (i%getSpeed(enemy) != Math.floor(getSpeed(enemy)/2)) {
+        if (i%getSpeed(enemy) != (Math.floor(getSpeed(enemy)/2) + 3*getNumber(enemy))%getSpeed(enemy)) {
             continue;
         }
         if (!hit(enemy) && getName(enemy) != "") {
