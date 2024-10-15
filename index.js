@@ -1988,6 +1988,9 @@ function barricadeFor(enemy_loc) {
 
 function enemyFire(i) {
     for (const enemy of getEnemies()) {
+        if (getName(enemy) == "Cannon" && i < 5) {
+          continue;
+        }
         if (i%getSpeed(enemy) != (Math.floor(getSpeed(enemy)/2) + 3*getNumber(enemy))%getSpeed(enemy)) {
             continue;
         }

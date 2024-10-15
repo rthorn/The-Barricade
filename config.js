@@ -437,9 +437,9 @@ var settings_ = {
 		},
 		"Cannon": {
 			"level": 20,
-			"damage": 15,
+			"damage": 20,
 			"health": 1,
-			"speed": 12
+			"speed": 18
 		}
 	}
 }
