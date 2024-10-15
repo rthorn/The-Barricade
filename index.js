@@ -1907,7 +1907,7 @@ function initEnemies(foresight = false) {
 // Functionality
 
 function feedAll() {
-    while (state_.needs_food.size) {
+    while (state_.needs_food.size && getFood() > 0) {
         for (const ami of state_.needs_food) {
             feedAmi(ami);
             break;
