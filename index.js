@@ -1458,7 +1458,7 @@ function hit(person) {
 }
 
 function hitWall(wall) {
-    if (wall.children.length <= 1) {
+    if (!hasChildren(wall) || (state_.javert && hasChildren(wall) == 1 && getChildren(wall)[0] == state_.javert)) {
         return true;
     }
     return getRandomInt(100) < (getHeight(wall) * settings_.max_wall_chance / 100);
@@ -1987,12 +1987,11 @@ function barricadeFor(enemy_loc) {
 }
 
 function enemyFire(i) {
-    console.log(getEnemies());
     for (const enemy of getEnemies()) {
         if (i%getSpeed(enemy) != (Math.floor(getSpeed(enemy)/2) + 3*getNumber(enemy))%getSpeed(enemy)) {
             continue;
         }
-        if (!hit(enemy) && getName(enemy) != "") {
+        if (getName(enemy) != "Cannon" && !hit(enemy)) {
           continue;
         }
         var options = [...barricadeFor(enemy.parentElement)];
@@ -2021,7 +2020,7 @@ function enemyFire(i) {
             }
         }
         var wall = options.random();
-        if (getName(enemy) != "Sniper" && (hitWall(wall) || getName(enemy) == "Cannon")) {
+        if ((getName(enemy) == "Soldier" && hitWall(wall)) || getName(enemy) == "Cannon") {
             damageWall(wall, enemy);
             if (getName(enemy) == "Cannon") {
                 flash(wall);
@@ -2033,12 +2032,8 @@ function enemyFire(i) {
                 stackChildren(refs_.lesamis);
             }
         } else {
-            var options = [...getAmisBattle(enemy.parentElement)];
-            for (const child of getAmisBattle(enemy.parentElement)) {
-                if (getName(enemy) != "Sniper" && (child.parentElement == refs_.corinthe || child.parentElement == refs_.rightside)) {
-                    options.splice(options.indexOf(child), 1);
-                    continue;
-                }
+            var options = getName(enemy) == "Sniper" ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall);
+            for (const child of getName(enemy) == "Sniper" ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall)) {
                 if (specialLevel(child, "Bossuet") >= 1) {
                     for (var j = 0; j < 1; j++) {
                         options.push(child);
@@ -2470,7 +2465,7 @@ function resolveRecover() {
             continue;
         }
         wallAdjust(wall, hasChildren(wall) * settings_.wall_repair, true);
-        for (const child of wall.children) {
+        for (const child of getChildren(wall)) {
             if (specialLevel(child, "Feuilly")) {
                 wallAdjust(wall, (refs_.specialBonusLevels[specialLevel(child, "Feuilly") - 1] - 1) * settings_.wall_repair, true);
             }
