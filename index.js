@@ -124,6 +124,7 @@ function initializeVars() {
     }
     refs_.order["Enjolras"] = "AAAAAAA";
     refs_.order["Citizen"] = "zzzzzz";
+    refs_.order["Javert"] = "zzzzzzzzzzzzzzzzz";
     Object.freeze(refs_);
 
     setFood(settings_.starting_food);
@@ -624,7 +625,14 @@ function isOnBarricade(ami) {
 }
 
 function sort_order(ami1, ami2) {
-    if (refs_.order[getName(ami1)] == refs_.order[getName(ami2)]) {
+    var name1 = refs_.order[getName(ami1)];
+    var name2 = refs_.order[getName(ami2)];
+    if (state_.javert && ami1 == state_.javert && state_.javert_label.textContent == "Javert") {
+        name1 = refs_.order["Javert"];
+    } else if (state_.javert && ami2 == state_.javert && state_.javert_label.textContent == "Javert") {
+        name2 = refs_.order["Javert"];
+    }
+    if (name1 == name2) {
         if (arraysEqual(state_.learned_specials[ami1.id], state_.learned_specials[ami2.id])) {
             if (getWaveState() == WaveState.RECOVER || !isAmi(ami1)) {
                 return getHealth(ami1) > getHealth(ami2) ? 1 : -1;
@@ -633,7 +641,7 @@ function sort_order(ami1, ami2) {
         }
         return arrayGreaterThan(state_.learned_specials[ami1.id], state_.learned_specials[ami2.id]) ? 1 : -1;
     }
-    return refs_.order[getName(ami1)] > refs_.order[getName(ami2)] ? 1 : -1;
+    return name1 > name2 ? 1 : -1;
 }
 
 function reorderChildren(loc) {
