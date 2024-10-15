@@ -1277,12 +1277,12 @@ function autoFill() {
             } else if (specialLevel(ami, "Joly")) {
                 refs_.lootfood.appendChild(ami);
                 continue;
-            } else if (specialLevel(ami, "Grantaire")) {
+            } else if (specialLevel(ami, "Grantaire") && getFood() > 0) {
                 continue;
             }
             var ammo_threshold = Math.max(4000 - getAmmo(), 1);
             var food_threshold = Math.max(4000 - getFood() * 22, 1);
-            var hope_threshold = Math.max(4000 - getHope() * 22, 1);
+            var hope_threshold = getFood() > 0 ? Math.max(4000 - getHope() * 22, 1) : 0;
             var wall_threshold = Math.max(4000 - getBarricadeHeight(), 1);
             var ran = getRandomInt(ammo_threshold + food_threshold + hope_threshold + wall_threshold);
             if (ran < ammo_threshold) {
