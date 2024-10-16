@@ -1658,13 +1658,14 @@ function die(person, attacker) {
     } else if (isAmi(person)) {
         setHope(getHope() - settings_.hope_death);
     }
-    if (isEnemy(person)) {
-        stackEnemies(person.parentElement);
-    }
+    var enemy_parent = isEnemy(person) ? person.parentElement : null;
     if (person.id in state_.temp_damage) {
         delete state_.temp_damage[person.id];
     }
     person.remove();
+    if (enemy_parent) {
+        stackEnemies(enemy_parent);
+    }
 }
 
 function damageWall(wall, enemy) {
