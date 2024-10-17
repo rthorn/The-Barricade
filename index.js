@@ -686,7 +686,7 @@ function stackEnemies(enemy_loc) {
         }
         for (const type in settings_.enemies) {
             var width = loc.id.includes("mondetour") || loc.id.includes("precheurs") ? 3 : 14;
-            if (type != "Soldier") {
+            if (type == "Sniper") {
                 width = Math.floor(width * 2 / 3);
             } else if (type == "Cannon") {
                 width = Math.ceil(width * 1 / 3);
