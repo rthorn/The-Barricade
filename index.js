@@ -550,7 +550,8 @@ function hasChildren(target) {
 }
 
 function wallMax(wall) {
-    return settings_.wall_min*state_.wall_num[wall.id] + state_.wall_num[wall.id]*Math.floor(getHeight(wall)/25);
+    console.log(getHeight(wall));
+    return settings_.wall_min*state_.wall_num[wall.id] + state_.wall_num[wall.id]*Math.floor((getHeight(wall) + 5)/25);
 }
 
 function isEquivalent(ami1, ami2) {
