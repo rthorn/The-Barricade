@@ -1343,7 +1343,7 @@ async function flash(element) {
     if (isAmi(element)) {
         element.style.color = "gold";
     } else {
-        element.style.background = "gold";
+        element.style.backgroundColor = "gold";
     }
     await sleep(100);
     if (isAmi(element)) {
@@ -1353,7 +1353,7 @@ async function flash(element) {
             element.style.color = "red";
         }
     } else {
-        element.style.background = "brown";
+        element.style.backgroundColor = "brown";
     }
 }
 

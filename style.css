@@ -274,7 +274,8 @@ h3 {
 }
 
 .chanvrerie {
-    background: brown;
+    background-clip: content-box;
+    background-color: brown;
     transition: background 0.05s ease-in-out;
     position: absolute;
     top: 32.1vw;
@@ -282,6 +283,10 @@ h3 {
     height: 16vw;
 	display: inline-block;
     text-align: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    margin-top: -30px;
+    margin-bottom: -30px;
 }
 
 #chanvrerie1 {
@@ -309,7 +314,8 @@ h3 {
 }
 
 .mondetour {
-    background: brown;
+    background-clip: content-box;
+    background-color: brown;
     transition: background 0.05s ease-in-out;
     position: absolute;
     width: 9.63vw;
@@ -317,6 +323,10 @@ h3 {
     transform: skewY(-20deg);
     display: inline-block;
     text-align: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    margin-top: -30px;
+    margin-bottom: -30px;
 }
 
 #mondetour1 {
@@ -330,13 +340,18 @@ h3 {
 }
 
 .precheurs {
-    background: brown;
+    background-clip: content-box;
+    background-color: brown;
     transition: background 0.1s ease-in-out;
     position: absolute;
     width: 9.63vw;
     height: 4vw;
     transform: skewY(20deg);
     text-align: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    margin-top: -30px;
+    margin-bottom: -30px;
 }
 
 #precheurs2 {
