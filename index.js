@@ -791,11 +791,11 @@ function setLabel(loc) {
         } else if (loc == refs_.scout) {
             refs_.scout_label.innerHTML = button + refs_.deathrisk + "Scout (+Foresight)";
         } else if (refs_.chanvrerie.has(loc)) {
-            refs_.chanvrerie_labels[loc.id].innerHTML = button + "Repair (+Wall)";
+            refs_.chanvrerie_labels[loc.id].innerHTML = button + "Build (+Wall)";
         } else if (refs_.mondetour.has(loc)) {
-            refs_.mondetour_labels[loc.id].innerHTML = button + "Repair (+Wall)";
+            refs_.mondetour_labels[loc.id].innerHTML = button + "Build (+Wall)";
         } else if (state_.precheurs_open && refs_.precheurs.has(loc)) {
-            refs_.precheurs_labels[loc.id].innerHTML = button + "Repair (+Wall)";
+            refs_.precheurs_labels[loc.id].innerHTML = button + "Build (+Wall)";
         }
     } else if (getWaveState() == WaveState.PREPARE) {
         if (loc == refs_.corinthe) {
