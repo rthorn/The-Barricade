@@ -737,6 +737,17 @@ function stackEnemies(enemy_loc) {
 function setWidth(ami) {
     ami.style.marginLeft = null;
     ami.style.marginRight = null;
+    if (specialLevel(ami, "Marius") && !isOnBarricade(ami)) {
+        for (const child of ami.children) {
+            if (child.id.includes("-mariuspower")) {
+                child.style.display = "none";
+                break;
+            }
+        }
+        if (!mariusButton) {
+            console.error("Could not find Marius button for: " + ami.id);
+        }
+    }
     if (getWaveState() == WaveState.RECOVER || ami.parentElement == document.body || ami.parentElement == refs_.lesamis) {
         return;
     }
