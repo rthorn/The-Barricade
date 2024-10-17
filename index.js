@@ -2726,8 +2726,8 @@ function prepareForNextWave() {
 }
 
 function revolution() {
-    $("#state").text("VIVE LA FRANCE!");
     $("#substate").text("You win! Refresh to play again (Wave " + getWave() + ")");
+    $("#state").text("VIVE LA FRANCE!");
     $("#reset").hide();
     $("#autofill").hide();
     $("#ready").hide();
