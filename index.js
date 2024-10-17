@@ -1398,7 +1398,9 @@ function enemyOpacity(yes) {
 }
 
 function getHeight(wall) {
-    return 100 * toVW(wall.offsetHeight) / settings_.max_height;
+    console.log(toVW(wall.offsetHeight));
+    console.log(toVW(wall.clientHeight));
+    return 100 * (toVW(wall.clientHeight) - toVW(60)) / settings_.max_height;
 }
 
 function setHeight(wall, value) {
