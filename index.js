@@ -550,7 +550,6 @@ function hasChildren(target) {
 }
 
 function wallMax(wall) {
-    console.log(getHeight(wall));
     return settings_.wall_min*state_.wall_num[wall.id] + state_.wall_num[wall.id]*Math.floor((getHeight(wall) + 5)/25);
 }
 
