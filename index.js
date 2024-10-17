@@ -1398,8 +1398,6 @@ function enemyOpacity(yes) {
 }
 
 function getHeight(wall) {
-    console.log(toVW(wall.offsetHeight));
-    console.log(toVW(wall.clientHeight));
     return 100 * (toVW(wall.clientHeight) - toVW(60)) / settings_.max_height;
 }
 
