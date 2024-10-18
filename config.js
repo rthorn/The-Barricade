@@ -3,7 +3,7 @@ var settings_ = {
 	"hope_drink": 10,
 	"hope_wave": 10,
 	"hope_death": 50,
-	"javert_hope": 100,
+	"javert_hope": 500,
 	"javert_chance": 10,
 	"initial_javert_chance": 2,
 	"wall_repair": 3,
