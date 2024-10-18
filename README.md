@@ -18,7 +18,7 @@ Waves of French soldiers are attacking your barricade. Before they arrive, you'l
 
 Once the battle begins, *amis* in Corinthe will not be able to leave and get on the barricade, but those on the barricade or not currently fighting will be able to move around freely.
 
-The battle will end when all enemies have fallen, the day is over, or any section of the barricade falls.
+The battle will end when all enemies have fallen, the day is over, or any section of the barricade falls. You earn increasing hope each time you complete a wave, however you lose hope any time an *ami* dies during battle.
 
 After the battle you have a chance to __Recover__. *Amis* can get ready for the coming wave in many ways: gathering ammo and food, repairing the barricade, scouting for information, healing their wounds, or just hanging out and drinking. 
 
@@ -35,7 +35,7 @@ Each named *ami* has a special ability that can be upgraded.
 
 Recruited citizens can be taught the special abilites of *amis* after the training upgrade has been purchased. Identical citizens will stack in some contexts, and an entire stack can be moved at once if the *Shift* button is held down while moving them.
 
-When recruiting citizens, it's possible for Javert to sneak in. He will be indistinguishable from citizens, but will sabotage any activity he is a part of. He can be dismissed from the barricade, gaining you 100 hope, but he may come back later.
+When recruiting citizens, it's possible for Javert to sneak in. He will be indistinguishable from citizens, but will sabotage any activity he is a part of. He can be dismissed from the barricade, gaining you 500 hope, but he may come back later.
 
 Eventually, enemies will attack from the west and the east in addition to attacking the central barricade, and they will start using snipers and cannons. Scouting will warn you where and what enemies will attack for the next wave, and will give you up to 3 wave notice when a new side will start being attacked.
 
