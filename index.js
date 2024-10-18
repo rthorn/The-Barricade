@@ -1241,7 +1241,7 @@ function autoFill() {
                 .sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b)* getHealthMax(b) ? -1 : 1);
         var high_dam = 
             [...getChildren(refs_.lesamis)]
-                .sort((a, b) => getDamage(a) < getDamage(b) ? -1 : 1);
+                .sort((a, b) => getDamage(a) < getDamage(b) ? -1 : getDamage(a) == getDamage(b) ? (getHealth(a) * getHealthMax(a) < getHealth(b)* getHealthMax(b) ? -1 : 1) : 1);
         if (state_.javert && state_.javert_label.textContent == "Javert" && high_health.includes(state_.javert)) {
             high_health.splice(high_health.indexOf(state_.javert), 1);
             high_dam.splice(high_dam.indexOf(state_.javert), 1);
