@@ -6,6 +6,7 @@ var settings_ = {
 	"javert_hope": 500,
 	"javert_chance": 10,
 	"initial_javert_chance": 2,
+	"initial_javert_threshold": 6,
 	"wall_repair": 3,
 	"max_height": 38.523,
 	"ami_damage": 3,
@@ -28,6 +29,7 @@ var settings_ = {
 	"starting_hope": 30,
 	"mondetour_opens": 7,
 	"precheurs_opens": 15,
+	"opening_variance": 2,
 	"upgrades": {
 		"training1": {
 			"description": "Unlock ability to train citizens with special abilities",

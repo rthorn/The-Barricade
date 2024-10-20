@@ -27,13 +27,17 @@ var state_ = {
     precheurs_open: false,
     javert: null,
     javert_label: null,
-    javert_dead: false
+    javert_dead: false,
+    after_precheurs_upgrades: [],
+    marius_buttons: new Set([])
 };
 
 var refs_ = {
     specialBonusLevels: [1.5, 2, 3, 5],
     reset_button: '<button type="button" class="resetButton" onClick="resetLoc(this)" hidden>&#x21bb;</button>',
-    deathrisk: '<div class="deathrisk" onmouseenter="showHovertext(event)" onmouseleave="hideHovertext(event)">&#x2620</div> '
+    deathrisk: '<div class="deathrisk" onmouseenter="showHovertext(event)" onmouseleave="hideHovertext(event)">&#x2620</div> ',
+    full_width: 'calc((100% - 4.82vw) / 2)',
+    half_width: 'calc((100% - 9.65vw) / 4)'
 };
 
 const WaveState = Object.freeze({
@@ -57,6 +61,13 @@ const UpgraderType = Object.freeze({
     SPECIAL: "SPECIAL"
 });
 
+const EnemyType = Object.freeze({
+    UNKNOWN: "Unknown",
+    SOLDIER: "Soldier",
+    SNIPER: "Sniper",
+    CANNON: "Cannon"
+});
+
 // Initialization
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -72,9 +83,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeVars() {
-    var ran = getRandomInt(5) - 2;
+    var ran = getRandomInt(settings_.opening_variance*2 + 1) - settings_.opening_variance;
     settings_.mondetour_opens += ran;
-    ran = getRandomInt(5) - 2;
+    ran = getRandomInt(settings_.opening_variance*2 + 1) - settings_.opening_variance;
     settings_.precheurs_opens += ran;
     Object.freeze(settings_);
 
@@ -107,6 +118,7 @@ function initializeVars() {
     }
     refs_.barricade = new Set([...refs_.chanvrerie, ...refs_.mondetour]);
     refs_.precheurs = new Set([document.getElementById('precheurs1'), document.getElementById('precheurs2')]);
+    refs_.precheurs_container = document.getElementById('precheurs');
     refs_.precheurs_labels = {};
     for (const wall of refs_.precheurs) {
         refs_.precheurs_labels[wall.id] = document.getElementById(wall.id + "-label");
@@ -152,6 +164,9 @@ function initializeUpgrades() {
             addNewUpgrade(upgrade);
         }
     }
+    for (const upg of ["corinthe-limit1", "corinthe-limit2", "open-building", "rightside-limit1", "rightside-limit2", "barricade-defense1", "barricade-defense2", "barricade-defense3", "auto-replace", "revolution"]) {
+        state_.after_precheurs_upgrades.push(document.getElementById(upg));
+    }
 }
 
 
@@ -191,16 +206,10 @@ function shuffle(array) {
     var shuffled = [...array];
     let currentIndex = shuffled.length;
 
-    // While there remain elements to shuffle...
     while (currentIndex != 0) {
-
-    // Pick a remaining element...
-    let randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [shuffled[currentIndex], shuffled[randomIndex]] = [
-      shuffled[randomIndex], shuffled[currentIndex]];
+        let randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [shuffled[currentIndex], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[currentIndex]];
     }
     return shuffled;
 }
@@ -272,13 +281,17 @@ function isScreen(element) {
     return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen;
 }
 
+function deathriskText() {
+    return "Has " + settings_.scout_death + "% chance of death";
+}
+
 async function showHovertext(e) {
     if (refs_.hovertext.style.display != "none") {
         return;
     }
     var target = e.target;
     if (e.target.className == "deathrisk") {
-        refs_.hovertext.innerHTML = "Has 1/5 chance of death"
+        refs_.hovertext.innerHTML = deathriskText();
     } else {
         while (!isAmi(target) && target && target.parentElement) {
             target = e.parentElement;
@@ -563,18 +576,18 @@ function isEquivalent(ami1, ami2) {
 function hasSpace(target) {
     if (getWaveState() == WaveState.RECOVER) {
         if (target == refs_.trainer) {
-            return target.children.length < 2;
+            return !hasChildren(refs_.trainer);
         }
         return state_.training || target != refs_.rightside;
     }
     if (refs_.barricade.has(target)) {
-        return target.children.length < wallMax(target) + 1;
+        return hasChildren(target) < wallMax(target);
     }
     if (target == refs_.corinthe) {
-        return target.children.length < state_.corinthe_max + 1;
+        return hasChildren(target) < state_.corinthe_max;
     }
     if (target == refs_.rightside) {
-        return target.children.length < state_.rightside_max + 2;
+        return hasChildren(target) < state_.rightside_max;
     }
     return true;
 }
@@ -686,9 +699,9 @@ function stackEnemies(enemy_loc) {
         }
         for (const type in settings_.enemies) {
             var width = loc.id.includes("mondetour") || loc.id.includes("precheurs") ? 3 : 14;
-            if (type == "Sniper") {
+            if (type == EnemyType.SNIPER) {
                 width = Math.floor(width * 2 / 3);
-            } else if (type == "Cannon") {
+            } else if (type == EnemyType.CANNON) {
                 width = Math.ceil(width * 1 / 3);
             }
             var total = 0;
@@ -744,9 +757,6 @@ function setWidth(ami) {
                 break;
             }
         }
-        if (!mariusButton) {
-            console.error("Could not find Marius button for: " + ami.id);
-        }
     }
     if (getWaveState() == WaveState.RECOVER || ami.parentElement == document.body || ami.parentElement == refs_.lesamis) {
         return;
@@ -754,16 +764,16 @@ function setWidth(ami) {
     if (isInBuilding(ami)) {
         var max = ami.parentElement == refs_.rightside ? state_.rightside_max : state_.corinthe_max;
         if (max == settings_.starting_building_limit) {
-            ami.style.marginLeft = "calc((100% - 4.815vw) / 2)";
-            ami.style.marginRight = "calc((100% - 4.815vw) / 2)";
+            ami.style.marginLeft = refs_.full_width;
+            ami.style.marginRight = refs_.full_width;
         } else if (max == (settings_.starting_building_limit * 2)) {
-            ami.style.marginLeft = "calc((100% - 9.65vw) / 4)";
-            ami.style.marginRight = "calc((100% - 9.65vw) / 4)";
+            ami.style.marginLeft = refs_.half_width;
+            ami.style.marginRight = refs_.half_width;
         }
     } else if (isOnBarricade(ami)) {
         if (state_.wall_num[ami.parentElement.id] == 1) {
-            ami.style.marginLeft = "calc((100% - 4.82vw) / 2)";
-            ami.style.marginRight = "calc((100% - 4.82vw) / 2)";
+            ami.style.marginLeft = refs_.full_width;
+            ami.style.marginRight = refs_.full_width;
         }
     }
 }
@@ -863,8 +873,9 @@ function newAmi(name) {
         power.className = "mariusButton";
         power.id = ami.id + "-mariuspower";
         power.onclick = function(){ mariusPower() };
-        power.textContent = "End wave (-200 ammo)";
+        power.textContent = "End wave (-500 ammo)";
         power.style.display = "none";
+        state_.marius_buttons.add(power);
         ami.appendChild(power);
     }
     if (!(getName(ami) in refs_.specials)) {
@@ -936,7 +947,7 @@ function addNewCitizen() {
     var ami = addNewAmi(id);
     stackChildren(refs_.lesamis);
     if (!state_.javert && !state_.javert_dead) {
-        var chance = i <= 6 ? settings_.initial_javert_chance : settings_.javert_chance;
+        var chance = i <= settings_.initial_javert_threshold ? settings_.initial_javert_chance : settings_.javert_chance;
         if (getRandomInt(100) < chance) {
             state_.javert = ami;
             for (const child of ami.children) {
@@ -980,7 +991,7 @@ function enableMondetour() {
 
 function enablePrecheurs() {
     state_.precheurs_open = true;
-    document.getElementById("precheurs").style.display = "inline-block";
+    refs_.precheurs_container.style.display = "inline-block";
     for (const wall of refs_.precheurs) {
         refs_.barricade.add(wall);
         refs_.ami_locations.add(wall);
@@ -990,12 +1001,7 @@ function enablePrecheurs() {
     for (const upgrade in settings_.upgrades) {
         if (upgrade.includes("precheurs")) {
             addNewUpgrade(upgrade);
-            for (const upg of ["corinthe-limit1", "corinthe-limit2", "open-building", "rightside-limit1", "rightside-limit2", "barricade-defense1", "barricade-defense2", "barricade-defense3", "auto-replace", "revolution"]) {
-                if (document.getElementById(upg)) {
-                    refs_.upgrade_screen.insertBefore(refs_.upgrade_screen.children[refs_.upgrade_screen.children.length - 1], document.getElementById(upg));
-                    break;
-                }
-            }
+            refs_.upgrade_screen.insertBefore(refs_.upgrade_screen.children[refs_.upgrade_screen.children.length - 1], state_.after_precheurs_upgrades[0]);
         }
     }
     refs_.lootammo.style.top = "0.803vw";
@@ -1499,8 +1505,8 @@ function setAmmo(value) {
     } else {
         refs_.ammo.style.color = "black";
     }
-    if (getAmmo() < 100 * 2*(state_.marius_uses + 1)) {
-        for (const button of getMariusButtons()) {
+    if (getAmmo() < mariusCost()) {
+        for (const button of state_.marius_buttons) {
             button.disabled = true;
         }
     }
@@ -1566,12 +1572,12 @@ function feedAmi(ami) {
 
 function mariusPower() {
     state_.marius_power = true;
-    setAmmo(getAmmo() - 500 * 2*(state_.marius_uses + 1));
+    setAmmo(getAmmo() - mariusCost());
     state_.marius_uses += 1;
 }
 
-function getMariusButtons() {
-    return document.querySelectorAll(".mariusButton");
+function mariusCost() {
+    return 500 * 2**state_.marius_uses;
 }
 
 function getHope() {
@@ -1656,6 +1662,13 @@ function die(person, attacker) {
         }
     }
     setHealth(person, 0);
+    if (specialLevel(person, "Marius")) {
+        for (const child of person.children) {
+            if (child.id.includes("-mariuspower")) {
+                state_.marius_buttons.delete(child);
+            }
+        }
+    }
     if (person == state_.javert) {
         state_.javert_dead = true;
         state_.javert = null;
@@ -1779,14 +1792,10 @@ function clearLabels() {
     }
 }
 
-function mariusCost() {
-    return 100 * (2*(state_.marius_uses + 1));
-}
-
 function updateProgress(i) {
     refs_.progress.style.width = (100 - (i + 1)/settings_.fire_per_wave*100).toString() + "%";
     if ((i >= settings_.fire_per_wave * 0.9)) {
-        for (const button of getMariusButtons()) {
+        for (const button of state_.marius_buttons) {
             if (refs_.barricade.has(button.parentElement.parentElement)) {
                 if (getAmmo() >= mariusCost()) {
                     button.disabled = false;
@@ -1797,7 +1806,7 @@ function updateProgress(i) {
         }
     }
     if ((i >= settings_.fire_per_wave * 0.75)) {
-        for (const button of getMariusButtons()) {
+        for (const button of state_.marius_buttons) {
             if (refs_.barricade.has(button.parentElement.parentElement) && specialLevel(button.parentElement, "Marius") >= 2) {
                 if (getAmmo() >= mariusCost()) {
                     button.disabled = false;
@@ -1808,7 +1817,7 @@ function updateProgress(i) {
         }
     }
     if ((i >= settings_.fire_per_wave * 0.5)) {
-        for (const button of getMariusButtons()) {
+        for (const button of state_.marius_buttons) {
             if (refs_.barricade.has(button.parentElement.parentElement) && specialLevel(button.parentElement, "Marius") >= 3) {
                 if (getAmmo() >= mariusCost()) {
                     button.disabled = false;
@@ -1819,7 +1828,7 @@ function updateProgress(i) {
         }
     }
     if ((i >= settings_.fire_per_wave * 0.4)) {
-        for (const button of getMariusButtons()) {
+        for (const button of state_.marius_buttons) {
             if (refs_.barricade.has(button.parentElement.parentElement) && specialLevel(button.parentElement, "Marius") >= 4) {
                 if (getAmmo() >= mariusCost()) {
                     button.disabled = false;
@@ -1865,7 +1874,7 @@ function enemiesPerWave(type, wave) {
 
 function addEnemies(type, wave, foresight = false) {
     for (let i = 1; i <= enemiesPerWave(type, wave); i++) {
-        if (type == "Soldier") {
+        if (type == EnemyType.SOLDIER) {
             addNewEnemy(type, refs_.lesenemies2);
         } else {
             addNewEnemy(type, refs_.lesenemies1);
@@ -1876,7 +1885,7 @@ function addEnemies(type, wave, foresight = false) {
     var precheurs = side ? wave - settings_.precheurs_opens + 2 : wave - settings_.mondetour_opens + 2;
     if (state_.mondetour_open) {
         for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
-            if (type == "Soldier") {
+            if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemiesmondetour2);
             } else {
                 addNewEnemy(type, refs_.lesenemiesmondetour1);
@@ -1884,7 +1893,7 @@ function addEnemies(type, wave, foresight = false) {
         }
     } else if (foresight) {
         for (let i = 1; i <= enemiesPerWave(type, 2); i++) {
-            if (type == "Soldier") {
+            if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemiesmondetour2);
             } else {
                 addNewEnemy(type, refs_.lesenemiesmondetour1);
@@ -1895,7 +1904,7 @@ function addEnemies(type, wave, foresight = false) {
     }
     if (state_.precheurs_open) {
         for (let i = 1; i <= enemiesPerWave(type, precheurs); i++) {
-            if (type == "Soldier") {
+            if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemiesprecheurs2);
             } else {
                 addNewEnemy(type, refs_.lesenemiesprecheurs1);
@@ -1903,7 +1912,7 @@ function addEnemies(type, wave, foresight = false) {
         }
     } else if (foresight) {
         for (let i = 1; i <= enemiesPerWave(type, 2); i++) {
-            if (type == "Soldier") {
+            if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemiesprecheurs2);
             } else {
                 addNewEnemy(type, refs_.lesenemiesprecheurs1);
@@ -1983,7 +1992,7 @@ async function startWave() {
             addNewRecruit(name);
         }
     }
-    for (const button of getMariusButtons()) {
+    for (const button of state_.marius_buttons) {
         button.style.display = "none";
         button.disabled = true;
     }
@@ -2013,13 +2022,13 @@ function barricadeFor(enemy_loc) {
 
 function enemyFire(i) {
     for (const enemy of getEnemies()) {
-        if (getName(enemy) == "Cannon" && i < 5) {
+        if (getName(enemy) == EnemyType.CANNON && i < 5) {
           continue;
         }
         if (i%getSpeed(enemy) != (Math.floor(getSpeed(enemy)/2) + 3*getNumber(enemy))%getSpeed(enemy)) {
             continue;
         }
-        if (getName(enemy) != "Cannon" && !hit(enemy)) {
+        if (getName(enemy) != EnemyType.CANNON && !hit(enemy)) {
           continue;
         }
         var options = [...barricadeFor(enemy.parentElement)];
@@ -2048,9 +2057,9 @@ function enemyFire(i) {
             }
         }
         var wall = options.random();
-        if ((getName(enemy) == "Soldier" && hitWall(wall)) || getName(enemy) == "Cannon") {
+        if ((getName(enemy) == EnemyType.SOLDIER && hitWall(wall)) || getName(enemy) == EnemyType.CANNON) {
             damageWall(wall, enemy);
-            if (getName(enemy) == "Cannon") {
+            if (getName(enemy) == EnemyType.CANNON) {
                 flash(wall);
                 for (const ami of getChildren(wall)) {
                     damage(ami, enemy);
@@ -2060,8 +2069,8 @@ function enemyFire(i) {
                 stackChildren(refs_.lesamis);
             }
         } else {
-            var options = getName(enemy) == "Sniper" ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall);
-            for (const child of getName(enemy) == "Sniper" ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall)) {
+            var options = getName(enemy) == EnemyType.SNIPER ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall);
+            for (const child of getName(enemy) == EnemyType.SNIPER ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall)) {
                 if (specialLevel(child, "Bossuet") >= 1) {
                     for (var j = 0; j < 1; j++) {
                         options.push(child);
@@ -2102,7 +2111,7 @@ function enemyFire(i) {
                     stackChildren(refs_.lesamis);
                 }
             }
-            if (getName(enemy) == "Sniper") {
+            if (getName(enemy) == EnemyType.SNIPER) {
                 flash(hitAmi);
             }
         }
@@ -2399,6 +2408,9 @@ function upgradeMe(ev) {
     if ("unlocks" in settings_.upgrades[name]) {
         refs_.upgrade_screen.insertBefore(newUpgrade(settings_.upgrades[name].unlocks), ev.target.parentElement);
     }
+    if (state_.after_precheurs_upgrades.includes(ev.target.parentElement)) {
+        state_.after_precheurs_upgrades.splice(state_.after_precheurs_upgrades.indexOf(ev.target.parentElement), 1);
+    }
     ev.target.parentElement.remove();
     updateUpgrade();
 
@@ -2530,7 +2542,12 @@ function resolveRecover() {
                         if (refs_.specials[sp].includes(existing) && refs_.specials[sp].includes(special)) {
                             state_.learned_specials[ami.id].splice(state_.learned_specials[ami.id].indexOf(existing), 1);
                             if (sp == "Marius") {
-                                document.getElementById(ami.id + "-mariusPower").remove();
+                                for (const child of ami.children) {
+                                    if (child.id.includes("-mariuspower")) {
+                                        state_.marius_buttons.delete(child);
+                                        child.remove();
+                                    }
+                                }
                             }
                             found = true;
                             break;
@@ -2543,7 +2560,12 @@ function resolveRecover() {
                 while (state_.learned_specials[ami.id].length >= state_.training) {
                     var remove = getRandomInt(state_.training);
                     if (refs_.specials["Marius"].includes(state_.learned_specials[ami.id][remove])) {
-                        document.getElementById(ami.id + "-mariusPower").remove();
+                        for (const child of ami.children) {
+                            if (child.id.includes("-mariuspower")) {
+                                state_.marius_buttons.delete(child);
+                                child.remove();
+                            }
+                        }
                     }
                     state_.learned_specials[ami.id].splice(remove, 1);
                 }
@@ -2558,6 +2580,7 @@ function resolveRecover() {
                 power.onclick = function(){ mariusPower() };
                 power.textContent = "End wave (-" + mariusCost() + " ammo)";
                 power.style.display = "none";
+                state_.marius_buttons.add(power);
                 ami.appendChild(power);
             }
             updateStats(ami);

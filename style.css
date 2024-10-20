@@ -600,7 +600,7 @@ button[type=button]:enabled {
     width: 4.815vw;
     height: 2.25vw;
     margin-top: .16vw;
-    margin-left: 0.4vw;
+    margin-left: 0vw;
     position: absolute;
     padding: 0.08vw;
     font-size: 0.64vw;
