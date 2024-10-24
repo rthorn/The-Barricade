@@ -1415,6 +1415,17 @@ function setHeight(wall, value) {
         return;
     }
     wall.style.top = (9.63 + settings_.max_height - pixels) + "vw";
+    if (wallMax(wall) == state_.wall_num[wall.id]) {
+        wall.style.filter = "brightness(120%)";
+    } else if (wallMax(wall) == 2 * state_.wall_num[wall.id]) {
+        wall.style.filter = "brightness(110%)";
+    } else if (wallMax(wall) == 3 * state_.wall_num[wall.id]) {
+        wall.style.filter = "brightness(100%)";
+    } else if (wallMax(wall) == 4 * state_.wall_num[wall.id]) {
+        wall.style.filter = "brightness(95%)";
+    } else {
+        wall.style.filter = "brightness(90%)";
+    }
 }
 
 function getHealthDiv(person) {
