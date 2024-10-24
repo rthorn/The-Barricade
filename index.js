@@ -380,7 +380,7 @@ $(document).on('mouseup', function(e) {
 });
 
 function mouseMove(e) {
-    if (!state_.data_transfer.length) {
+    if (!state_.data_transfer.length || e.clientY <= 0 || e.clientX <= 0 || (e.clientX >= window.innerWidth || e.clientY >= window.innerHeight)) {
         return;
     }
     var diffX = e.screenX - state_.last_mouse[0];
