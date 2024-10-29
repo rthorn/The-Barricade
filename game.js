@@ -2225,7 +2225,13 @@ function transitionToRecover() {
     resetAmis();
     $("#substate").text("Recover");
     $("#ready").text("Ready")
-    refs_.ready.onclick = function(){ prepareForNextWave() };
+    refs_.ready.onclick = function(){
+        disableButtons();
+        for (const loc of refs_.ami_locations) {
+            freezeDragging(loc);
+        }
+        prepareForNextWave()
+    };
     $("#reset").show();
     $("#autofill").show();
     $("#ready").show();
@@ -2494,127 +2500,189 @@ function closeUpgrade() {
     reenableButtons();
 }
 
-function resolveRecover() {
-    var amis = [];
-    var javert_loc = null;
-    if (state_.javert) {
-        javert_loc = state_.javert.parentElement;
-        for (const ami of getChildren(javert_loc)) {
-            if (ami == state_.javert) {
-                continue;
-            }
-            if (sl = specialLevel(ami, "Gavroche")) {
-                if (getRandomInt(100) < 25 * sl) {
-                    state_.javert_label.textContent = "Javert";
-                    break;
-                }
-            }
-        }
-    }
-    for (const wall of refs_.barricade) {
-        if (wall == javert_loc) {
-            continue;
-        }
-        wallAdjust(wall, hasChildren(wall) * settings_.wall_repair, true);
-        for (const child of getChildren(wall)) {
-            if (specialLevel(child, "Feuilly")) {
-                wallAdjust(wall, (refs_.specialBonusLevels[specialLevel(child, "Feuilly") - 1] - 1) * settings_.wall_repair, true);
-            }
-        }
-    }
-    if (javert_loc != refs_.corinthe) {
-        for (const ami of getChildren(refs_.corinthe)) {
-            var heal_amount = 50;
-            var temp_damage_amount = 20;
-            for (const child of getChildren(refs_.corinthe)) {
-                if (sl = specialLevel(child, "Courfeyrac")) {
-                    temp_damage_amount += 5 * sl;
-                    heal_amount += 5 * sl;
-                }
-            }
-            heal(ami, heal_amount);
-            state_.temp_damage[ami.id] = temp_damage_amount / 100;
-            updateStats(ami);
-        }
-    }
-    var special = ""
-    if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
-        special = refs_.specials[getName(getChildren(refs_.trainer)[0])][specialLevel(getChildren(refs_.trainer)[0], getChildren(refs_.trainer)[0].id) - 1];
-        for (const ami of getChildren(refs_.rightside)) {
-            if (!(ami.id in state_.learned_specials)) {
-                state_.learned_specials[ami.id] = [special];
-            } else {
-                if (special in state_.learned_specials[ami.id]) {
+async function resolveRecover() {
+    var ran = getRandomInt(settings_.recover_animation_length);
+    for (var i = 0; i < settings_.recover_animation_length; i++) {
+        var amis = [];
+        var javert_loc = null;
+        if (state_.javert && i == ran) {
+            javert_loc = state_.javert.parentElement;
+            for (const ami of getChildren(javert_loc)) {
+                if (ami == state_.javert) {
                     continue;
                 }
-                for (const existing of state_.learned_specials[ami.id]) {
-                    var found = false;
-                    for (const sp in refs_.specials) {
-                        if (refs_.specials[sp].includes(existing) && refs_.specials[sp].includes(special)) {
-                            state_.learned_specials[ami.id].splice(state_.learned_specials[ami.id].indexOf(existing), 1);
-                            if (sp == "Marius") {
-                                for (const child of ami.children) {
-                                    if (child.id.includes("-mariuspower")) {
-                                        state_.marius_buttons.delete(child);
-                                        child.remove();
-                                    }
-                                }
-                            }
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found) {
+                if (sl = specialLevel(ami, "Gavroche")) {
+                    if (getRandomInt(100) < 25 * sl) {
+                        state_.javert_label.textContent = "Javert";
                         break;
                     }
                 }
-                while (state_.learned_specials[ami.id].length >= state_.training) {
-                    var remove = getRandomInt(state_.training);
-                    if (refs_.specials["Marius"].includes(state_.learned_specials[ami.id][remove])) {
-                        for (const child of ami.children) {
-                            if (child.id.includes("-mariuspower")) {
-                                state_.marius_buttons.delete(child);
-                                child.remove();
+            }
+        }
+        for (const wall of refs_.barricade) {
+            if (wall == javert_loc) {
+                continue;
+            }
+            wallAdjust(wall, hasChildren(wall) * settings_.wall_repair / settings_.recover_animation_length, true);
+            for (const child of getChildren(wall)) {
+                if (specialLevel(child, "Feuilly")) {
+                    wallAdjust(wall, (refs_.specialBonusLevels[specialLevel(child, "Feuilly") - 1] - 1) * settings_.wall_repair / settings_.recover_animation_length, true);
+                }
+            }
+        }
+        if (javert_loc != refs_.corinthe) {
+            for (const ami of getChildren(refs_.corinthe)) {
+                var heal_amount = 50;
+                var temp_damage_amount = 20;
+                for (const child of getChildren(refs_.corinthe)) {
+                    if (sl = specialLevel(child, "Courfeyrac")) {
+                        temp_damage_amount += 5 * sl;
+                        heal_amount += 5 * sl;
+                    }
+                }
+                heal(ami, heal_amount / settings_.recover_animation_length);
+                state_.temp_damage[ami.id] = temp_damage_amount * (i + 1) / settings_.recover_animation_length / 100;
+                updateStats(ami);
+            }
+        }
+        var special = ""
+        if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
+            special = refs_.specials[getName(getChildren(refs_.trainer)[0])][specialLevel(getChildren(refs_.trainer)[0], getChildren(refs_.trainer)[0].id) - 1];
+            var num = -1;
+            for (const ami of getChildren(refs_.rightside)) {
+                num += 1;
+                if (num%settings_.recover_animation_length != i) {
+                    continue;
+                }
+                if (!(ami.id in state_.learned_specials)) {
+                    state_.learned_specials[ami.id] = [special];
+                } else {
+                    if (special in state_.learned_specials[ami.id]) {
+                        continue;
+                    }
+                    for (const existing of state_.learned_specials[ami.id]) {
+                        var found = false;
+                        for (const sp in refs_.specials) {
+                            if (refs_.specials[sp].includes(existing) && refs_.specials[sp].includes(special)) {
+                                state_.learned_specials[ami.id].splice(state_.learned_specials[ami.id].indexOf(existing), 1);
+                                if (sp == "Marius") {
+                                    for (const child of ami.children) {
+                                        if (child.id.includes("-mariuspower")) {
+                                            state_.marius_buttons.delete(child);
+                                            child.remove();
+                                        }
+                                    }
+                                }
+                                found = true;
+                                break;
                             }
                         }
+                        if (found) {
+                            break;
+                        }
                     }
-                    state_.learned_specials[ami.id].splice(remove, 1);
+                    while (state_.learned_specials[ami.id].length >= state_.training) {
+                        var remove = getRandomInt(state_.training);
+                        if (refs_.specials["Marius"].includes(state_.learned_specials[ami.id][remove])) {
+                            for (const child of ami.children) {
+                                if (child.id.includes("-mariuspower")) {
+                                    state_.marius_buttons.delete(child);
+                                    child.remove();
+                                }
+                            }
+                        }
+                        state_.learned_specials[ami.id].splice(remove, 1);
+                    }
+                    state_.learned_specials[ami.id].push(special);
+                    state_.learned_specials[ami.id] = state_.learned_specials[ami.id].sort();
                 }
-                state_.learned_specials[ami.id].push(special);
-                state_.learned_specials[ami.id] = state_.learned_specials[ami.id].sort();
+                if (refs_.specials["Marius"].includes(special)) {
+                    var power = document.createElement("button");
+                    power.type = "button";
+                    power.className = "mariusButton";
+                    power.id = ami.id + "-mariuspower";
+                    power.onclick = function(){ mariusPower() };
+                    power.textContent = "End wave (-" + mariusCost() + " ammo)";
+                    power.style.display = "none";
+                    state_.marius_buttons.add(power);
+                    ami.appendChild(power);
+                }
+                updateStats(ami);
             }
-            if (refs_.specials["Marius"].includes(special)) {
-                var power = document.createElement("button");
-                power.type = "button";
-                power.className = "mariusButton";
-                power.id = ami.id + "-mariuspower";
-                power.onclick = function(){ mariusPower() };
-                power.textContent = "End wave (-" + mariusCost() + " ammo)";
-                power.style.display = "none";
-                state_.marius_buttons.add(power);
-                ami.appendChild(power);
-            }
-            updateStats(ami);
         }
-    }
-    if (javert_loc != refs_.lesamis) {
-        for (const ami of getChildren(refs_.lesamis)) {
-            if (getFood() > 0) {
-                setHope(getHope() + settings_.hope_drink);
-                if (specialLevel(ami, "Grantaire")) {
-                    setHope(getHope() + Math.ceil((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * settings_.hope_drink));
+        if (javert_loc != refs_.lesamis) {
+            for (const ami of getChildren(refs_.lesamis)) {
+                if (getFood() > 0) {
+                    setHope(getHope() + Math.floor(settings_.hope_drink * (i + 1) / settings_.recover_animation_length) - Math.floor(settings_.hope_drink * i / settings_.recover_animation_length));
+                    if (specialLevel(ami, "Grantaire")) {
+                        setHope(getHope() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * settings_.hope_drink * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * settings_.hope_drink * i / settings_.recover_animation_length));
+                    }
                 }
             }
         }
-    }
-    for (const ami of getChildren(refs_.lootfood)) {
-        if (javert_loc != refs_.lootfood) {
-            setFood(getFood() + settings_.loot_food);
-            if (specialLevel(ami, "Joly")) {
-                setFood(getFood() + (refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * settings_.loot_food);
+        var num = -1;
+        for (const ami of getChildren(refs_.lootfood)) {
+            num += 1;
+            if (javert_loc != refs_.lootfood) {
+                setFood(getFood() + Math.floor(settings_.loot_food * (i + 1) / settings_.recover_animation_length) - Math.floor(settings_.loot_food * i / settings_.recover_animation_length));
+                if (specialLevel(ami, "Joly")) {
+                    setFood(getFood() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * settings_.loot_food * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * settings_.loot_food * i / settings_.recover_animation_length));
+                }
+            }
+            if (state_.precheurs_open && (i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
+                var chance = settings_.scout_death;
+                if (specialLevel(ami, "Thenardier")) {
+                    chance = chance - chance / 4 * specialLevel(ami, "Thenardier");
+                }
+                if (ami == state_.javert) {
+                    chance = 0;
+                }
+                if (getRandomInt(100) < chance) {
+                    die(ami);
+                    continue;
+                }
             }
         }
-        if (state_.precheurs_open) {
+        num = -1;
+        for (const ami of getChildren(refs_.lootammo)) {
+            num += 1;
+            if (javert_loc != refs_.lootammo) {
+                setAmmo(getAmmo() + Math.floor(settings_.loot_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(settings_.loot_ammo * i / settings_.recover_animation_length));
+                if (specialLevel(ami, "Combeferre")) {
+                    setAmmo(getAmmo() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * settings_.loot_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * settings_.loot_ammo * i / settings_.recover_animation_length));
+                }
+            }
+            if (state_.precheurs_open && (i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
+                var chance = settings_.scout_death;
+                if (specialLevel(ami, "Thenardier")) {
+                    chance = chance - chance / 4 * specialLevel(ami, "Thenardier");
+                }
+                if (ami == state_.javert) {
+                    chance = 0;
+                }
+                if (getRandomInt(100) < chance) {
+                    die(ami);
+                    continue;
+                }
+            }
+        }
+        if (!state_.precheurs_open && i == (ran + 8) % settings_.recover_animation_length) {
+            for (const ami of getChildren(refs_.dismiss)) {
+                if (ami == state_.javert) {
+                    setHope(getHope() + settings_.javert_hope);
+                    state_.javert = null;
+                    state_.javert_label = null;
+                }
+                ami.remove();
+            }
+        }
+        state_.foresight = false;
+        num = -1;
+        for (const ami of getChildren(refs_.scout)) {
+            num += 1;
+            if (i != (settings_.recover_animation_length + ran + num - 1) % settings_.recover_animation_length) {
+                continue;
+            }
             var chance = settings_.scout_death;
             if (specialLevel(ami, "Thenardier")) {
                 chance = chance - chance / 4 * specialLevel(ami, "Thenardier");
@@ -2626,59 +2694,15 @@ function resolveRecover() {
                 die(ami);
                 continue;
             }
-        }
-    }
-    for (const ami of getChildren(refs_.lootammo)) {
-        if (javert_loc != refs_.lootammo) {
-            setAmmo(getAmmo() + settings_.loot_ammo);
-            if (specialLevel(ami, "Combeferre")) {
-                setAmmo(getAmmo() + (refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * settings_.loot_ammo);
+            if (javert_loc != refs_.scout) {
+                state_.foresight = true;
             }
         }
-        if (state_.precheurs_open) {
-            var chance = settings_.scout_death;
-            if (specialLevel(ami, "Thenardier")) {
-                chance = chance - chance / 4 * specialLevel(ami, "Thenardier");
-            }
-            if (ami == state_.javert) {
-                chance = 0;
-            }
-            if (getRandomInt(100) < chance) {
-                die(ami);
-                continue;
-            }
-        }
-    }
-    if (!state_.precheurs_open) {
-        for (const ami of getChildren(refs_.dismiss)) {
-            if (ami == state_.javert) {
-                setHope(getHope() + settings_.javert_hope);
-                state_.javert = null;
-                state_.javert_label = null;
-            }
-            ami.remove();
-        }
-    }
-    state_.foresight = false;
-    for (const ami of getChildren(refs_.scout)) {
-        var chance = settings_.scout_death;
-        if (specialLevel(ami, "Thenardier")) {
-            chance = chance - chance / 4 * specialLevel(ami, "Thenardier");
-        }
-        if (ami == state_.javert) {
-            chance = 0;
-        }
-        if (getRandomInt(100) < chance) {
-            die(ami);
-            continue;
-        }
-        if (javert_loc != refs_.scout) {
-            state_.foresight = true;
-        }
+        await sleep(settings_.recover_sleep_ms);
     }
 }
 
-function prepareForNextWave() {
+async function prepareForNextWave() {
     $("#substate").text("Prepare");
     refs_.lesamis.style.border = "0.08vw dotted lightgray";
     $("#state").text("Wave " + (getWave() + 1));
@@ -2696,7 +2720,7 @@ function prepareForNextWave() {
     for (const upgrader of document.querySelectorAll(".upgrader")) {
         upgrader.style.display = "none";
     }
-    resolveRecover();
+    await resolveRecover();
     if (!state_.mondetour_open) {
         while (refs_.lesenemiesmondetour2.children.length) {
             refs_.lesenemiesmondetour2.firstChild.remove();
@@ -2756,6 +2780,10 @@ function prepareForNextWave() {
     }
     if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace())) {
         refs_.autofill.disabled = true;
+    }
+    reenableButtons();
+    for (const loc of refs_.ami_locations) {
+        unfreezeDragging(loc);
     }
 }
 

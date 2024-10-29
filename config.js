@@ -22,6 +22,8 @@ var settings_ = {
 	"ammo_use": 1,
 	"sleep_ms": 500,
 	"fire_per_wave": 30,
+	"recover_animation_length": 20,
+	"recover_sleep_ms": 100,
 	"starting_recruit_limit": 20,
 	"starting_building_limit": 6,
 	"starting_food": 40,
