@@ -1065,15 +1065,15 @@ function newUpgrade(name) {
 
 function newUpgrader(ami, type) {
     var desc = "";
-    var cost = 20;
+    var cost = settings_.base_upgrade_cost;
     var cost_type = CostType.UNKNOWN;
     if (type == UpgraderType.DAMAGE) {
         cost_type = CostType.AMMO;
-        cost *= 5 * 3 ** ((getDamage(ami) - 0.5) / 0.5 - 1);
+        cost *= 5 * 2 ** ((getDamage(ami) - 0.5) / 0.5 - 1);
         desc = ami.id + " damage: " + getDamage(ami) + " -&gt " + (getDamage(ami) + 0.5);
     } else if (type == UpgraderType.HEALTH) {
         cost_type = CostType.FOOD;
-        cost *= 3 ** ((getHealthMax(ami) - 0.75) / 0.25 - 1);
+        cost *= 2 ** ((getHealthMax(ami) - 0.75) / 0.25 - 1);
         desc = ami.id + " health: " + getHealthMax(ami) + " -&gt " + (getHealthMax(ami) + 0.25);
     } else if (type == UpgraderType.SPECIAL) {
         cost_type = CostType.HOPE;
@@ -1368,9 +1368,9 @@ function transitionToNight() {
     refs_.ammolabel.style.color = "white";
     refs_.foodlabel.style.color = "white";
     refs_.hopelabel.style.color = "white";
-    refs_.ammo.style.color = getAmmo() > 200 ? "white" : "red";
-    refs_.food.style.color = getFood() > 20 ? "white" : "red";
-    refs_.hope.style.color = getHope() > 20 ? "white" : "red";
+    refs_.ammo.style.color = getAmmo() > settings_.ammo_warning_threshold ? "white" : "red";
+    refs_.food.style.color = getFood() > settings_.food_warning_threshold ? "white" : "red";
+    refs_.hope.style.color = getHope() > settings_.hope_warning_threshold ? "white" : "red";
     refs_.title.style.color = "white";
     refs_.state.style.color = "white";
     refs_.substate.style.color = "white";
@@ -1385,9 +1385,9 @@ function transitionToDawn() {
     refs_.ammolabel.style.color = "black";
     refs_.foodlabel.style.color = "black";
     refs_.hopelabel.style.color = "black";
-    refs_.ammo.style.color = getAmmo() > 200 ? "black" : "red";
-    refs_.food.style.color = getFood() > 20 ? "black" : "red";
-    refs_.hope.style.color = getHope() > 20 ? "black" : "red";
+    refs_.ammo.style.color = getAmmo() > settings_.ammo_warning_threshold ? "black" : "red";
+    refs_.food.style.color = getFood() > settings_.food_warning_threshold ? "black" : "red";
+    refs_.hope.style.color = getHope() > settings_.hope_warning_threshold ? "black" : "red";
     refs_.title.style.color = "black";
     refs_.state.style.color = "black";
     refs_.substate.style.color = "black";
@@ -1541,7 +1541,7 @@ function getAmmo() {
 
 function setAmmo(value) {
     refs_.ammo.textContent = Math.max(value, 0).toString();
-    if (value <= 200) {
+    if (value <= settings_.ammo_warning_threshold) {
         refs_.ammo.style.color = "red";
     } else {
         refs_.ammo.style.color = getWaveState() == WaveState.RECOVER ? "white" : "black";
@@ -1568,7 +1568,7 @@ function getFood() {
 
 function setFood(value) {
     refs_.food.textContent = Math.max(value, 0).toString();
-    if (value <= 20) {
+    if (value <= settings_.food_warning_threshold) {
         refs_.food.style.color = "red";
     } else {
         refs_.food.style.color = getWaveState() == WaveState.RECOVER ? "white" : "black";
@@ -1627,7 +1627,7 @@ function getHope() {
 
 function setHope(value) {
     refs_.hope.textContent = Math.max(value, 0).toString();
-    if (value <= 20) {
+    if (value <= settings_.hope_warning_threshold) {
         refs_.hope.style.color = "red";
     } else {
         refs_.hope.style.color = getWaveState() == WaveState.RECOVER ? "white" : "black";

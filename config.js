@@ -32,6 +32,10 @@ var settings_ = {
 	"mondetour_opens": 7,
 	"precheurs_opens": 15,
 	"opening_variance": 2,
+	"base_upgrade_cost": 20,
+	"ammo_warning_threshold": 200,
+	"food_warning_threshold": 20,
+	"hope_warning_threshold": 20,
 	"upgrades": {
 		"training1": {
 			"description": "Unlock ability to train citizens with special abilities",
