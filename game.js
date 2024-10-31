@@ -99,7 +99,7 @@ function initializeVars() {
         refs_.ami_locations.add(refs_[name]);
         state_.droppable.add(refs_[name]);
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext']) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel']) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
     }
     refs_.chanvrerie = new Set([document.getElementById('chanvrerie1'), document.getElementById('chanvrerie2'), document.getElementById('chanvrerie3')]);
@@ -1363,6 +1363,36 @@ async function flash(element) {
     }
 }
 
+function transitionToNight() {
+    document.body.style.backgroundColor = "black";
+    refs_.ammolabel.style.color = "white";
+    refs_.foodlabel.style.color = "white";
+    refs_.hopelabel.style.color = "white";
+    refs_.ammo.style.color = getAmmo() > 200 ? "white" : "red";
+    refs_.food.style.color = getFood() > 20 ? "white" : "red";
+    refs_.hope.style.color = getHope() > 20 ? "white" : "red";
+    refs_.title.style.color = "white";
+    refs_.state.style.color = "white";
+    refs_.substate.style.color = "white";
+}
+
+function transitionToDay() {
+    document.body.style.backgroundColor = "white";
+}
+
+function transitionToDawn() {
+    document.body.style.backgroundColor = "palegoldenrod";
+    refs_.ammolabel.style.color = "black";
+    refs_.foodlabel.style.color = "black";
+    refs_.hopelabel.style.color = "black";
+    refs_.ammo.style.color = getAmmo() > 200 ? "black" : "red";
+    refs_.food.style.color = getFood() > 20 ? "black" : "red";
+    refs_.hope.style.color = getHope() > 20 ? "black" : "red";
+    refs_.title.style.color = "black";
+    refs_.state.style.color = "black";
+    refs_.substate.style.color = "black";
+}
+
 function resetLoc(button) {
     refs_.autofill.disabled = false;
     for (const child of getChildren(button.parentElement.parentElement)) {
@@ -1511,10 +1541,10 @@ function getAmmo() {
 
 function setAmmo(value) {
     refs_.ammo.textContent = Math.max(value, 0).toString();
-    if (value < 200) {
+    if (value <= 200) {
         refs_.ammo.style.color = "red";
     } else {
-        refs_.ammo.style.color = "black";
+        refs_.ammo.style.color = getWaveState() == WaveState.RECOVER ? "white" : "black";
     }
     if (getAmmo() < mariusCost()) {
         for (const button of state_.marius_buttons) {
@@ -1538,10 +1568,10 @@ function getFood() {
 
 function setFood(value) {
     refs_.food.textContent = Math.max(value, 0).toString();
-    if (value < 20) {
+    if (value <= 20) {
         refs_.food.style.color = "red";
     } else {
-        refs_.food.style.color = "black";
+        refs_.food.style.color = getWaveState() == WaveState.RECOVER ? "white" : "black";
     }
     if (!value) {
         refs_.lesamis_label.style.color = "red";
@@ -1600,7 +1630,7 @@ function setHope(value) {
     if (value <= 20) {
         refs_.hope.style.color = "red";
     } else {
-        refs_.hope.style.color = "black";
+        refs_.hope.style.color = getWaveState() == WaveState.RECOVER ? "white" : "black";
     }
 }
 
@@ -1968,10 +1998,12 @@ async function startWave() {
     $("#ready").hide();
     $("#reset").hide();
     $("#autofill").hide();
-    $("#substate").text("Fight!");
     freezeDragging(refs_.corinthe);
     freezeDragging(refs_.rightside);
     enemyOpacity(true);
+    transitionToDay();
+    await sleep(300);
+    $("#substate").text("Fight!");
     if (!refs_.lesenemies2.children.length) {
         initEnemies();
     }
@@ -2161,6 +2193,7 @@ function barricadeFire() {
 }
 
 function transitionToRecover() {
+    transitionToNight();
     if (state_.data_transfer.length) {
         document.removeEventListener('mousemove', mouseMove);
     }
@@ -2185,6 +2218,7 @@ function transitionToRecover() {
             setHealth(ami, getHealth(ami) + 25 * sl);
         }
     }
+    $("#substate").text("Recover");
     refs_.lesamis.style.border = "solid";
     var bonus = 0;
     var hope_wave = settings_.hope_wave + getWave()*settings_.hope_wave;
@@ -2223,7 +2257,6 @@ function transitionToRecover() {
         }
     }
     resetAmis();
-    $("#substate").text("Recover");
     $("#ready").text("Ready")
     refs_.ready.onclick = function(){
         disableButtons();
@@ -2321,8 +2354,12 @@ function disableButtons() {
     refs_.autofill.style.pointerEvents = "none";
     refs_.reset.style.pointerEvents = "none";
     refs_.ready.style.pointerEvents = "none";
+    refs_.hovertext.style.visibility = "hidden";
     for (const upgrader of document.querySelectorAll(".upgrader")) {
         upgrader.style.pointerEvents = "none";
+    }
+    for (const button of document.querySelectorAll(".resetButton")) {
+        button.style.visibility = "hidden";
     }
 }
 
@@ -2333,8 +2370,12 @@ function reenableButtons() {
     refs_.autofill.style.pointerEvents = "auto";
     refs_.reset.style.pointerEvents = "auto";
     refs_.ready.style.pointerEvents = "auto";
+    refs_.hovertext.style.visibility = "visible";
     for (const upgrader of document.querySelectorAll(".upgrader")) {
         upgrader.style.pointerEvents = "auto";
+    }
+    for (const button of document.querySelectorAll(".resetButton")) {
+        button.style.visibility = "visible";
     }
 }
 
@@ -2703,6 +2744,22 @@ async function resolveRecover() {
 }
 
 async function prepareForNextWave() {
+    for (const ami of getAllAmis()) {
+        state_.last_recover[ami.id] = ami.parentElement;
+    }
+    for (const ami of getAllAmis()) {
+        getFeed(ami).style.display = "none";
+    }
+    $("#recruit").hide();
+    $("#upgrade").hide();
+    $("#autofill").hide();
+    $("#ready").hide();
+    $("#reset").hide();
+    for (const upgrader of document.querySelectorAll(".upgrader")) {
+        upgrader.style.display = "none";
+    }
+    await resolveRecover();
+    transitionToDawn();
     $("#substate").text("Prepare");
     refs_.lesamis.style.border = "0.08vw dotted lightgray";
     $("#state").text("Wave " + (getWave() + 1));
@@ -2714,13 +2771,6 @@ async function prepareForNextWave() {
     } else {
         refs_.rightside.style.background = "grey";
     }
-    for (const ami of getAllAmis()) {
-        state_.last_recover[ami.id] = ami.parentElement;
-    }
-    for (const upgrader of document.querySelectorAll(".upgrader")) {
-        upgrader.style.display = "none";
-    }
-    await resolveRecover();
     if (!state_.mondetour_open) {
         while (refs_.lesenemiesmondetour2.children.length) {
             refs_.lesenemiesmondetour2.firstChild.remove();
@@ -2753,15 +2803,12 @@ async function prepareForNextWave() {
     resetAmis();
     refs_.feed.style.display = "none";
     $("#ready").text("Ready!")
-    $("#recruit").hide();
-    $("#upgrade").hide();
     refs_.ready.onclick = function(){startWave()};
     $("#ready").show();
+    $("#reset").show();
+    $("#autofill").show();
     for (const wall of refs_.barricade) {
         wall.style.overflow = "";
-    }
-    for (const ami of getAllAmis()) {
-        getFeed(ami).style.display = "none";
     }
     for (const ami of getAllAmis()) {
         var loc = state_.last_prepare[ami.id];

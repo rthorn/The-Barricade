@@ -8,6 +8,7 @@
 }
 
 body {
+    background-color: palegoldenrod;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -15,6 +16,9 @@ body {
     -ms-user-select: none;
     user-select: none;
     overflow: scroll;
+    -webkit-transition: background-color 300ms linear;
+    -ms-transition: background-color 300ms linear;
+    transition: background-color 300ms linear;
 }
 
 /*@media only screen and (max-width: 999px) {
@@ -46,6 +50,9 @@ h1 {
     position: absolute;
     left: calc(50% - 48.15%);
     cursor: default;
+    -webkit-transition: color 300ms linear;
+    -ms-transition: color 300ms linear;
+    transition: color 300ms linear;
 }
 
 h2 {
@@ -56,6 +63,9 @@ h2 {
     top: 2.8vw;
     left: calc(50% - 48.15%);
     cursor: default;
+    -webkit-transition: color 300ms linear;
+    -ms-transition: color 300ms linear;
+    transition: color 300ms linear;
 }
 
 h3 {
@@ -66,6 +76,9 @@ h3 {
     top: 6.8vw;
     left: calc(50% - 48.15% + 0.16%);
     cursor: default;
+    -webkit-transition: color 300ms linear;
+    -ms-transition: color 300ms linear;
+    transition: color 300ms linear;
 }
 
 #ready {
@@ -183,12 +196,18 @@ h3 {
     right: calc(50% - 48.15vw);
     display:inline-block;
     width: 14.45vw;
+    -webkit-transition: color 300ms linear;
+    -ms-transition: color 300ms linear;
+    transition: color 300ms linear;
 }
 
 .number {
     text-align: right;
     width:100%;
     font-weight: bold;
+    -webkit-transition: color 300ms linear;
+    -ms-transition: color 300ms linear;
+    transition: color 300ms linear;
 }
 
 .bar {
@@ -521,6 +540,7 @@ button[type=button]:enabled {
 }
 
 #lesamis {
+    background: white;
 	position: absolute;
 	left: calc(50% - 60.19vw/2);
 	top: 53.37vw;
