@@ -2758,6 +2758,7 @@ async function prepareForNextWave() {
     for (const upgrader of document.querySelectorAll(".upgrader")) {
         upgrader.style.display = "none";
     }
+    refs_.feed.style.display = "none";
     await resolveRecover();
     transitionToDawn();
     $("#substate").text("Prepare");
@@ -2801,7 +2802,6 @@ async function prepareForNextWave() {
     $("#scout").hide();
     $("#trainer").hide();
     resetAmis();
-    refs_.feed.style.display = "none";
     $("#ready").text("Ready!")
     refs_.ready.onclick = function(){startWave()};
     $("#ready").show();
