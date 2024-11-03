@@ -1301,10 +1301,10 @@ function autoFill() {
                     (getWave() < settings_.mondetour_opens ? [...refs_.chanvrerie] : [...refs_.barricade]).sort((a, b) => wall_sort_order(a, b));
                 walls[0].appendChild(ami);
                 continue;
-            } else if (specialLevel(ami, "Combeferre") && (!settings_.precheurs_opens || specialLevel(ami, "Thenardier"))) {
+            } else if (specialLevel(ami, "Combeferre") && (!state_.precheurs_open || specialLevel(ami, "Thenardier"))) {
                 refs_.lootammo.appendChild(ami);
                 continue;
-            } else if (specialLevel(ami, "Joly") && (!settings_.precheurs_opens || specialLevel(ami, "Thenardier"))) {
+            } else if (specialLevel(ami, "Joly") && (!state_.precheurs_open || specialLevel(ami, "Thenardier"))) {
                 refs_.lootfood.appendChild(ami);
                 continue;
             } else if (specialLevel(ami, "Grantaire") && getFood() > 0) {
@@ -1315,9 +1315,9 @@ function autoFill() {
             var hope_threshold = getFood() > 0 ? Math.max(4000 - getHope() * 22, 1) : 0;
             var wall_threshold = Math.max(4000 - getBarricadeHeight(), 1);
             var ran = getRandomInt(ammo_threshold + food_threshold + hope_threshold + wall_threshold);
-            if (ran < ammo_threshold && (!settings_.precheurs_opens || specialLevel(ami, "Thenardier"))) {
+            if (ran < ammo_threshold && (!state_.precheurs_open || specialLevel(ami, "Thenardier"))) {
                 refs_.lootammo.appendChild(ami);
-            } else if (ran < ammo_threshold + food_threshold && (!settings_.precheurs_opens || specialLevel(ami, "Thenardier"))) {
+            } else if (ran < ammo_threshold + food_threshold && (!state_.precheurs_open || specialLevel(ami, "Thenardier"))) {
                 refs_.lootfood.appendChild(ami);
             } else if (ran < ammo_threshold + food_threshold + hope_threshold) {
                 continue;
