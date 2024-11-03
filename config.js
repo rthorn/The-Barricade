@@ -1,13 +1,13 @@
 var settings_ = {
 	"wall_min": 1,
-	"hope_drink": 10,
-	"hope_wave": 10,
-	"hope_death": 50,
+	"hope_drink": 5,
+	"hope_wave": 5,
+	"hope_death": 30,
 	"javert_hope": 500,
 	"javert_chance": 10,
 	"initial_javert_chance": 2,
 	"initial_javert_threshold": 6,
-	"wall_repair": 3,
+	"wall_repair": 2,
 	"max_height": 38.523,
 	"ami_damage": 3,
 	"enemy_damage": 2,
@@ -15,23 +15,23 @@ var settings_ = {
 	"base_hit_chance": 5,
 	"max_hit_chance": 75,
 	"scout_death": 20,
-	"loot_ammo": 70,
-	"loot_food": 10,
+	"loot_ammo": 50,
+	"loot_food": 5,
 	"heal_food": 33,
 	"food_use": 1,
 	"ammo_use": 1,
 	"sleep_ms": 500,
 	"fire_per_wave": 30,
-	"recover_animation_length": 8,
-	"recover_sleep_ms": 100,
+	"recover_animation_length": 4,
+	"recover_sleep_ms": 150,
 	"starting_recruit_limit": 20,
 	"starting_building_limit": 6,
 	"starting_food": 40,
 	"starting_ammo": 500,
 	"starting_hope": 30,
-	"mondetour_opens": 7,
-	"precheurs_opens": 15,
-	"opening_variance": 2,
+	"mondetour_opens": 12,
+	"precheurs_opens": 25,
+	"opening_variance": 3,
 	"base_upgrade_cost": 20,
 	"ammo_warning_threshold": 200,
 	"food_warning_threshold": 20,
@@ -117,25 +117,25 @@ var settings_ = {
 		"recruit-limit1": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 100,
+			"cost_value": 50,
 			"unlocks": "recruit-limit2"
 		},
 		"recruit-limit2": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 200,
+			"cost_value": 100,
 			"unlocks": "recruit-limit3"
 		},
 		"recruit-limit3": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 400,
+			"cost_value": 200,
 			"unlocks": "recruit-limit4"
 		},
 		"recruit-limit4": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 600,
+			"cost_value": 400,
 			"unlocks": "recruit-limit5"
 		},
 		"recruit-limit5": {
@@ -147,7 +147,7 @@ var settings_ = {
 		"recruit-limit6": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 1000,
+			"cost_value": 1200,
 			"unlocks": "recruit-limit7"
 		},
 		"recruit-limit7": {
@@ -424,7 +424,7 @@ var settings_ = {
 			"cost": 200
 		},
 		"Victor Hugo": {
-			"level": 30,
+			"level": 50,
 			"damage": 2,
 			"health": 2,
 			"special": [
@@ -441,13 +441,13 @@ var settings_ = {
 			"speed": 1
 		},
 		"Sniper": {
-			"level": 10,
+			"level": 15,
 			"damage": 15 ,
 			"health": 1,
 			"speed": 7
 		},
 		"Cannon": {
-			"level": 20,
+			"level": 30,
 			"damage": 20,
 			"health": 1,
 			"speed": 18
