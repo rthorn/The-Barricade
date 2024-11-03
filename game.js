@@ -1315,9 +1315,9 @@ function autoFill() {
             var hope_threshold = getFood() > 0 ? Math.max(4000 - getHope() * 22, 1) : 0;
             var wall_threshold = Math.max(4000 - getBarricadeHeight(), 1);
             var ran = getRandomInt(ammo_threshold + food_threshold + hope_threshold + wall_threshold);
-            if (ran < ammo_threshold) {
+            if (ran < ammo_threshold && (!settings_.precheurs_opens || specialLevel(ami, "Thenardier"))) {
                 refs_.lootammo.appendChild(ami);
-            } else if (ran < ammo_threshold + food_threshold) {
+            } else if (ran < ammo_threshold + food_threshold && (!settings_.precheurs_opens || specialLevel(ami, "Thenardier"))) {
                 refs_.lootfood.appendChild(ami);
             } else if (ran < ammo_threshold + food_threshold + hope_threshold) {
                 continue;
