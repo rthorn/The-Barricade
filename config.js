@@ -36,6 +36,8 @@ var settings_ = {
 	"ammo_warning_threshold": 200,
 	"food_warning_threshold": 20,
 	"hope_warning_threshold": 20,
+	"base_rest_heal_amount": 50,
+	"base_rest_boost_amount": 20,
 	"upgrades": {
 		"training1": {
 			"description": "Unlock ability to train citizens with special abilities",
