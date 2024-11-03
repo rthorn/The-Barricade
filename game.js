@@ -1301,10 +1301,10 @@ function autoFill() {
                     (getWave() < settings_.mondetour_opens ? [...refs_.chanvrerie] : [...refs_.barricade]).sort((a, b) => wall_sort_order(a, b));
                 walls[0].appendChild(ami);
                 continue;
-            } else if (specialLevel(ami, "Combeferre")) {
+            } else if (specialLevel(ami, "Combeferre") && (!settings_.precheurs_opens || specialLevel(ami, "Thenardier"))) {
                 refs_.lootammo.appendChild(ami);
                 continue;
-            } else if (specialLevel(ami, "Joly")) {
+            } else if (specialLevel(ami, "Joly") && (!settings_.precheurs_opens || specialLevel(ami, "Thenardier"))) {
                 refs_.lootfood.appendChild(ami);
                 continue;
             } else if (specialLevel(ami, "Grantaire") && getFood() > 0) {
