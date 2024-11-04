@@ -468,6 +468,9 @@ h3 {
     width: 64.21vw;
     display: inline-block;
     text-align: center;
+    -webkit-transition: background-color 300ms linear;
+    -ms-transition: background-color 300ms linear;
+    transition: background-color 300ms linear;
 }
 
 #lesenemies1 {
@@ -478,6 +481,9 @@ h3 {
     width: 64.21vw;
     display: inline-block;
     text-align: center;
+    -webkit-transition: background-color 300ms linear;
+    -ms-transition: background-color 300ms linear;
+    transition: background-color 300ms linear;
 }
 
 #lesenemiesmondetour1 {
@@ -488,6 +494,9 @@ h3 {
     height: 3.61vw;
     display: inline-block;
     text-align: center;
+    -webkit-transition: background-color 300ms linear;
+    -ms-transition: background-color 300ms linear;
+    transition: background-color 300ms linear;
 }
 
 #lesenemiesmondetour2 {
@@ -498,6 +507,9 @@ h3 {
     width: 14.45vw;
     display: inline-block;
     text-align: center;
+    -webkit-transition: background-color 300ms linear;
+    -ms-transition: background-color 300ms linear;
+    transition: background-color 300ms linear;
 }
 
 #lesenemiesprecheurs1 {
@@ -508,6 +520,9 @@ h3 {
     height: 3.61vw;
     display: inline-block;
     text-align: center;
+    -webkit-transition: background-color 300ms linear;
+    -ms-transition: background-color 300ms linear;
+    transition: background-color 300ms linear;
 }
 
 #lesenemiesprecheurs2 {
@@ -518,6 +533,9 @@ h3 {
     width: 14.45vw;
     display: inline-block;
     text-align: center;
+    -webkit-transition: background-color 300ms linear;
+    -ms-transition: background-color 300ms linear;
+    transition: background-color 300ms linear;
 }
 
 .enemy {

@@ -1374,10 +1374,16 @@ function transitionToNight() {
     refs_.title.style.color = "white";
     refs_.state.style.color = "white";
     refs_.substate.style.color = "white";
+    for (const loc of [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
+      loc.style.backgroundColor = "black";
+    }
 }
 
 function transitionToDay() {
     document.body.style.backgroundColor = "white";
+    for (const loc of [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
+      loc.style.backgroundColor = "white";
+    }
 }
 
 function transitionToDawn() {
@@ -1391,6 +1397,9 @@ function transitionToDawn() {
     refs_.title.style.color = "black";
     refs_.state.style.color = "black";
     refs_.substate.style.color = "black";
+    for (const loc of [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
+      loc.style.backgroundColor = "palegoldenrod";
+    }
 }
 
 function resetLoc(button) {
@@ -1936,12 +1945,14 @@ function addEnemies(type, wave, foresight = false) {
         for (let i = 1; i <= enemiesPerWave(type, 2); i++) {
             if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemiesmondetour2);
+                refs_.lesenemiesmondetour2.style.backgroundColor = "white";
             } else {
                 addNewEnemy(type, refs_.lesenemiesmondetour1);
+                refs_.lesenemiesmondetour1.style.backgroundColor = "white";
             }
         }
-        refs_.lesenemiesmondetour1.style.opacity = Math.max(0, 0.5 - 0.2 * (settings_.mondetour_opens - wave));
-        refs_.lesenemiesmondetour2.style.opacity = Math.max(0, 0.5 - 0.2 * (settings_.mondetour_opens - wave));
+        refs_.lesenemiesmondetour1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - wave));
+        refs_.lesenemiesmondetour2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - wave));
     }
     if (state_.precheurs_open) {
         for (let i = 1; i <= enemiesPerWave(type, precheurs); i++) {
@@ -1955,12 +1966,15 @@ function addEnemies(type, wave, foresight = false) {
         for (let i = 1; i <= enemiesPerWave(type, 2); i++) {
             if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemiesprecheurs2);
+                refs_.lesenemiesprecheurs2.style.backgroundColor = "white";
             } else {
                 addNewEnemy(type, refs_.lesenemiesprecheurs1);
+                refs_.lesenemiesprecheurs1.style.backgroundColor = "white";
             }
         }
-        refs_.lesenemiesprecheurs1.style.opacity = Math.max(0, 0.5 - 0.2 * (settings_.precheurs_opens - wave));
-        refs_.lesenemiesprecheurs2.style.opacity = Math.max(0, 0.5 - 0.2 * (settings_.precheurs_opens - wave));
+        refs_.lesenemiesprecheurs1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - wave));
+        refs_.lesenemiesprecheurs2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - wave));
+
     }
 }
 
@@ -2543,23 +2557,24 @@ function closeUpgrade() {
 
 async function resolveRecover() {
     var ran = getRandomInt(settings_.recover_animation_length);
-    for (var i = 0; i < settings_.recover_animation_length; i++) {
-        var amis = [];
-        var javert_loc = null;
-        if (state_.javert && i == ran) {
-            javert_loc = state_.javert.parentElement;
-            for (const ami of getChildren(javert_loc)) {
-                if (ami == state_.javert) {
-                    continue;
-                }
-                if (sl = specialLevel(ami, "Gavroche")) {
-                    if (getRandomInt(100) < 25 * sl) {
-                        state_.javert_label.textContent = "Javert";
-                        break;
-                    }
+    state_.foresight = false;
+    var javert_loc = null;
+    if (state_.javert) {
+        javert_loc = state_.javert.parentElement;
+        for (const ami of getChildren(javert_loc)) {
+            if (ami == state_.javert) {
+                continue;
+            }
+            if (sl = specialLevel(ami, "Gavroche")) {
+                if (getRandomInt(100) < 25 * sl) {
+                    state_.javert_label.textContent = "Javert";
+                    break;
                 }
             }
         }
+    }
+    for (var i = 0; i < settings_.recover_animation_length; i++) {
+        var amis = [];
         for (const wall of refs_.barricade) {
             if (wall == javert_loc) {
                 continue;
@@ -2717,7 +2732,6 @@ async function resolveRecover() {
                 ami.remove();
             }
         }
-        state_.foresight = false;
         num = -1;
         for (const ami of getChildren(refs_.scout)) {
             num += 1;
