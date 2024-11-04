@@ -1923,11 +1923,13 @@ function enemiesPerWave(type, wave) {
 }
 
 function addEnemies(type, wave, foresight = false) {
-    for (let i = 1; i <= enemiesPerWave(type, wave); i++) {
-        if (type == EnemyType.SOLDIER) {
-            addNewEnemy(type, refs_.lesenemies2);
-        } else {
-            addNewEnemy(type, refs_.lesenemies1);
+    if (!foresight) {
+        for (let i = 1; i <= enemiesPerWave(type, wave); i++) {
+            if (type == EnemyType.SOLDIER) {
+                addNewEnemy(type, refs_.lesenemies2);
+            } else {
+                addNewEnemy(type, refs_.lesenemies1);
+            }
         }
     }
     var side = wave >= settings_.precheurs_opens + 5 ? getRandomInt(2) : 1;
@@ -1979,10 +1981,6 @@ function addEnemies(type, wave, foresight = false) {
 }
 
 function initEnemies(foresight = false) {
-    if (foresight) {
-        refs_.lesenemies1.style.display = "none";
-        refs_.lesenemies2.style.display = "none";
-    }
     var wave = getWave() + (foresight ? 1 : 0)
     for (const enemy in settings_.enemies) {
         if (settings_.enemies[enemy].level <= wave) {
@@ -2816,9 +2814,7 @@ async function prepareForNextWave() {
         }
     }
     enemyOpacity(false);
-    refs_.lesenemies1.style.display = "inline-block";
-    refs_.lesenemies2.style.display = "inline-block";
-    if (state_.foresight && !refs_.lesenemies2.children.length) {
+    if (state_.foresight) {
         initEnemies();
     }
     $("#lootfood").hide();
