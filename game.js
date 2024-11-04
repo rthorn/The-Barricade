@@ -13,6 +13,7 @@ var state_ = {
     temp_damage: {},
     auto_replace: false,
     training: 0,
+    trainers: 1,
     learned_specials: {},
     needs_food: new Set([]),
     shift_key: false,
@@ -576,7 +577,7 @@ function isEquivalent(ami1, ami2) {
 function hasSpace(target) {
     if (getWaveState() == WaveState.RECOVER) {
         if (target == refs_.trainer) {
-            return !hasChildren(refs_.trainer);
+            return hasChildren(refs_.trainer) < state_.trainers;
         }
         return state_.training || target != refs_.rightside;
     }
@@ -2517,7 +2518,18 @@ function upgradeMe(ev) {
         state_.wall_damage -= 0.2;
     } else if (name.includes("training")) {
         refs_.rightside.style.background = "teal";
-        state_.training += 1;
+        if (name == "training3") {
+            state_.trainers += 1;
+            refs_.trainer.style.width = "10vw";
+            refs_.trainer.style.marginLeft = "calc(50% - 5.13vw)";
+        } else if (name == "training4") {
+            state_.training += 1;
+            state_.trainers += 1;
+            refs_.trainer.style.width = "15vw";
+            refs_.trainer.style.marginLeft = "calc(50% - 7.73vw)";
+        } else {
+            state_.training += 1;
+        }
         setLabel(refs_.trainer);
         setLabel(refs_.rightside);
         $("#trainer").show();
@@ -2572,6 +2584,25 @@ async function resolveRecover() {
             }
         }
     }
+    if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
+        for (const ami of getChildren(refs_.rightside)) {
+            if (!(ami.id in state_.learned_specials)) {
+                continue;
+            }
+            while (state_.learned_specials[ami.id].length > state_.training - hasChildren(refs_.trainer)) {
+                var remove = getRandomInt(state_.training);
+                if (refs_.specials["Marius"].includes(state_.learned_specials[ami.id][remove])) {
+                    for (const child of ami.children) {
+                        if (child.id.includes("-mariuspower")) {
+                            state_.marius_buttons.delete(child);
+                            child.remove();
+                        }
+                    }
+                }
+                state_.learned_specials[ami.id].splice(remove, 1);
+            }
+        }
+    }
     for (var i = 0; i < settings_.recover_animation_length; i++) {
         var amis = [];
         for (const wall of refs_.barricade) {
@@ -2600,69 +2631,37 @@ async function resolveRecover() {
                 updateStats(ami);
             }
         }
-        var special = ""
         if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
-            special = refs_.specials[getName(getChildren(refs_.trainer)[0])][specialLevel(getChildren(refs_.trainer)[0], getChildren(refs_.trainer)[0].id) - 1];
             var num = -1;
-            for (const ami of getChildren(refs_.rightside)) {
-                num += 1;
-                if (num%settings_.recover_animation_length != i) {
-                    continue;
-                }
-                if (!(ami.id in state_.learned_specials)) {
-                    state_.learned_specials[ami.id] = [special];
-                } else {
-                    if (special in state_.learned_specials[ami.id]) {
+            for (const trainer of getChildren(refs_.trainer)) {
+                var special = refs_.specials[getName(trainer)][specialLevel(trainer, trainer.id) - 1];
+                for (const ami of getChildren(refs_.rightside)) {
+                    num += 1;
+                    if (num%settings_.recover_animation_length != i) {
                         continue;
                     }
-                    for (const existing of state_.learned_specials[ami.id]) {
-                        var found = false;
-                        for (const sp in refs_.specials) {
-                            if (refs_.specials[sp].includes(existing) && refs_.specials[sp].includes(special)) {
-                                state_.learned_specials[ami.id].splice(state_.learned_specials[ami.id].indexOf(existing), 1);
-                                if (sp == "Marius") {
-                                    for (const child of ami.children) {
-                                        if (child.id.includes("-mariuspower")) {
-                                            state_.marius_buttons.delete(child);
-                                            child.remove();
-                                        }
-                                    }
-                                }
-                                found = true;
-                                break;
-                            }
+                    if (!(ami.id in state_.learned_specials)) {
+                        state_.learned_specials[ami.id] = [special];
+                    } else {
+                        if (special in state_.learned_specials[ami.id]) {
+                            continue;
                         }
-                        if (found) {
-                            break;
-                        }
+                        state_.learned_specials[ami.id].push(special);
+                        state_.learned_specials[ami.id] = state_.learned_specials[ami.id].sort();
                     }
-                    while (state_.learned_specials[ami.id].length >= state_.training) {
-                        var remove = getRandomInt(state_.training);
-                        if (refs_.specials["Marius"].includes(state_.learned_specials[ami.id][remove])) {
-                            for (const child of ami.children) {
-                                if (child.id.includes("-mariuspower")) {
-                                    state_.marius_buttons.delete(child);
-                                    child.remove();
-                                }
-                            }
-                        }
-                        state_.learned_specials[ami.id].splice(remove, 1);
+                    if (refs_.specials["Marius"].includes(special)) {
+                        var power = document.createElement("button");
+                        power.type = "button";
+                        power.className = "mariusButton";
+                        power.id = ami.id + "-mariuspower";
+                        power.onclick = function(){ mariusPower() };
+                        power.textContent = "End wave (-" + mariusCost() + " ammo)";
+                        power.style.display = "none";
+                        state_.marius_buttons.add(power);
+                        ami.appendChild(power);
                     }
-                    state_.learned_specials[ami.id].push(special);
-                    state_.learned_specials[ami.id] = state_.learned_specials[ami.id].sort();
+                    updateStats(ami);
                 }
-                if (refs_.specials["Marius"].includes(special)) {
-                    var power = document.createElement("button");
-                    power.type = "button";
-                    power.className = "mariusButton";
-                    power.id = ami.id + "-mariuspower";
-                    power.onclick = function(){ mariusPower() };
-                    power.textContent = "End wave (-" + mariusCost() + " ammo)";
-                    power.style.display = "none";
-                    state_.marius_buttons.add(power);
-                    ami.appendChild(power);
-                }
-                updateStats(ami);
             }
         }
         if (javert_loc != refs_.lesamis) {
