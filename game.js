@@ -2559,6 +2559,7 @@ async function resolveRecover() {
     var ran = getRandomInt(settings_.recover_animation_length);
     state_.foresight = false;
     var javert_loc = null;
+    var deaths = [[], [], []];
     if (state_.javert) {
         javert_loc = state_.javert.parentElement;
         for (const ami of getChildren(javert_loc)) {
@@ -2679,6 +2680,9 @@ async function resolveRecover() {
         var num = -1;
         for (const ami of getChildren(refs_.lootfood)) {
             num += 1;
+            while (deaths[0].includes(num)) {
+                num += 1
+            }
             if (javert_loc != refs_.lootfood) {
                 setFood(getFood() + Math.floor(settings_.loot_food * (i + 1) / settings_.recover_animation_length) - Math.floor(settings_.loot_food * i / settings_.recover_animation_length));
                 if (specialLevel(ami, "Joly")) {
@@ -2695,6 +2699,7 @@ async function resolveRecover() {
                 }
                 if (getRandomInt(100) < chance) {
                     die(ami);
+                    deaths[0].push(num);
                     continue;
                 }
             }
@@ -2702,6 +2707,9 @@ async function resolveRecover() {
         num = -1;
         for (const ami of getChildren(refs_.lootammo)) {
             num += 1;
+            while (deaths[1].includes(num)) {
+                num += 1
+            }
             if (javert_loc != refs_.lootammo) {
                 setAmmo(getAmmo() + Math.floor(settings_.loot_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(settings_.loot_ammo * i / settings_.recover_animation_length));
                 if (specialLevel(ami, "Combeferre")) {
@@ -2718,6 +2726,7 @@ async function resolveRecover() {
                 }
                 if (getRandomInt(100) < chance) {
                     die(ami);
+                    deaths[1].push(num);
                     continue;
                 }
             }
@@ -2735,6 +2744,9 @@ async function resolveRecover() {
         num = -1;
         for (const ami of getChildren(refs_.scout)) {
             num += 1;
+            while (deaths[2].includes(num)) {
+                num += 1
+            }
             if (i != (settings_.recover_animation_length + ran + num - 1) % settings_.recover_animation_length) {
                 continue;
             }
@@ -2747,6 +2759,7 @@ async function resolveRecover() {
             }
             if (getRandomInt(100) < chance) {
                 die(ami);
+                deaths[2].push(num);
                 continue;
             }
             if (javert_loc != refs_.scout) {
