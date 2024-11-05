@@ -1375,16 +1375,10 @@ function transitionToNight() {
     refs_.title.style.color = "white";
     refs_.state.style.color = "white";
     refs_.substate.style.color = "white";
-    for (const loc of [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
-      loc.style.backgroundColor = "black";
-    }
 }
 
 function transitionToDay() {
     document.body.style.backgroundColor = "white";
-    for (const loc of [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
-      loc.style.backgroundColor = "white";
-    }
 }
 
 function transitionToDawn() {
@@ -1398,8 +1392,8 @@ function transitionToDawn() {
     refs_.title.style.color = "black";
     refs_.state.style.color = "black";
     refs_.substate.style.color = "black";
-    for (const loc of [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
-      loc.style.backgroundColor = "palegoldenrod";
+    for (const loc of [refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
+      loc.style.color = "black";
     }
 }
 
@@ -1934,8 +1928,8 @@ function addEnemies(type, wave, foresight = false) {
         }
     }
     var side = wave >= settings_.precheurs_opens + 5 ? getRandomInt(2) : 1;
-    var mondetour = side ? wave - settings_.mondetour_opens + 2 : wave - settings_.precheurs_opens + 2;
-    var precheurs = side ? wave - settings_.precheurs_opens + 2 : wave - settings_.mondetour_opens + 2;
+    var mondetour = side ? wave - settings_.mondetour_opens + 5 : wave - settings_.precheurs_opens + 5;
+    var precheurs = side ? wave - settings_.precheurs_opens + 5 : wave - settings_.mondetour_opens + 5;
     if (state_.mondetour_open) {
         for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
             if (type == EnemyType.SOLDIER) {
@@ -1945,13 +1939,13 @@ function addEnemies(type, wave, foresight = false) {
             }
         }
     } else if (foresight) {
-        for (let i = 1; i <= enemiesPerWave(type, 2); i++) {
+        for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
             if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemiesmondetour2);
-                refs_.lesenemiesmondetour2.style.backgroundColor = "white";
+                refs_.lesenemiesmondetour2.style.color = "white";
             } else {
                 addNewEnemy(type, refs_.lesenemiesmondetour1);
-                refs_.lesenemiesmondetour1.style.backgroundColor = "white";
+                refs_.lesenemiesmondetour1.style.color = "white";
             }
         }
         refs_.lesenemiesmondetour1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - wave));
@@ -1966,13 +1960,13 @@ function addEnemies(type, wave, foresight = false) {
             }
         }
     } else if (foresight) {
-        for (let i = 1; i <= enemiesPerWave(type, 2); i++) {
+        for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
             if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemiesprecheurs2);
-                refs_.lesenemiesprecheurs2.style.backgroundColor = "white";
+                refs_.lesenemiesprecheurs2.style.color = "white";
             } else {
                 addNewEnemy(type, refs_.lesenemiesprecheurs1);
-                refs_.lesenemiesprecheurs1.style.backgroundColor = "white";
+                refs_.lesenemiesprecheurs1.style.color = "white";
             }
         }
         refs_.lesenemiesprecheurs1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - wave));
