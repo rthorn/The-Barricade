@@ -1911,7 +1911,7 @@ function wallAdjust(wall, amount, up) {
 function enemiesPerWave(type, wave) {
     var adjusted_wave = wave - settings_.enemies[type].level + 1;
     var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * 4 / 5)
-    if (type != "Soldier") {
+    if (type != EnemyType.SOLDIER) {
         return Math.ceil(num/5);
     }
     return num;
@@ -2790,21 +2790,17 @@ async function prepareForNextWave() {
     } else {
         refs_.rightside.style.background = "grey";
     }
-    if (!state_.mondetour_open) {
-        while (refs_.lesenemiesmondetour2.children.length) {
-            refs_.lesenemiesmondetour2.firstChild.remove();
-        }
-        while (refs_.lesenemiesmondetour1.children.length) {
-            refs_.lesenemiesmondetour1.firstChild.remove();
-        }
+    while (refs_.lesenemiesmondetour2.children.length) {
+        refs_.lesenemiesmondetour2.firstChild.remove();
     }
-    if (!state_.precheurs_open) {
-        while (refs_.lesenemiesprecheurs2.children.length) {
-            refs_.lesenemiesprecheurs2.firstChild.remove();
-        }
-        while (refs_.lesenemiesprecheurs1.children.length) {
-            refs_.lesenemiesprecheurs1.firstChild.remove();
-        }
+    while (refs_.lesenemiesmondetour1.children.length) {
+        refs_.lesenemiesmondetour1.firstChild.remove();
+    }
+    while (refs_.lesenemiesprecheurs2.children.length) {
+        refs_.lesenemiesprecheurs2.firstChild.remove();
+    }
+    while (refs_.lesenemiesprecheurs1.children.length) {
+        refs_.lesenemiesprecheurs1.firstChild.remove();
     }
     enemyOpacity(false);
     if (state_.foresight) {

@@ -661,7 +661,6 @@ button[type=button]:enabled {
 }
 
 .enemy .stacker {
-    color: black;
     position: relative;
     font-size: 0.96vw;
     top: -3.61vw;
