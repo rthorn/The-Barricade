@@ -1446,9 +1446,9 @@ function setHeight(wall, value) {
     wall.style.height = pixels + "vw";
     if (refs_.mondetour.has(wall) || refs_.precheurs.has(wall)) {
         wall.style.top = ((wall.id.includes("1") ? 16.85 : 20.35) + settings_.max_height - pixels) + "vw";
-        return;
+    } else {
+        wall.style.top = (9.63 + settings_.max_height - pixels) + "vw";
     }
-    wall.style.top = (9.63 + settings_.max_height - pixels) + "vw";
     if (wallMax(wall) == state_.wall_num[wall.id]) {
         wall.style.filter = "brightness(120%)";
     } else if (wallMax(wall) == 2 * state_.wall_num[wall.id]) {
