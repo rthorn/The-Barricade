@@ -2228,7 +2228,7 @@ function transitionToRecover() {
     $("#substate").text("Recover");
     refs_.lesamis.style.border = "solid";
     var bonus = 0;
-    var hope_wave = settings_.hope_wave + getWave()*settings_.hope_wave;
+    var hope_wave = getWave()*settings_.hope_wave;
     if (state_.marius_power) {
         state_.marius_power = false;
         hope_wave = 0;
