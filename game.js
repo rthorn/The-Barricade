@@ -1938,48 +1938,51 @@ function addEnemies(type, wave, foresight = false) {
     var side = wave >= settings_.precheurs_opens + 5 ? getRandomInt(2) : 1;
     var mondetour = side ? wave - settings_.mondetour_opens + 5 : wave - settings_.precheurs_opens + 5;
     var precheurs = side ? wave - settings_.precheurs_opens + 5 : wave - settings_.mondetour_opens + 5;
-    if (state_.mondetour_open) {
-        for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
-            if (type == EnemyType.SOLDIER) {
-                addNewEnemy(type, refs_.lesenemiesmondetour2);
-            } else {
-                addNewEnemy(type, refs_.lesenemiesmondetour1);
+    if (!refs_.lesenemiesmondetour2.children.length) {
+        if (state_.mondetour_open) {
+            for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
+                if (type == EnemyType.SOLDIER) {
+                    addNewEnemy(type, refs_.lesenemiesmondetour2);
+                } else {
+                    addNewEnemy(type, refs_.lesenemiesmondetour1);
+                }
             }
-        }
-    } else if (foresight) {
-        for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
-            if (type == EnemyType.SOLDIER) {
-                addNewEnemy(type, refs_.lesenemiesmondetour2);
-                refs_.lesenemiesmondetour2.style.color = "white";
-            } else {
-                addNewEnemy(type, refs_.lesenemiesmondetour1);
-                refs_.lesenemiesmondetour1.style.color = "white";
+        } else if (foresight) {
+            for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
+                if (type == EnemyType.SOLDIER) {
+                    addNewEnemy(type, refs_.lesenemiesmondetour2);
+                    refs_.lesenemiesmondetour2.style.color = "white";
+                } else {
+                    addNewEnemy(type, refs_.lesenemiesmondetour1);
+                    refs_.lesenemiesmondetour1.style.color = "white";
+                }
             }
+            refs_.lesenemiesmondetour1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - wave));
+            refs_.lesenemiesmondetour2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - wave));
         }
-        refs_.lesenemiesmondetour1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - wave));
-        refs_.lesenemiesmondetour2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - wave));
     }
-    if (state_.precheurs_open) {
-        for (let i = 1; i <= enemiesPerWave(type, precheurs); i++) {
-            if (type == EnemyType.SOLDIER) {
-                addNewEnemy(type, refs_.lesenemiesprecheurs2);
-            } else {
-                addNewEnemy(type, refs_.lesenemiesprecheurs1);
+    if (!refs_.lesenemiesprecheurs2.children.length) {
+        if (state_.precheurs_open) {
+            for (let i = 1; i <= enemiesPerWave(type, precheurs); i++) {
+                if (type == EnemyType.SOLDIER) {
+                    addNewEnemy(type, refs_.lesenemiesprecheurs2);
+                } else {
+                    addNewEnemy(type, refs_.lesenemiesprecheurs1);
+                }
             }
-        }
-    } else if (foresight) {
-        for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
-            if (type == EnemyType.SOLDIER) {
-                addNewEnemy(type, refs_.lesenemiesprecheurs2);
-                refs_.lesenemiesprecheurs2.style.color = "white";
-            } else {
-                addNewEnemy(type, refs_.lesenemiesprecheurs1);
-                refs_.lesenemiesprecheurs1.style.color = "white";
+        } else if (foresight) {
+            for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
+                if (type == EnemyType.SOLDIER) {
+                    addNewEnemy(type, refs_.lesenemiesprecheurs2);
+                    refs_.lesenemiesprecheurs2.style.color = "white";
+                } else {
+                    addNewEnemy(type, refs_.lesenemiesprecheurs1);
+                    refs_.lesenemiesprecheurs1.style.color = "white";
+                }
             }
+            refs_.lesenemiesprecheurs1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - wave));
+            refs_.lesenemiesprecheurs2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - wave));
         }
-        refs_.lesenemiesprecheurs1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - wave));
-        refs_.lesenemiesprecheurs2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - wave));
-
     }
 }
 
@@ -2499,8 +2502,6 @@ function upgradeMe(ev) {
     if ("unlocks" in settings_.upgrades[name]) {
         refs_.upgrade_screen.insertBefore(newUpgrade(settings_.upgrades[name].unlocks), ev.target.parentElement);
     }
-    console.log(ev.target.parentElement);
-    console.log(state_.after_precheurs_upgrades);
     if (state_.after_precheurs_upgrades.includes(ev.target.parentElement)) {
         if ("unlocks" in settings_.upgrades[name]) {
             state_.after_precheurs_upgrades[state_.after_precheurs_upgrades.indexOf(ev.target.parentElement)] = refs_.upgrade_screen.children[Array.prototype.indexOf.call(refs_.upgrade_screen.children, ev.target.parentElement) - 1];
@@ -2822,17 +2823,21 @@ async function prepareForNextWave() {
     } else {
         refs_.rightside.style.background = "grey";
     }
-    while (refs_.lesenemiesmondetour2.children.length) {
-        refs_.lesenemiesmondetour2.firstChild.remove();
+    if (!state_.mondetour_open) {
+        while (refs_.lesenemiesmondetour2.children.length) {
+            refs_.lesenemiesmondetour2.firstChild.remove();
+        }
+        while (refs_.lesenemiesmondetour1.children.length) {
+            refs_.lesenemiesmondetour1.firstChild.remove();
+        }
     }
-    while (refs_.lesenemiesmondetour1.children.length) {
-        refs_.lesenemiesmondetour1.firstChild.remove();
-    }
-    while (refs_.lesenemiesprecheurs2.children.length) {
-        refs_.lesenemiesprecheurs2.firstChild.remove();
-    }
-    while (refs_.lesenemiesprecheurs1.children.length) {
-        refs_.lesenemiesprecheurs1.firstChild.remove();
+    if (!state_.precheurs_open) {
+        while (refs_.lesenemiesprecheurs2.children.length) {
+            refs_.lesenemiesprecheurs2.firstChild.remove();
+        }
+        while (refs_.lesenemiesprecheurs1.children.length) {
+            refs_.lesenemiesprecheurs1.firstChild.remove();
+        }
     }
     enemyOpacity(false);
     if (state_.foresight) {
