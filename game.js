@@ -166,7 +166,7 @@ function initializeUpgrades() {
             addNewUpgrade(upgrade);
         }
     }
-    for (const upg of ["corinthe-limit1", "corinthe-limit2", "open-building", "rightside-limit1", "rightside-limit2", "barricade-defense1", "barricade-defense2", "barricade-defense3", "auto-replace", "revolution"]) {
+    for (const upg of ["corinthe-limit1", "open-building", "barricade-defense1", "revolution"]) {
         state_.after_precheurs_upgrades.push(document.getElementById(upg));
     }
 }
@@ -2499,8 +2499,14 @@ function upgradeMe(ev) {
     if ("unlocks" in settings_.upgrades[name]) {
         refs_.upgrade_screen.insertBefore(newUpgrade(settings_.upgrades[name].unlocks), ev.target.parentElement);
     }
+    console.log(ev.target.parentElement);
+    console.log(state_.after_precheurs_upgrades);
     if (state_.after_precheurs_upgrades.includes(ev.target.parentElement)) {
-        state_.after_precheurs_upgrades.splice(state_.after_precheurs_upgrades.indexOf(ev.target.parentElement), 1);
+        if ("unlocks" in settings_.upgrades[name]) {
+            state_.after_precheurs_upgrades[state_.after_precheurs_upgrades.indexOf(ev.target.parentElement)] = refs_.upgrade_screen.children[Array.prototype.indexOf.call(refs_.upgrade_screen.children, ev.target.parentElement) - 1];
+        } else {
+            state_.after_precheurs_upgrades.splice(state_.after_precheurs_upgrades.indexOf(ev.target.parentElement), 1);
+        }
     }
     ev.target.parentElement.remove();
     updateUpgrade();
