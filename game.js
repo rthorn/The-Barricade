@@ -31,7 +31,8 @@ var state_ = {
     javert_dead: false,
     after_precheurs_upgrades: [],
     marius_buttons: new Set([]),
-    citizens: false
+    citizens: false,
+    recruits: 0
 };
 
 var refs_ = {
@@ -132,13 +133,15 @@ function initializeVars() {
             settings_.amis[name].special_level = 1;
         }
     }
-    refs_.order = {};
+    state_.order = {};
     for (const name in settings_.amis) {
-        refs_.order[name] = name;
+        if (!settings_.amis[name].level) {
+            state_.order[name] = name;
+        }
     }
-    refs_.order["Enjolras"] = "AAAAAAA";
-    refs_.order["Citizen"] = "zzzzzz";
-    refs_.order["Javert"] = "zzzzzzzzzzzzzzzzz";
+    state_.order["Enjolras"] = "AAAAAAA";
+    state_.order["Citizen"] = "zzzzzz";
+    state_.order["Javert"] = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
     Object.freeze(refs_);
 
     setFood(settings_.starting_food);
@@ -640,12 +643,12 @@ function isOnBarricade(ami) {
 }
 
 function sort_order(ami1, ami2) {
-    var name1 = refs_.order[getName(ami1)];
-    var name2 = refs_.order[getName(ami2)];
+    var name1 = state_.order[getName(ami1)];
+    var name2 = state_.order[getName(ami2)];
     if (state_.javert && ami1 == state_.javert && state_.javert_label.textContent == "Javert") {
-        name1 = refs_.order["Javert"];
+        name1 = state_.order["Javert"];
     } else if (state_.javert && ami2 == state_.javert && state_.javert_label.textContent == "Javert") {
-        name2 = refs_.order["Javert"];
+        name2 = state_.order["Javert"];
     }
     if (name1 == name2) {
         if (arraysEqual(state_.learned_specials[ami1.id], state_.learned_specials[ami2.id])) {
@@ -2365,6 +2368,12 @@ function recruitMe(ev) {
         }
     } else {
         state_.max_amis += 1;
+        var order = "Z";
+        for (var i = 0; i < state_.recruits; i++) {
+            order += "Z";
+        }
+        state_.order[id] = order;
+        state_.recruits += 1;
         ev.target.parentElement.remove();
         addNewAmi(id);
     }
