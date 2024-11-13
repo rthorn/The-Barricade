@@ -13,7 +13,7 @@
         <h1 id="title">The Barricade</h1>
         <div id="recruit-screen">
           <button type="button" id="close-recruit" onClick="closeRecruit()">X</button>
-          <div id="recruit-limit">Recruit limit: 8/20</div>
+          <div id="recruit-limit" hidden>Recruit limit: 8/20</div>
         </div>
         <div id="upgrade-screen">
           <button type="button" id="close-upgrade" onClick="closeUpgrade()">X</button>
@@ -28,7 +28,7 @@
         </div>
         <div id="hovertext" hidden></div>
         <button type="button" id="ready" onClick="startWave()">Ready!</button>
-        <button type="button" id="recruit" onClick="recruit()" hidden>Recruit</button>
+        <button type="button" id="recruit" onClick="recruit()" hidden disabled>Recruit</button>
         <button type="button" id="upgrade" onClick="upgrade()" hidden>Upgrade</button>
         <button type="button" id="reset" onClick="resetAmis()">&#x21bb;</button>
         <button type="button" id="autofill" onClick="autoFill()">Auto-fill</button>

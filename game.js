@@ -30,7 +30,8 @@ var state_ = {
     javert_label: null,
     javert_dead: false,
     after_precheurs_upgrades: [],
-    marius_buttons: new Set([])
+    marius_buttons: new Set([]),
+    citizens: false
 };
 
 var refs_ = {
@@ -161,7 +162,7 @@ function initializeUpgrades() {
         }
     }
     for (const upgrade in settings_.upgrades) {
-        if (!blocked.includes(upgrade) && !upgrade.includes("precheurs")) {
+        if (!blocked.includes(upgrade) && !upgrade.includes("precheurs") && !settings_.upgrades[upgrade].description.includes("citizens") && !settings_.upgrades[upgrade].description.includes("Citizens") && !settings_.upgrades[upgrade].description.includes("recruit")) {
             addNewUpgrade(upgrade);
         }
     }
@@ -964,7 +965,14 @@ function addNewCitizen() {
 }
 
 function addNewRecruit(name) {
+    refs_.recruit.disabled = false;
     refs_.recruit_screen.appendChild(newRecruit(name));
+    if (name == "Citizen") {
+        if (refs_.recruit_screen.children.length > 2) {
+            refs_.recruit_screen.insertBefore(refs_.recruit_screen.children[refs_.recruit_screen.children.length - 1], refs_.recruit_screen.children[2]);
+        }
+        refs_.recruit_limit.hidden = false;
+    }
     if (getWave() > 1) {
       refs_.recruit.innerHTML = "<b>Recruit**</b>";
     }
@@ -2336,6 +2344,22 @@ function recruitMe(ev) {
     }
     if (isCitizen(ev.target.parentElement)) {
         addNewCitizen();
+        if (!state_.citizens) {
+            state_.citizens = true;
+            var firstChild = refs_.upgrade_screen.children[1];
+            var blocked = [];
+            for (const upgrade in settings_.upgrades) {
+                if ("unlocks" in settings_.upgrades[upgrade]) {
+                    blocked.push(settings_.upgrades[upgrade]["unlocks"]);
+                }
+            }
+            for (const upgrade in settings_.upgrades) {
+                if (!blocked.includes(upgrade) && (settings_.upgrades[upgrade].description.includes("citizens") || settings_.upgrades[upgrade].description.includes("Citizens") || settings_.upgrades[upgrade].description.includes("recruit"))) {
+                    addNewUpgrade(upgrade);
+                    refs_.upgrade_screen.insertBefore(refs_.upgrade_screen.children[refs_.upgrade_screen.children.length - 1], firstChild);
+                }
+            }
+        }
     } else {
         state_.max_amis += 1;
         ev.target.parentElement.remove();
@@ -2345,6 +2369,8 @@ function recruitMe(ev) {
     updateRecruit();
     if (id == "Victor Hugo") {
         revolution();
+    } else if (id == "Grantaire" && getWave() < 4) {
+        refs_.recruit.disabled = true;
     }
 }
 

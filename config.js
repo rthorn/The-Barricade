@@ -247,11 +247,11 @@ var settings_ = {
 			"cost_type": "HOPE",
 			"cost_value": 600
 		},
-		"auto-replace": {
-			"description": "Available citizens will automatically replace citizens close to death on the barricade",
-			"cost_type": "HOPE",
-			"cost_value": 1000
-		},
+		// "auto-replace": {
+		// 	"description": "Available citizens will automatically replace citizens close to death on the barricade",
+		// 	"cost_type": "HOPE",
+		// 	"cost_value": 1000
+		// },
 		"revolution": {
 			"description": "RÉVOLUTION!",
 			"cost_type": "HOPE",
@@ -340,13 +340,13 @@ var settings_ = {
 			]
 		},
 		"Citizen": {
-			"level": 1,
+			"level": 4,
 			"damage": 0.5,
 			"health": 0.5,
-			"cost": 10
+			"cost": 20
 		},
 		"Grantaire": {
-			"level": 1,
+			"level": 2,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -358,7 +358,7 @@ var settings_ = {
 			"cost": 40
 		},
 		"Gavroche": {
-			"level": 3,
+			"level": 6,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -370,7 +370,7 @@ var settings_ = {
 			"cost": 40
 		},
 		"Mabeuf": {
-			"level": 6,
+			"level": 8,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -382,7 +382,7 @@ var settings_ = {
 			"cost": 60
 		},
 		"Thenardier": {
-			"level": 9,
+			"level": 10,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -394,7 +394,7 @@ var settings_ = {
 			"cost": 60
 		},
 		"Marius": {
-			"level": 12,
+			"level": 13,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -406,7 +406,7 @@ var settings_ = {
 			"cost": 100
 		},
 		"Eponine": {
-			"level": 14,
+			"level": 16,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -415,10 +415,10 @@ var settings_ = {
 				"If Marius would die, loses 25% health for him instead",
 				"If any named character would die, loses 25% health for them instead"
 			],
-			"cost": 20
+			"cost": 40
 		},
 		"Valjean": {
-			"level": 16,
+			"level": 20,
 			"damage": 1,
 			"health": 1,
 			"special": [
