@@ -592,16 +592,21 @@ button[type=button]:enabled {
     display: inline-block;
 }
 
+.upgraderUpgradeContainer {
+    width: 100%;
+    display: inline-block;
+}
+
 .upgraderUpgrade {
     font-size: 2.81vw;
     text-align: center;
-    width: 100%;
+    width: 33%;
     display: inline-block;
 }
 
 .upgraderUpgrade .stats {
     padding: 0vw 1.6vw;
-    font-size: 1.6vw;
+    font-size: 1.2vw;
 }
 
 .aminame {

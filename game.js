@@ -1095,6 +1095,8 @@ function newUpgrader(ami, type) {
     var upgrade = document.createElement("div");
     upgrade.id = ami.id + "-upgrader" + type;
     upgrade.className = "upgraderUpgrade";
+    upgrade.cost_type = cost_type;
+    upgrade.cost = cost
     var stats = document.createElement("div");
     stats.id = ami.id + "-upgraderstats" + type;
     stats.className = "stats";
@@ -2383,6 +2385,7 @@ function recruitMe(ev) {
         revolution();
     } else if (id == "Grantaire" && getWave() < 4) {
         refs_.recruit.disabled = true;
+        closeRecruit();
     }
 }
 
@@ -2434,6 +2437,7 @@ function upgraderMeMe(ev) {
     var cost = ev.target.cost;
     var type = ev.target.cost_type;
     var ami = document.getElementById(ev.target.id.replace("-upgraderButton" + type, ""));
+    var container = ev.target.parentElement.parentElement;
     if (type == UpgraderType.DAMAGE) {
         if (getAmmo() < cost) {
             return;
@@ -2441,7 +2445,14 @@ function upgraderMeMe(ev) {
         setAmmo(getAmmo() - cost);
         settings_.amis[getName(ami)].damage += 0.5;
         if (getDamage(ami) < 3) {
-            refs_.upgrader_screen.insertBefore(newUpgrader(ami, UpgraderType.DAMAGE), ev.target.parentElement);
+            container.insertBefore(newUpgrader(ami, UpgraderType.DAMAGE), ev.target.parentElement);
+        }
+        for (const ctr of refs_.upgrader_screen.children) {
+            for (const child of ctr.children) {
+                if (child.cost_type == CostType.AMMO && child.cost > getAmmo()) {
+                    child.children[child.children.length - 1].disabled = true;
+                }
+            }
         }
     }
     if (type == UpgraderType.HEALTH) {
@@ -2451,9 +2462,16 @@ function upgraderMeMe(ev) {
         setFood(getFood() - cost);
         settings_.amis[getName(ami)].health += 0.25;
         if (getHealthMax(ami) < 2) {
-            refs_.upgrader_screen.insertBefore(newUpgrader(ami, UpgraderType.HEALTH), ev.target.parentElement);
+            container.insertBefore(newUpgrader(ami, UpgraderType.HEALTH), ev.target.parentElement);
         }
         updateFood();
+        for (const ctr of refs_.upgrader_screen.children) {
+            for (const child of ctr.children) {
+                if (child.cost_type == CostType.FOOD && child.cost > getFood()) {
+                    child.children[child.children.length - 1].disabled = true;
+                }
+            }
+        }
     }
     if (type == UpgraderType.SPECIAL) {
         if (getHope() < cost) {
@@ -2462,27 +2480,47 @@ function upgraderMeMe(ev) {
         setHope(getHope() - cost);
         settings_.amis[getName(ami)].special_level += 1;
         if (specialLevel(ami, ami.id) < 4) {
-            refs_.upgrader_screen.insertBefore(newUpgrader(ami, UpgraderType.SPECIAL), ev.target.parentElement);
+            container.insertBefore(newUpgrader(ami, UpgraderType.SPECIAL), ev.target.parentElement);
+        }
+        for (const ctr of refs_.upgrader_screen.children) {
+            for (const child of ctr.children) {
+                if (child.cost_type == CostType.HOPE && child.cost > getHope()) {
+                    child.children[child.children.length - 1].disabled = true;
+                }
+            }
         }
     }
     ev.target.parentElement.remove();
     updateStats(ami);
-    if (!hasChildren(refs_.upgrader_screen)) {
+    if (!container.children.length) {
         document.getElementById(ev.target.id.replace("-upgraderButton" + type, "-upgrader")).remove();
-        closeUpgrader();
+        container.remove();
+        if (!hasChildren(refs_.upgrader_screen)) {
+            closeUpgrader();
+        }
     }
 }
 
 function upgraderMe(ev) {
-    var ami = ev.target.parentElement;
-    if (getDamage(ami) < 3) {
-        refs_.upgrader_screen.appendChild(newUpgrader(ami, UpgraderType.DAMAGE));
-    }
-    if (getHealthMax(ami) < 2) {
-        refs_.upgrader_screen.appendChild(newUpgrader(ami, UpgraderType.HEALTH));
-    }
-    if (specialLevel(ami, ami.id) < 4) {
-        refs_.upgrader_screen.appendChild(newUpgrader(ami, UpgraderType.SPECIAL));
+    for (const ami of [...getAllAmis()].sort((a, b) => sort_order(a, b))) {
+        if (isCitizen(ami)) {
+            continue;
+        }
+        var container = document.createElement("div");
+        container.id = ami.id + "-upgradecontainer";
+        container.className = "upgraderUpgradeContainer";
+        if (getDamage(ami) < 3) {
+            container.appendChild(newUpgrader(ami, UpgraderType.DAMAGE));
+        }
+        if (getHealthMax(ami) < 2) {
+            container.appendChild(newUpgrader(ami, UpgraderType.HEALTH));
+        }
+        if (specialLevel(ami, ami.id) < 4) {
+            container.appendChild(newUpgrader(ami, UpgraderType.SPECIAL));
+        }
+        if (container.children.length) {
+            refs_.upgrader_screen.appendChild(container);
+        }
     }
     refs_.upgrader_screen.style.display = "inline-block";
     disableButtons();
