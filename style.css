@@ -578,6 +578,15 @@ button[type=button]:enabled {
     cursor: pointer;
 }
 
+.upgraderami {
+    display: inline-block;
+    width: 10%;
+    font-size: 3.2vw;
+    text-align: center;
+    z-index: 1;
+    height: 100%;
+}
+
 .recruit {
     font-size: 2.81vw;
     text-align: center;
@@ -600,8 +609,9 @@ button[type=button]:enabled {
 .upgraderUpgrade {
     font-size: 2.81vw;
     text-align: center;
-    width: 33%;
+    width: 30%;
     display: inline-block;
+    height: 100%;
 }
 
 .upgraderUpgrade .stats {
@@ -613,6 +623,12 @@ button[type=button]:enabled {
     width: 100%;
     text-align: center;
     font-size: 0.8vw;
+}
+
+.upgraderaminame {
+    width: 100%;
+    text-align: center;
+    font-size: 1.2vw;
 }
 
 .recruitname {

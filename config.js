@@ -362,10 +362,10 @@ var settings_ = {
 			"damage": 1,
 			"health": 1,
 			"special": [
-				"When co-located, has 25% chance of identifying Javert; drains hope on death",
-				"When co-located, has 50% chance of identifying Javert; drains hope on death",
-				"When co-located, has 75% chance of identifying Javert; drains hope on death",
-				"When co-located, identifies Javert; drains hope on death"
+				"When co-located, has 25% chance of identifying Javert",
+				"When co-located, has 50% chance of identifying Javert",
+				"When co-located, has 75% chance of identifying Javert",
+				"When co-located, identifies Javert"
 			],
 			"cost": 40
 		},

@@ -155,6 +155,17 @@ function initializeAmis() {
             addNewAmi(name);
         }
     }
+    for (const ami of [...getAllAmis()].sort((a, b) => sort_order(a, b))) {
+        var container = document.createElement("div");
+        var amid = newPerson(ami.id + "1", "upgraderami");
+        container.appendChild(amid);
+        container.id = ami.id + "-upgradecontainer";
+        container.className = "upgraderUpgradeContainer";
+        container.appendChild(newUpgrader(ami, UpgraderType.DAMAGE));
+        container.appendChild(newUpgrader(ami, UpgraderType.HEALTH));
+        container.appendChild(newUpgrader(ami, UpgraderType.SPECIAL));
+        refs_.upgrader_screen.appendChild(container);
+    }
 }
 
 function initializeUpgrades() {
@@ -986,7 +997,7 @@ function addNewEnemy(name, loc) {
 }
 
 function isAmi(element) {
-    return element.className == "ami" || element.className == "recruit";
+    return element.className == "ami" || element.className == "recruit" || element.className == "upgraderami";
 }
 
 function isCitizen(element) {
@@ -1082,11 +1093,11 @@ function newUpgrader(ami, type) {
     if (type == UpgraderType.DAMAGE) {
         cost_type = CostType.AMMO;
         cost *= 5 * 2 ** ((getDamage(ami) - 0.5) / 0.5 - 1);
-        desc = ami.id + " damage: " + getDamage(ami) + " -&gt " + (getDamage(ami) + 0.5);
+        desc = "Damage: " + getDamage(ami) + " -&gt " + (getDamage(ami) + 0.5);
     } else if (type == UpgraderType.HEALTH) {
         cost_type = CostType.FOOD;
         cost *= 2 ** ((getHealthMax(ami) - 0.75) / 0.25 - 1);
-        desc = ami.id + " health: " + getHealthMax(ami) + " -&gt " + (getHealthMax(ami) + 0.25);
+        desc = "Health: " + getHealthMax(ami) + " -&gt " + (getHealthMax(ami) + 0.25);
     } else if (type == UpgraderType.SPECIAL) {
         cost_type = CostType.HOPE;
         cost *= 3 ** (specialLevel(ami, ami.id) - 1);
@@ -1733,8 +1744,6 @@ function die(person, attacker) {
         state_.javert_label = null;
     } else if (specialLevel(person, "Prouvaire")) {
         setHope(getHope() + 25 * specialLevel(person, "Prouvaire"));
-    } else if (specialLevel(person, "Gavroche")) {
-        setHope(0);
     } else if (isCitizen(person)) {
         setHope(getHope() - settings_.hope_death/2);
     } else if (isAmi(person)) {
@@ -2378,6 +2387,16 @@ function recruitMe(ev) {
         state_.recruits += 1;
         ev.target.parentElement.remove();
         addNewAmi(id);
+        var ami = document.getElementById(id);
+        var container = document.createElement("div");
+        var amid = newPerson(ami.id + "1", "upgraderami");
+        container.appendChild(amid);
+        container.id = ami.id + "-upgradecontainer";
+        container.className = "upgraderUpgradeContainer";
+        container.appendChild(newUpgrader(ami, UpgraderType.DAMAGE));
+        container.appendChild(newUpgrader(ami, UpgraderType.HEALTH));
+        container.appendChild(newUpgrader(ami, UpgraderType.SPECIAL));
+        refs_.upgrader_screen.appendChild(container);
     }
     setHope(getHope() - cost);
     updateRecruit();
@@ -2492,7 +2511,7 @@ function upgraderMeMe(ev) {
     }
     ev.target.parentElement.remove();
     updateStats(ami);
-    if (!container.children.length) {
+    if (!hasChildren(container)) {
         document.getElementById(ev.target.id.replace("-upgraderButton" + type, "-upgrader")).remove();
         container.remove();
         if (!hasChildren(refs_.upgrader_screen)) {
@@ -2502,35 +2521,12 @@ function upgraderMeMe(ev) {
 }
 
 function upgraderMe(ev) {
-    for (const ami of [...getAllAmis()].sort((a, b) => sort_order(a, b))) {
-        if (isCitizen(ami)) {
-            continue;
-        }
-        var container = document.createElement("div");
-        container.id = ami.id + "-upgradecontainer";
-        container.className = "upgraderUpgradeContainer";
-        if (getDamage(ami) < 3) {
-            container.appendChild(newUpgrader(ami, UpgraderType.DAMAGE));
-        }
-        if (getHealthMax(ami) < 2) {
-            container.appendChild(newUpgrader(ami, UpgraderType.HEALTH));
-        }
-        if (specialLevel(ami, ami.id) < 4) {
-            container.appendChild(newUpgrader(ami, UpgraderType.SPECIAL));
-        }
-        if (container.children.length) {
-            refs_.upgrader_screen.appendChild(container);
-        }
-    }
     refs_.upgrader_screen.style.display = "inline-block";
     disableButtons();
 }
 
 function closeUpgrader() {
     refs_.upgrader_screen.style.display = "none";
-    for (const child of getChildren(refs_.upgrader_screen)) {
-        child.remove();
-    }
     reenableButtons();
 }
 
