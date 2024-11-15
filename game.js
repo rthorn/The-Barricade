@@ -1108,6 +1108,9 @@ function newUpgrader(ami, type) {
     upgrade.className = "upgraderUpgrade";
     upgrade.cost_type = cost_type;
     upgrade.cost = cost
+    if (type == UpgraderType.SPECIAL) {
+        upgrade.style.marginTop = "0px";
+    }
     var stats = document.createElement("div");
     stats.id = ami.id + "-upgraderstats" + type;
     stats.className = "stats";
@@ -2465,6 +2468,11 @@ function upgraderMeMe(ev) {
         settings_.amis[getName(ami)].damage += 1;
         if (getDamage(ami) < 4) {
             container.insertBefore(newUpgrader(ami, UpgraderType.DAMAGE), ev.target.parentElement);
+        } else {
+            var empty = document.createElement("div");
+            empty.className = "upgraderUpgradeEmpty";
+            empty.innerHTML = "<i>Damage: " + getDamage(ami) + "x</i>";
+            container.insertBefore(empty, ev.target.parentElement);
         }
         for (const ctr of refs_.upgrader_screen.children) {
             for (const child of ctr.children) {
@@ -2482,6 +2490,11 @@ function upgraderMeMe(ev) {
         settings_.amis[getName(ami)].health += 0.25;
         if (getHealthMax(ami) < 2) {
             container.insertBefore(newUpgrader(ami, UpgraderType.HEALTH), ev.target.parentElement);
+        } else {
+            var empty = document.createElement("div");
+            empty.className = "upgraderUpgradeEmpty";
+            empty.innerHTML = "<i>Health: " + getHealthMax(ami) + "x</i>";
+            container.insertBefore(empty, ev.target.parentElement);
         }
         updateFood();
         for (const ctr of refs_.upgrader_screen.children) {
@@ -2500,6 +2513,11 @@ function upgraderMeMe(ev) {
         settings_.amis[getName(ami)].special_level += 1;
         if (specialLevel(ami, ami.id) < 4) {
             container.insertBefore(newUpgrader(ami, UpgraderType.SPECIAL), ev.target.parentElement);
+        } else {
+            var empty = document.createElement("div");
+            empty.className = "upgraderUpgradeEmpty";
+            empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>";
+            container.insertBefore(empty, ev.target.parentElement);
         }
         for (const ctr of refs_.upgrader_screen.children) {
             for (const child of ctr.children) {
@@ -2511,13 +2529,6 @@ function upgraderMeMe(ev) {
     }
     ev.target.parentElement.remove();
     updateStats(ami);
-    if (!hasChildren(container)) {
-        document.getElementById(ev.target.id.replace("-upgraderButton" + type, "-upgrader")).remove();
-        container.remove();
-        if (!hasChildren(refs_.upgrader_screen)) {
-            closeUpgrader();
-        }
-    }
 }
 
 function upgraderMe(ev) {

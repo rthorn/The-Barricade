@@ -583,8 +583,8 @@ button[type=button]:enabled {
     width: 10%;
     font-size: 3.2vw;
     text-align: center;
-    z-index: 1;
     height: 100%;
+    margin-top: 3vw;
 }
 
 .recruit {
@@ -604,6 +604,7 @@ button[type=button]:enabled {
 .upgraderUpgradeContainer {
     width: 100%;
     display: inline-block;
+    height: 10vw;
 }
 
 .upgraderUpgrade {
@@ -612,6 +613,17 @@ button[type=button]:enabled {
     width: 30%;
     display: inline-block;
     height: 100%;
+    margin-top: 3vw;
+}
+
+.upgraderUpgradeEmpty {
+    font-size: 1.2vw;
+    text-align: center;
+    width: 30%;
+    display: inline-block;
+    height: 100%;
+    margin-top: 4vw;
+    vertical-align: middle;
 }
 
 .upgraderUpgrade .stats {
