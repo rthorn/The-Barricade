@@ -382,7 +382,7 @@ var settings_ = {
 			"cost": 60
 		},
 		"Thenardier": {
-			"level": 10,
+			"level": 12,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -394,7 +394,7 @@ var settings_ = {
 			"cost": 60
 		},
 		"Marius": {
-			"level": 13,
+			"level": 16,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -406,7 +406,7 @@ var settings_ = {
 			"cost": 100
 		},
 		"Eponine": {
-			"level": 16,
+			"level": 20,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -418,7 +418,7 @@ var settings_ = {
 			"cost": 40
 		},
 		"Valjean": {
-			"level": 20,
+			"level": 25,
 			"damage": 1,
 			"health": 1,
 			"special": [
