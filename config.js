@@ -1,6 +1,6 @@
 var settings_ = {
 	"wall_min": 1,
-	"hope_drink": 5,
+	"hope_drink": 10,
 	"hope_wave": 5,
 	"hope_death": 30,
 	"javert_hope": 500,
@@ -15,9 +15,9 @@ var settings_ = {
 	"base_hit_chance": 5,
 	"max_hit_chance": 75,
 	"scout_death": 20,
-	"loot_ammo": 50,
-	"loot_food": 5,
-	"heal_food": 33,
+	"loot_ammo": 100,
+	"loot_food": 10,
+	"heal_food": 25,
 	"food_use": 1,
 	"ammo_use": 1,
 	"sleep_ms": 500,
@@ -63,37 +63,37 @@ var settings_ = {
 			"cost_value": 5000
 		},
 		"damage1": {
-			"description": "Citizens do 0.25x more damage",
+			"description": "Citizens do 0.5x more damage",
 			"cost_type": "AMMO",
 			"cost_value": 500,
 			"unlocks": "damage2"
 		},
 		"damage2": {
-			"description": "Citizens do 0.25x more damage",
+			"description": "Citizens do 0.5x more damage",
 			"cost_type": "AMMO",
 			"cost_value": 1000,
 			"unlocks": "damage3"
 		},
 		"damage3": {
-			"description": "Citizens do 0.25x more damage",
+			"description": "Citizens do 0.5x more damage",
 			"cost_type": "AMMO",
 			"cost_value": 2000,
 			"unlocks": "damage4"
 		},
 		"damage4": {
-			"description": "Citizens do 0.25x more damage",
+			"description": "Citizens do 0.5x more damage",
 			"cost_type": "AMMO",
 			"cost_value": 4000,
 			"unlocks": "damage5"
 		},
 		"damage5": {
-			"description": "Citizens do 0.25x more damage",
+			"description": "Citizens do 0.5x more damage",
 			"cost_type": "AMMO",
 			"cost_value": 6000,
 			"unlocks": "damage6"
 		},
 		"damage6": {
-			"description": "Citizens do 0.25x more damage",
+			"description": "Citizens do 0.5x more damage",
 			"cost_type": "AMMO",
 			"cost_value": 10000
 		},
@@ -343,7 +343,7 @@ var settings_ = {
 			"level": 4,
 			"damage": 0.5,
 			"health": 0.5,
-			"cost": 20
+			"cost": 10
 		},
 		"Grantaire": {
 			"level": 2,

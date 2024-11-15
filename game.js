@@ -1092,12 +1092,12 @@ function newUpgrader(ami, type) {
     var cost_type = CostType.UNKNOWN;
     if (type == UpgraderType.DAMAGE) {
         cost_type = CostType.AMMO;
-        cost *= 5 * 2 ** ((getDamage(ami) - 0.5) / 0.5 - 1);
-        desc = "Damage: " + getDamage(ami) + " -&gt " + (getDamage(ami) + 0.5);
+        cost *= 5 * 2 ** (getDamage(ami) - 1);
+        desc = "Damage: " + getDamage(ami) + "x -&gt " + (getDamage(ami) + 1) + "x";
     } else if (type == UpgraderType.HEALTH) {
         cost_type = CostType.FOOD;
         cost *= 2 ** ((getHealthMax(ami) - 0.75) / 0.25 - 1);
-        desc = "Health: " + getHealthMax(ami) + " -&gt " + (getHealthMax(ami) + 0.25);
+        desc = "Health: " + getHealthMax(ami) + "x -&gt " + (getHealthMax(ami) + 0.25) + "x";
     } else if (type == UpgraderType.SPECIAL) {
         cost_type = CostType.HOPE;
         cost *= 3 ** (specialLevel(ami, ami.id) - 1);
@@ -1117,7 +1117,7 @@ function newUpgrader(ami, type) {
     button.cost = cost;
     button.cost_type = type;
     button.type = "button";
-    button.className = "upgradeButton";
+    button.className = "upgraderButton";
     button.id = ami.id + "-upgraderButton" + type;
     button.onclick = function(){ upgraderMeMe(event) };
     button.textContent = "Upgrade (-" + cost + " " + cost_type.toLowerCase() + ")";
@@ -2462,8 +2462,8 @@ function upgraderMeMe(ev) {
             return;
         }
         setAmmo(getAmmo() - cost);
-        settings_.amis[getName(ami)].damage += 0.5;
-        if (getDamage(ami) < 3) {
+        settings_.amis[getName(ami)].damage += 1;
+        if (getDamage(ami) < 4) {
             container.insertBefore(newUpgrader(ami, UpgraderType.DAMAGE), ev.target.parentElement);
         }
         for (const ctr of refs_.upgrader_screen.children) {
@@ -2521,6 +2521,17 @@ function upgraderMeMe(ev) {
 }
 
 function upgraderMe(ev) {
+    for (const ctr of refs_.upgrader_screen.children) {
+        for (const child of ctr.children) {
+            if (child.cost_type == CostType.HOPE) {
+                child.children[child.children.length - 1].disabled = child.cost > getHope();
+            } else if (child.cost_type == CostType.AMMO) {
+                child.children[child.children.length - 1].disabled = child.cost > getAmmo();
+            } else if (child.cost_type == CostType.FOOD) {
+                child.children[child.children.length - 1].disabled = child.cost > getFood();
+            }
+        }
+    }
     refs_.upgrader_screen.style.display = "inline-block";
     disableButtons();
 }

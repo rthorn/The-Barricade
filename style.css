@@ -695,6 +695,13 @@ button[type=button]:enabled {
     margin-bottom: 2.4vw;
 }
 
+.upgraderButton {
+    font-size: 0.88vw;
+    width: 12.04vw;
+    margin-top: 0vw;
+    margin-bottom: 2.4vw;
+}
+
 .ami .stats {
     z-index: 15;
     padding: .24vw;
