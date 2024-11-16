@@ -251,11 +251,6 @@ var settings_ = {
 			"cost_type": "HOPE",
 			"cost_value": 600
 		},
-		// "auto-replace": {
-		// 	"description": "Available citizens will automatically replace citizens close to death on the barricade",
-		// 	"cost_type": "HOPE",
-		// 	"cost_value": 1000
-		// },
 		"revolution": {
 			"description": "RÉVOLUTION!",
 			"cost_type": "HOPE",

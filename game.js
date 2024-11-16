@@ -11,7 +11,6 @@ var state_ = {
     wall_num: {"chanvrerie1": 1, "chanvrerie3": 1, "chanvrerie2": 1, "mondetour1": 1, "mondetour2": 1, "precheurs1": 1, "precheurs2": 1},
     wall_damage: 1,
     temp_damage: {},
-    auto_replace: false,
     training: 0,
     trainers: 1,
     learned_specials: {},
@@ -2178,21 +2177,6 @@ function enemyFire(i) {
                 continue;
             }
             var hitAmi = options.random();
-            if (!damage(hitAmi, enemy) && state_.auto_replace && getHealth(hitAmi) <= 5 && isCitizen(hitAmi)) {
-                var max = hitAmi;
-                for (const child of getChildren(refs_.lesamis)) {
-                    if (getHealth(child) > getHealth(max) && isCitizen(child)) {
-                        max = child;
-                    }
-                }
-                if (max != hitAmi) {
-                    wall.insertBefore(max, hitAmi);
-                    refs_.lesamis.appendChild(hitAmi);
-                    setWidth(max);
-                    setWidth(hitAmi);
-                    stackChildren(refs_.lesamis);
-                }
-            }
             if (getName(enemy) == EnemyType.SNIPER) {
                 flash(hitAmi);
             }
@@ -2647,8 +2631,6 @@ function upgradeMe(ev) {
         for (const citizen of getAllCitizens()) {
             updateStats(citizen);
         }
-    } else if (name == "auto-replace") {
-        state_.auto_replace = true;
     } else if (name == "revolution") {
         closeUpgrade();
         revolution();
