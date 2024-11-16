@@ -2645,6 +2645,26 @@ async function resolveRecover() {
     state_.foresight = false;
     var javert_loc = null;
     var deaths = [[], [], []];
+    var ammo_ran = [];
+    for (var i = 0; i < hasChildren(refs_.lootammo); i++) {
+        ammo_ran.push(getRandomInt(settings_.loot_ammo_max - settings_.loot_ammo_min + 1));
+    }
+    var food_ran = [];
+    for (var i = 0; i < hasChildren(refs_.lootfood); i++) {
+        food_ran.push(getRandomInt(settings_.loot_food_max - settings_.loot_food_min + 1));
+    }
+    var wall_ran = [];
+    var wall_children = 0;
+    for (const wall of refs_.barricade) {
+        wall_children += hasChildren(wall);
+    }
+    for (var i = 0; i < wall_children; i++) {
+        wall_ran.push(getRandomInt((settings_.wall_repair_max - settings_.wall_repair_min)*5 + 1)/5);
+    }
+    var hope_ran = [];
+    for (var i = 0; i < hasChildren(refs_.lesamis); i++) {
+        hope_ran.push(getRandomInt(settings_.hope_drink_max - settings_.hope_drink_min + 1));
+    }
     if (state_.javert) {
         javert_loc = state_.javert.parentElement;
         for (const ami of getChildren(javert_loc)) {
@@ -2679,15 +2699,18 @@ async function resolveRecover() {
         }
     }
     for (var i = 0; i < settings_.recover_animation_length; i++) {
+        var num = -1;
         var amis = [];
         for (const wall of refs_.barricade) {
             if (wall == javert_loc) {
                 continue;
             }
-            wallAdjust(wall, hasChildren(wall) * settings_.wall_repair / settings_.recover_animation_length, true);
             for (const child of getChildren(wall)) {
+                num += 1;
                 if (specialLevel(child, "Feuilly")) {
-                    wallAdjust(wall, (refs_.specialBonusLevels[specialLevel(child, "Feuilly") - 1] - 1) * settings_.wall_repair / settings_.recover_animation_length, true);
+                    wallAdjust(wall, refs_.specialBonusLevels[specialLevel(child, "Feuilly") - 1] * (settings_.wall_repair_min + wall_ran[num]) / settings_.recover_animation_length, true);
+                } else {
+                    wallAdjust(wall, (settings_.wall_repair_min + wall_ran[num]) / settings_.recover_animation_length, true);
                 }
             }
         }
@@ -2740,11 +2763,13 @@ async function resolveRecover() {
             }
         }
         if (javert_loc != refs_.lesamis) {
+            var num = -1;
             for (const ami of getChildren(refs_.lesamis)) {
+                num += 1;
                 if (getFood() > 0) {
-                    setHope(getHope() + Math.floor(settings_.hope_drink * (i + 1) / settings_.recover_animation_length) - Math.floor(settings_.hope_drink * i / settings_.recover_animation_length));
+                    setHope(getHope() + Math.floor((settings_.hope_drink_min + hope_ran[num]) * (i + 1) / settings_.recover_animation_length) - Math.floor((settings_.hope_drink_min + hope_ran[num]) * i / settings_.recover_animation_length));
                     if (specialLevel(ami, "Grantaire")) {
-                        setHope(getHope() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * settings_.hope_drink * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * settings_.hope_drink * i / settings_.recover_animation_length));
+                        setHope(getHope() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * (settings_.hope_drink_min + hope_ran[num]) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * (settings_.hope_drink_min + hope_ran[num]) * i / settings_.recover_animation_length));
                     }
                 }
             }
@@ -2756,9 +2781,9 @@ async function resolveRecover() {
                 num += 1
             }
             if (javert_loc != refs_.lootfood) {
-                setFood(getFood() + Math.floor(settings_.loot_food * (i + 1) / settings_.recover_animation_length) - Math.floor(settings_.loot_food * i / settings_.recover_animation_length));
+                setFood(getFood() + Math.floor((settings_.loot_food_min + food_ran[num]) * (i + 1) / settings_.recover_animation_length) - Math.floor((settings_.loot_food_min + food_ran[num]) * i / settings_.recover_animation_length));
                 if (specialLevel(ami, "Joly")) {
-                    setFood(getFood() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * settings_.loot_food * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * settings_.loot_food * i / settings_.recover_animation_length));
+                    setFood(getFood() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (settings_.loot_food_min + food_ran[num]) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (settings_.loot_food_min + food_ran[num]) * i / settings_.recover_animation_length));
                 }
             }
             if (state_.precheurs_open && (i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
@@ -2783,9 +2808,9 @@ async function resolveRecover() {
                 num += 1
             }
             if (javert_loc != refs_.lootammo) {
-                setAmmo(getAmmo() + Math.floor(settings_.loot_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(settings_.loot_ammo * i / settings_.recover_animation_length));
+                setAmmo(getAmmo() + Math.floor((settings_.loot_ammo_min + ammo_ran[num]) * (i + 1) / settings_.recover_animation_length) - Math.floor((settings_.loot_ammo_min + ammo_ran[num]) * i / settings_.recover_animation_length));
                 if (specialLevel(ami, "Combeferre")) {
-                    setAmmo(getAmmo() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * settings_.loot_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * settings_.loot_ammo * i / settings_.recover_animation_length));
+                    setAmmo(getAmmo() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (settings_.loot_ammo_min + ammo_ran[num]) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (settings_.loot_ammo_min + ammo_ran[num]) * i / settings_.recover_animation_length));
                 }
             }
             if (state_.precheurs_open && (i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
