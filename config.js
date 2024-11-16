@@ -116,13 +116,13 @@ var settings_ = {
 		"health3": {
 			"description": "Citizens have 0.25x more health",
 			"cost_type": "FOOD",
-			"cost_value": 300,
+			"cost_value": 400,
 			"unlocks": "health4"
 		},
 		"health4": {
 			"description": "Citizens have 0.25x more health",
 			"cost_type": "FOOD",
-			"cost_value": 500
+			"cost_value": 600
 		},
 		"recruit-limit1": {
 			"description": "+10 recruit limit",
@@ -145,31 +145,31 @@ var settings_ = {
 		"recruit-limit4": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 400,
+			"cost_value": 300,
 			"unlocks": "recruit-limit5"
 		},
 		"recruit-limit5": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 800,
+			"cost_value": 500,
 			"unlocks": "recruit-limit6"
 		},
 		"recruit-limit6": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 1200,
+			"cost_value": 800,
 			"unlocks": "recruit-limit7"
 		},
 		"recruit-limit7": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 2000,
+			"cost_value": 1200,
 			"unlocks": "recruit-limit8"
 		},
 		"recruit-limit8": {
 			"description": "+10 recruit limit",
 			"cost_type": "FOOD",
-			"cost_value": 5000
+			"cost_value": 2000
 		},
 		"barricade-limit-right": {
 			"description": "2x positions on right of barricade",
