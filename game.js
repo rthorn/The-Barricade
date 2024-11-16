@@ -1693,7 +1693,7 @@ function specialLevel(person, special) {
 }
 
 function die(person, attacker) {
-    if (!isCitizen(person) && !isEnemy(person)) {
+    if (isAmi(person)) {
         for (const ami of shuffle(getAllAmis())) {
             if (ami.id == person.id) {
                 continue;
