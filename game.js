@@ -372,18 +372,22 @@ $(document).on('mouseup', function(e) {
         document.removeEventListener('mousemove', mouseMove);
     }
     if (state_.droppable.has(target)) {
-        while (state_.data_transfer.length) {
-            dropAmi(e);
-        }
+        dropAmi(e);
     }
+    var tr = false;
+    var cit = false;
     while (state_.data_transfer.length) {
+        tr = true;
         var dropped = state_.data_transfer.pop();
+        cit = isCitizen(dropped);
         dropped.style.position = "static";
         dropped.style.pointerEvents = "auto";
         state_.last_parent.appendChild(dropped);
         setWidth(dropped);
+    }
+    if (tr) {
         setLabel(state_.last_parent);
-        if (isCitizen(dropped)) {
+        if (cit) {
             stackChildren(state_.last_parent);
         } else {
             reorderChildren(state_.last_parent);
@@ -452,54 +456,78 @@ function dropAmi(ev) {
     while (!refs_.ami_locations.has(target)) {
         target = target.parentElement;
     }
-    const dragged = state_.data_transfer.pop();
-    dragged.style.pointerEvents = 'auto';
-    dragged.style.position = "static";
-    state_.last_parent.appendChild(dragged);
-    setWidth(dragged);
+    var dragged_list = [];
+    while (state_.data_transfer.length) {
+        const dragged = state_.data_transfer.pop();
+        dragged.style.pointerEvents = 'auto';
+        dragged.style.position = "static";
+        state_.last_parent.appendChild(dragged);
+        setWidth(dragged);
+        dragged_list.push(dragged);
+    }
+    var cit = isCitizen(dragged_list[0]);
+    while (dragged_list.length) {
+        var dragged = dragged_list.pop();
+        if (target == state_.last_parent) {
+            break;
+        }
+        if (target == refs_.trainer && cit) {
+            break;
+        }
+        if (target == refs_.rightside && !cit && getWaveState() == WaveState.RECOVER) {
+            break;
+        }
+        if (!hasSpace(target)) {
+            if (!hasChildren(target) || state_.shift_key) {
+                if (hasChildren(target)) {
+                    setLabel(target);
+                    if (cit) {
+                        stackChildren(target);
+                    } else {
+                        reorderChildren(target);
+                    }
+                }
+                break;
+            }
+            var ami = ev.target.parentElement;
+            if (isAmi(ev.target)) {
+                ami = ev.target;
+            }
+            if (isAmi(ami)) {
+                target.insertBefore(dragged, ami);
+                state_.last_parent.appendChild(ami);
+                setWidth(dragged);
+                setWidth(ami);
+                setLabel(target);
+                setLabel(state_.last_parent);
+                if (cit || isCitizen(ami)) {
+                    stackChildren(state_.last_parent);
+                    stackChildren(target);
+                } else {
+                    reorderChildren(target);
+                    reorderChildren(state_.last_parent);
+                }
+                return;
+            }
+            var swap = getChildren(target)[0];
+            refs_.lesamis.appendChild(swap);
+            setWidth(swap);
+        }
+        target.appendChild(dragged);
+        setWidth(dragged);
+    }
+    setLabel(target);
     if (isCitizen(dragged)) {
+        stackChildren(target);
+    } else {
+        reorderChildren(target);
+    }
+    if (cit) {
         stackChildren(state_.last_parent);
     } else {
         reorderChildren(state_.last_parent);
     }
     setLabel(state_.last_parent);
-    if (target == state_.last_parent) {
-        return;
-    }
-    if (target == refs_.trainer && (isCitizen(dragged))) {
-        return;
-    }
-    if (target == refs_.rightside && !isCitizen(dragged) && getWaveState() == WaveState.RECOVER) {
-        return;
-    }
-    if (!hasSpace(target)) {
-        if (!hasChildren(target) || state_.shift_key) {
-            return;
-        }
-        var ami = ev.target.parentElement;
-        if (isAmi(ev.target)) {
-            ami = ev.target;
-        }
-        if (isAmi(ami)) {
-            target.insertBefore(dragged, ami);
-            state_.last_parent.appendChild(ami);
-            setWidth(dragged);
-            setWidth(ami);
-            setLabel(target);
-            setLabel(state_.last_parent);
-            if (isCitizen(dragged) || isCitizen(ami)) {
-                stackChildren(state_.last_parent);
-                stackChildren(target);
-            } else {
-                reorderChildren(target);
-                reorderChildren(state_.last_parent);
-            }
-            return;
-        }
-        var swap = getChildren(target)[0];
-        refs_.lesamis.appendChild(swap);
-        setWidth(swap);
-    }
     if (getWaveState() == WaveState.RECOVER) {
         if (target == refs_.trainer || state_.last_parent == refs_.trainer) {
             if (!hasChildren(refs_.rightside)) {
@@ -516,17 +544,6 @@ function dropAmi(ev) {
                 }
             }
         }
-    }
-    target.appendChild(dragged);
-    setWidth(dragged);
-    setLabel(target);
-    setLabel(state_.last_parent);
-    if (isCitizen(dragged)) {
-        stackChildren(state_.last_parent);
-        stackChildren(target);
-    } else {
-        reorderChildren(target);
-        reorderChildren(state_.last_parent);
     }
     if (target == refs_.lesamis) {
         refs_.autofill.disabled = false;
