@@ -2540,6 +2540,12 @@ function upgraderMe(ev) {
     }
     refs_.upgrader_screen.style.display = "inline-block";
     disableButtons();
+    for (const child of getChildren(refs_.upgrader_screen)) {
+        if (child.id == ev.target.parentElement.id + "-upgradecontainer") {
+            child.scrollIntoView({behavior: "smooth"});
+            break;
+        }
+    }
 }
 
 function closeUpgrader() {
