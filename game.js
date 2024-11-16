@@ -1693,39 +1693,19 @@ function specialLevel(person, special) {
 }
 
 function die(person, attacker) {
-    if (person.id == "Marius") {
-        for (const ami of getAllAmis()) {
-            if (specialLevel(ami, "Eponine") >= 3) {
+    if (!isCitizen(person) && !isEnemy(person) && !specialLevel(person, "Eponine")) {
+        for (const ami of shuffle(getAllAmis())) {
+            if (specialLevel(ami, "Eponine")) {
                 setHealth(person, 100);
-                setHealth(ami, getHealth(ami) - 25);
-                if (getHealth(ami) <= 0) {
-                    die(ami);
+                var amount = 100;
+                if (specialLevel(ami, "Eponine") == 2) {
+                    amount = 50;
+                } else if (specialLevel(ami, "Eponine") == 3) {
+                    amount = 25;
+                } else if (specialLevel(ami, "Eponine") == 4) {
+                    amount = 10;
                 }
-                return;
-            }
-        }
-        for (const ami of getAllAmis()) {
-            if (specialLevel(ami, "Eponine") == 2) {
-                setHealth(person, 100);
-                setHealth(ami, getHealth(ami) - 50);
-                if (getHealth(ami) <= 0) {
-                    die(ami);
-                }
-                return;
-            }
-        }
-        for (const ami of getAllAmis()) {
-            if (specialLevel(ami, "Eponine") == 1) {
-                setHealth(person, 100);
-                die(ami);
-                return;
-            }
-        }
-    } else if (!isCitizen(person) && !isEnemy(person)) {
-        for (const ami of getAllAmis()) {
-            if (specialLevel(ami, "Eponine") == 4) {
-                setHealth(person, 100);
-                setHealth(ami, getHealth(ami) - 25);
+                setHealth(ami, getHealth(ami) - amount/getHealthMax(ami));
                 if (getHealth(ami) <= 0) {
                     die(ami);
                 }

@@ -410,10 +410,10 @@ var settings_ = {
 			"damage": 1,
 			"health": 1,
 			"special": [
-				"If Marius would die, dies for him instead",
-				"If Marius would die, loses 50% health for him instead",
-				"If Marius would die, loses 25% health for him instead",
-				"If any named character would die, loses 25% health for them instead"
+				"If another ami would die, dies for them instead",
+				"If another ami would die, loses 50 health for them instead",
+				"If another ami would die, loses 25 health for them instead",
+				"If another ami would die, loses 10 health for them instead"
 			],
 			"cost": 40
 		},
