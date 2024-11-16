@@ -1634,7 +1634,7 @@ function feedAmi(ami) {
     if (getFood() <= 0 || getFeed(ami).style.display == "none") {
         return;
     }
-    setFood(getFood() - settings_.food_use);
+    setFood(getFood() - settings_.food_use / getHealthMax(ami));
     heal(ami, settings_.heal_food);
     getFeed(ami).style.display = "none";
     state_.needs_food.delete(ami);
