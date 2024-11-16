@@ -1693,8 +1693,11 @@ function specialLevel(person, special) {
 }
 
 function die(person, attacker) {
-    if (!isCitizen(person) && !isEnemy(person) && !specialLevel(person, "Eponine")) {
+    if (!isCitizen(person) && !isEnemy(person)) {
         for (const ami of shuffle(getAllAmis())) {
+            if (ami.id == person.id) {
+                continue;
+            }
             if (specialLevel(ami, "Eponine")) {
                 setHealth(person, 100);
                 var amount = 100;
