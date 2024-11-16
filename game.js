@@ -2609,7 +2609,7 @@ function upgradeMe(ev) {
         setLabel(refs_.rightside);
         $("#trainer").show();
     } else if (name.includes("damage")) {
-        settings_.amis["Citizen"].damage += 0.25;
+        settings_.amis["Citizen"].damage += 0.5;
         document.getElementById("Citizen-stats").innerHTML = settings_.amis["Citizen"].damage + "x damage, " + settings_.amis["Citizen"].health + "x health";
         for (const citizen of getAllCitizens()) {
             updateStats(citizen);
