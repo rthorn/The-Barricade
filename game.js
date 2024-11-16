@@ -1619,7 +1619,13 @@ function feed(event) {
 }
 
 function getFeed(ami) {
-    return document.getElementById(ami.id + "-feed");
+    for (const child of ami.children) {
+        if (child.id.includes("-feed")) {
+            return child;
+        }
+    }
+    console.error("No feed button found on ami: " + ami.id);
+    return null;
 }
 
 function updateFood() {
@@ -1631,12 +1637,13 @@ function updateFood() {
 }
 
 function feedAmi(ami) {
-    if (getFood() <= 0 || getFeed(ami).style.display == "none") {
+    var feed = getFeed(ami);
+    if (getFood() <= 0 || feed.style.display == "none") {
         return;
     }
     setFood(getFood() - settings_.food_use);
     heal(ami, settings_.heal_food / getHealthMax(ami));
-    getFeed(ami).style.display = "none";
+    feed.style.display = "none";
     state_.needs_food.delete(ami);
     updateFood();
     stackChildren(ami.parentElement);
@@ -2012,10 +2019,12 @@ function initEnemies(foresight = false) {
 // Functionality
 
 function feedAll() {
-    while (state_.needs_food.size && getFood() > 0) {
+    while (state_.needs_food.size && getFood()) {
         for (const ami of state_.needs_food) {
+            if (!getFood()) {
+                break;
+            }
             feedAmi(ami);
-            break;
         }
     }
 }
