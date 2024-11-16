@@ -293,10 +293,10 @@ var settings_ = {
 			"damage": 1,
 			"health": 1,
 			"special": [
-				"Does 1.5x extra repair on barricade",
-				"Does 2x extra repair on barricade",
-				"Does 3x extra repair on barricade",
-				"Does 5x extra repair on barricade"
+				"Does 1.5x extra build on barricade",
+				"Does 2x extra build on barricade",
+				"Does 3x extra build on barricade",
+				"Does 5x extra build on barricade"
 			]
 		},
 		"Bahorel": {
