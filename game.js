@@ -1943,8 +1943,14 @@ function addEnemies(type, wave, foresight = false) {
             for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesmondetour2);
+                    if (foresight) {
+                        refs_.lesenemiesmondetour2.style.color = "white";
+                    }
                 } else {
                     addNewEnemy(type, refs_.lesenemiesmondetour1);
+                    if (foresight) {
+                        refs_.lesenemiesmondetour1.style.color = "white";
+                    }
                 }
             }
         } else if (foresight) {
@@ -1966,8 +1972,14 @@ function addEnemies(type, wave, foresight = false) {
             for (let i = 1; i <= enemiesPerWave(type, precheurs); i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesprecheurs2);
+                    if (foresight) {
+                        refs_.lesenemiesprecheurs2.style.color = "white";
+                    }
                 } else {
                     addNewEnemy(type, refs_.lesenemiesprecheurs1);
+                    if (foresight) {
+                        refs_.lesenemiesprecheurs1.style.color = "white";
+                    }
                 }
             }
         } else if (foresight) {
