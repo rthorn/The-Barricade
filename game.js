@@ -35,6 +35,7 @@ var state_ = {
     citizens: false,
     max_ammo: 0,
     max_food: 0,
+    food_buttons: new Set([]),
     recruits: 0
 };
 
@@ -913,6 +914,7 @@ function newAmi(name) {
     button.textContent = "Eat food";
     button.style.display = "none";
     ami.appendChild(button);
+    state_.food_buttons.add(button);
     if (name == "Marius") {
         var power = document.createElement("button");
         power.type = "button";
@@ -1655,7 +1657,7 @@ function setFood(value) {
 
 function feed(event) {
     var ami = event.target.parentElement;
-    feedAmi(ami);
+    feedAmi(ami, true);
 }
 
 function getFeed(ami) {
@@ -1671,12 +1673,12 @@ function getFeed(ami) {
 function updateFood() {
     refs_.feed.innerText = "Feed all (" + state_.needs_food.size + ")";
     refs_.feed.disabled = state_.needs_food.size == 0 || getFood() <= 0;
-    for (const button of document.querySelectorAll(".foodButton")) {
+    for (const button in state_.food_buttons) {
         button.disabled = getFood() <= 0;
     }
 }
 
-function feedAmi(ami) {
+function feedAmi(ami, stack) {
     var feed = getFeed(ami);
     if (getFood() <= 0 || feed.style.display == "none") {
         return;
@@ -1686,7 +1688,9 @@ function feedAmi(ami) {
     feed.style.display = "none";
     state_.needs_food.delete(ami);
     updateFood();
-    stackChildren(ami.parentElement);
+    if (stack && isCitizen(ami)) {
+        stackChildren(ami.parentElement);
+    }
 }
 
 function mariusPower(ev) {
@@ -1793,11 +1797,12 @@ function die(person, attacker) {
         }
     }
     setHealth(person, 0);
-    if (specialLevel(person, "Marius")) {
-        for (const child of person.children) {
-            if (child.id.includes("-mariuspower")) {
-                state_.marius_buttons.delete(child);
-            }
+    for (const child of person.children) {
+        if (child.id.includes("-mariuspower")) {
+            state_.marius_buttons.delete(child);
+        }
+        if (child.id.includes("-feed")) {
+            state_.food_buttons.delete(child);
         }
     }
     if (person == state_.javert) {
@@ -2105,13 +2110,20 @@ function initEnemies(foresight = false) {
 // Functionality
 
 function feedAll() {
+    var locations = {};
     while (state_.needs_food.size && getFood()) {
         for (const ami of state_.needs_food) {
             if (!getFood()) {
                 break;
             }
             feedAmi(ami);
+            if (isCitizen(ami)) {
+                locations.add(ami.parentElement);
+            }
         }
+    }
+    for (const loc in locations) {
+        stackChildren(ami.parentElement);
     }
 }
 
@@ -2659,7 +2671,7 @@ function disableButtons() {
     for (const button of document.querySelectorAll(".resetButton")) {
         button.style.visibility = "hidden";
     }
-    for (const button of document.querySelectorAll(".foodButton")) {
+    for (const button of state_.food_buttons) {
         button.style.pointerEvents = "none";
     }
 }
@@ -2678,7 +2690,7 @@ function reenableButtons() {
     for (const button of document.querySelectorAll(".resetButton")) {
         button.style.visibility = "visible";
     }
-    for (const button of document.querySelectorAll(".foodButton")) {
+    for (const button of state_.food_buttons) {
         button.style.pointerEvents = "auto";
     }
 }
@@ -3125,6 +3137,14 @@ async function resolveRecover() {
                     setHope(getHope() + settings_.javert_hope);
                     state_.javert = null;
                     state_.javert_label = null;
+                }
+                for (const child of ami.children) {
+                    if (child.id.includes("-mariuspower")) {
+                        state_.marius_buttons.delete(child);
+                    }
+                    if (child.id.includes("-feed")) {
+                        state_.food_buttons.delete(child);
+                    }
                 }
                 ami.remove();
             }
