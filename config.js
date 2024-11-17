@@ -265,7 +265,8 @@ var settings_ = {
 				"Regains 25% health at end of wave",
 				"Regains 50% health at end of wave",
 				"Regains 75% health at end of wave",
-				"Regains all health at end of wave"
+				"Regains all health at end of wave",
+				"Regains all health and restores 25% health of co-located amis at end of wave"
 			]
 		},
 		"Combeferre": {
@@ -275,7 +276,8 @@ var settings_ = {
 				"Finds 1.5x ammo",
 				"Finds 2x ammo",
 				"Finds 3x ammo",
-				"Finds 5x ammo"
+				"Finds 5x ammo",
+				"Finds 5x ammo, always finds max amount",
 			]
 		},
 		"Courfeyrac": {
@@ -285,27 +287,30 @@ var settings_ = {
 				"When resting, all resting gain 5% more health and damage boost",
 				"When resting, all resting gain 10% more health and damage boost",
 				"When resting, all resting gain 15% more health and damage boost",
-				"When resting, all resting gain 20% more health and damage boost"
+				"When resting, all resting gain 20% more health and damage boost",
+				"All resting gain 20% more health and damage boost"
 			]
 		},
 		"Feuilly": {
 			"damage": 1,
 			"health": 1,
 			"special": [
-				"Does 1.5x extra build on barricade",
-				"Does 2x extra build on barricade",
-				"Does 3x extra build on barricade",
-				"Does 5x extra build on barricade"
+				"Does 1.5x build on barricade",
+				"Does 2x build on barricade",
+				"Does 3x build on barricade",
+				"Does 5x build on barricade",
+				"Does 5x build on barricade, always builds max amount"
 			]
 		},
 		"Bahorel": {
 			"damage": 1,
 			"health": 1,
 			"special": [
-				"Is 25% more accurate at shooting",
-				"Is 50% more accurate at shooting",
-				"Is 75% more accurate at shooting",
-				"Is perfectly accurate at shooting"
+				"5% chance to do 1.5x damage",
+				"5% chance to do 2x damage",
+				"5% chance to do 3x damage",
+				"5% chance to do 5x damage",
+				"5% chance to one-shot enemies"
 			]
 		},
 		"Prouvaire": {
@@ -315,7 +320,8 @@ var settings_ = {
 				"Boosts hope by 25 at death",
 				"Boosts hope by 50 at death",
 				"Boosts hope by 75 at death",
-				"Boosts hope by 100 at death"
+				"Boosts hope by 100 at death",
+				"Boosts hope by 100 at death, boosts hope for all damage taken"
 			]
 		},
 		"Joly": {
@@ -325,7 +331,8 @@ var settings_ = {
 				"Finds 1.5x food",
 				"Finds 2x food",
 				"Finds 3x food",
-				"Finds 5x food"
+				"Finds 5x food",
+				"Finds 5x food, always finds max amount"
 			]
 		},
 		"Bossuet": {
@@ -335,7 +342,8 @@ var settings_ = {
 				"2x as likely to be attacked",
 				"4x as likely to be attacked",
 				"10x as likely to be attacked",
-				"25x as likely to be attacked"
+				"25x as likely to be attacked",
+				"25x as likely to be attacked, always hit instead of wall when targeted"
 			]
 		},
 		"Citizen": {
@@ -352,7 +360,8 @@ var settings_ = {
 				"Gains 1.5x hope from drinking",
 				"Gains 2x hope from drinking",
 				"Gains 3x hope from drinking",
-				"Gains 5x hope from drinking"
+				"Gains 5x hope from drinking",
+				"Gains 5x hope from drinking, always gains max amount"
 			],
 			"cost": 40
 		},
@@ -364,7 +373,8 @@ var settings_ = {
 				"When co-located, has 25% chance of identifying Javert",
 				"When co-located, has 50% chance of identifying Javert",
 				"When co-located, has 75% chance of identifying Javert",
-				"When co-located, identifies Javert"
+				"When co-located, identifies Javert",
+				"When co-located, identifies and kills Javert"
 			],
 			"cost": 40
 		},
@@ -376,7 +386,8 @@ var settings_ = {
 				"If on barricade, gain 5% more hope at wave end",
 				"If on barricade, gain 10% more hope at wave end",
 				"If on barricade, gain 15% more hope at wave end",
-				"If on barricade, gain 20% more hope at wave end"
+				"If on barricade, gain 20% more hope at wave end",
+				"Gain 20% more hope at wave end"
 			],
 			"cost": 60
 		},
@@ -388,7 +399,8 @@ var settings_ = {
 				"25% reduced risk of death scouting or looting",
 				"50% reduced risk of death scouting or looting",
 				"75% reduced risk of death scouting or looting",
-				"No risk of death scouting or looting"
+				"No risk of death scouting or looting",
+				"No risk of death scouting or looting, sabotages enemy when scouting"
 			],
 			"cost": 60
 		},
@@ -398,9 +410,10 @@ var settings_ = {
 			"health": 1,
 			"special": [
 				"If on barricade, can spend ammo to end wave 10% early",
-				"If on barricade, can spend ammo to end wave 25% early ",
-				"If on barricade, can spend ammo to end wave 50% early ",
-				"If on barricade, can spend ammo to end wave 60% early "
+				"If on barricade, can spend ammo to end wave 25% early",
+				"If on barricade, can spend ammo to end wave 50% early",
+				"If on barricade, can spend ammo to end wave 60% early",
+				"If on barricade, can spend ammo to end wave 60% early, still receive hope at wave end"
 			],
 			"cost": 100
 		},
@@ -412,7 +425,8 @@ var settings_ = {
 				"If another ami would die, dies for them instead",
 				"If another ami would die, loses 50 health for them instead",
 				"If another ami would die, loses 25 health for them instead",
-				"If another ami would die, loses 10 health for them instead"
+				"If another ami would die, loses 10 health for them instead",
+				"If another ami would die, loses 10 health for them instead, ami regains all health"
 			],
 			"cost": 40
 		},
@@ -424,15 +438,31 @@ var settings_ = {
 				"25% chance to recruit enemies instead of killing them, up to recruit limit",
 				"50% chance to recruit enemies instead of killing them, up to recruit limit",
 				"75% chance to recruit enemies instead of killing them, up to recruit limit",
-				"100% chance to recruit enemies instead of killing them, up to recruit limit"
+				"100% chance to recruit enemies instead of killing them, up to recruit limit",
+				"100% chance to recruit enemies instead of killing them, ignores recruit limit"
 			],
 			"cost": 200
+		},
+		"Cosette": {
+			"level": 30,
+			"damage": 1,
+			"health": 1,
+			"special": [
+				"",
+				"",
+				"",
+				"For amis with multiple specials, levels up all other specials"
+			],
+			"cost": 500
 		},
 		"Victor Hugo": {
 			"level": 50,
 			"damage": 2,
 			"health": 2,
 			"special": [
+				"",
+				"",
+				"",
 				"You win."
 			],
 			"cost": 2000

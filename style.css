@@ -851,6 +851,10 @@ button[type=button]:enabled {
     background-color: lightseagreen;
 }
 
+.CosettePower {
+    background-color: yellow;
+}
+
 .EponinePower {
     background-color: darkorange;
 }
