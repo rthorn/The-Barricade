@@ -867,6 +867,10 @@ button[type=button]:enabled {
     background-color: limegreen;
 }
 
+.MmeThenardierPower {
+    background-color: green;
+}
+
 .GavrochePower {
     background-color: turquoise;
 }

@@ -924,6 +924,9 @@ function newAmi(name) {
         state_.marius_buttons.add(power);
         ami.appendChild(power);
     }
+    if (name == "Mme Thenardier") {
+        ami.children[0].style.fontSize = "0.68vw";
+    }
     if (!(getName(ami) in refs_.specials)) {
         var stacker = document.createElement("div");
         stacker.id = ami.id + "-stacker";
@@ -3059,10 +3062,11 @@ async function resolveRecover() {
                     setFood(getFood() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * i / settings_.recover_animation_length));
                 }
                 if (sl = specialLevel(ami, "Mme. Thenardier")) {
+                    var amounts = [0.005, 0.01, 0.02, 0.05, 0.05];
                     if (sl > 4) {
-                        setFood(getFood() + Math.floor(state_.max_food * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.max_food * i / settings_.recover_animation_length));
+                        setFood(getFood() + Math.floor(amounts[sl - 1] * state_.max_food * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * state_.max_food * i / settings_.recover_animation_length));
                     } else {
-                        setFood(getFood() + Math.floor(state_.initial_food * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.initial_food * i / settings_.recover_animation_length));
+                        setFood(getFood() + Math.floor(amounts[sl - 1] * initial_food * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * initial_food * i / settings_.recover_animation_length));
                     }
                 }
             }
@@ -3096,7 +3100,7 @@ async function resolveRecover() {
                     if (sl > 4) {
                         setAmmo(getAmmo() + Math.floor(state_.max_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.max_ammo * i / settings_.recover_animation_length));
                     } else {
-                        setAmmo(getAmmo() + Math.floor(state_.initial_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.initial_ammo * i / settings_.recover_animation_length));
+                        setAmmo(getAmmo() + Math.floor(initial_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(initial_ammo * i / settings_.recover_animation_length));
                     }
                 }
             }

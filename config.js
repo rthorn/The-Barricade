@@ -443,7 +443,7 @@ var settings_ = {
 			],
 			"cost": 100
 		},
-		"Mme. Thenardier": {
+		"Mme Thenardier": {
 			"level": 20,
 			"damage": 1,
 			"health": 1,
