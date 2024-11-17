@@ -389,23 +389,10 @@ var settings_ = {
 				"If on barricade, gain 20% more hope at wave end",
 				"Gain 20% more hope at wave end"
 			],
-			"cost": 60
-		},
-		"Thenardier": {
-			"level": 12,
-			"damage": 1,
-			"health": 1,
-			"special": [
-				"25% reduced risk of death scouting or looting",
-				"50% reduced risk of death scouting or looting",
-				"75% reduced risk of death scouting or looting",
-				"No risk of death scouting or looting",
-				"No risk of death scouting or looting, sabotages enemy when scouting"
-			],
-			"cost": 60
+			"cost": 40
 		},
 		"Marius": {
-			"level": 16,
+			"level": 10,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -418,7 +405,7 @@ var settings_ = {
 			"cost": 100
 		},
 		"Eponine": {
-			"level": 20,
+			"level": 12,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -428,10 +415,10 @@ var settings_ = {
 				"If another ami would die, loses 10 health for them instead",
 				"If another ami would die, loses 10 health for them instead, ami regains all health"
 			],
-			"cost": 40
+			"cost": 100
 		},
 		"Valjean": {
-			"level": 25,
+			"level": 14,
 			"damage": 1,
 			"health": 1,
 			"special": [
@@ -441,28 +428,100 @@ var settings_ = {
 				"100% chance to recruit enemies instead of killing them, up to recruit limit",
 				"100% chance to recruit enemies instead of killing them, ignores recruit limit"
 			],
+			"cost": 100
+		},
+		"Thenardier": {
+			"level": 17,
+			"damage": 1,
+			"health": 1,
+			"special": [
+				"25% reduced risk of death scouting or looting",
+				"50% reduced risk of death scouting or looting",
+				"75% reduced risk of death scouting or looting",
+				"No risk of death scouting or looting",
+				"No risk of death scouting or looting, sabotages enemy when scouting"
+			],
+			"cost": 100
+		},
+		"Mme. Thenardier": {
+			"level": 20,
+			"damage": 1,
+			"health": 1,
+			"special": [
+				"Finds an additional 0.5% of current food or ammo",
+				"Finds an additional 1% of current food or ammo",
+				"Finds an additional 2% of current food or ammo",
+				"Finds an additional 5% of current food or ammo",
+				"Finds an additional 5% of all-time highest food or ammo"
+			],
+			"cost": 100
+		},
+		"Montparnasse": {
+			"level": 24,
+			"damage": 1,
+			"health": 1,
+			"special": [
+				"2x chance to target snipers",
+				"4x chance to target snipers",
+				"10x chance to target snipers",
+				"Always targets snipers",
+				"Always targets snipers, 2x damage against them"
+			],
+			"cost": 200
+		},
+		"Babet": {
+			"level": 28,
+			"damage": 1,
+			"health": 1,
+			"special": [
+				"2x chance to target enemy with lowest health",
+				"4x chance to target enemy with lowest health",
+				"10x chance to target enemy with lowest health",
+				"Always targets enemy with lowest health",
+				"Always targets the two enemies with lowest health"
+			],
+			"cost": 200
+		},
+		"Gueulemer": {
+			"level": 28,
+			"damage": 1,
+			"health": 1,
+			"special": [
+				"2x chance to target enemy with highest health",
+				"4x chance to target enemy with highest health",
+				"10x chance to target enemy with highest health",
+				"Always targets enemy with highest health",
+				"Always targets the two enemies with highest health"
+			],
 			"cost": 200
 		},
 		"Cosette": {
 			"level": 30,
 			"damage": 1,
 			"health": 1,
-			"special": [
-				"",
-				"",
-				"",
+			"special": ["", "", "",
 				"For amis with multiple specials, levels up all other specials"
 			],
 			"cost": 500
+		},
+		"Claquesous": {
+			"level": 32,
+			"damage": 1,
+			"health": 1,
+			"special": [
+				"2x chance to target cannons",
+				"4x chance to target cannons",
+				"10x chance to target cannons",
+				"Always targets cannons",
+				"Always targets cannons, 2x damage against them"
+			],
+			"cost": 200
 		},
 		"Victor Hugo": {
 			"level": 50,
 			"damage": 2,
 			"health": 2,
-			"special": [
-				"",
-				"",
-				"",
+			"special": ["", "", "",
 				"You win."
 			],
 			"cost": 2000

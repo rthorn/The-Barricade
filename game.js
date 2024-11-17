@@ -33,6 +33,8 @@ var state_ = {
     after_precheurs_upgrades: [],
     marius_buttons: new Set([]),
     citizens: false,
+    max_ammo: 0,
+    max_food: 0,
     recruits: 0
 };
 
@@ -1605,6 +1607,7 @@ function getAmmo() {
 
 function setAmmo(value) {
     refs_.ammo.textContent = Math.max(value, 0).toString();
+    state_.max_ammo = Math.max(state_.max_ammo, value);
     if (value <= settings_.ammo_warning_threshold) {
         refs_.ammo.style.color = "red";
     } else {
@@ -1632,6 +1635,7 @@ function getFood() {
 
 function setFood(value) {
     refs_.food.textContent = Math.max(value, 0).toString();
+    state_.max_food = Math.max(state_.max_food, value);
     if (value <= settings_.food_warning_threshold) {
         refs_.food.style.color = "red";
     } else {
@@ -1718,6 +1722,12 @@ function damage(person, attacker) {
             return true;
         }
         bonus = refs_.specialBonusLevels[specialLevel(attacker, "Bahorel") - 1];
+    }
+    if (specialLevel(attacker, "Montparnasse") > 4 && getName(person) == EnemyType.SNIPER) {
+        bonus *= 2;
+    }
+    if (specialLevel(attacker, "Claquesous") > 4 && getName(person) == EnemyType.CANNON) {
+        bonus *= 2;
     }
     setHealth(person, getHealth(person) - getDamage(attacker) * bonus/getHealthMax(person)*(isAmi(attacker) ? settings_.ami_damage : settings_.enemy_damage));
     if (specialLevel(person, "Prouvaire") > 4) {
@@ -2263,6 +2273,10 @@ function enemyFire(i) {
 
 function barricadeFire() {
     for (const ami of getAmisBattle()) {
+        var enemies = getEnemies(ami.parentElement);
+        if (!enemies.length) {
+            continue;
+        }
         if (!useAmmo()) {
             continue;
         }
@@ -2272,10 +2286,119 @@ function barricadeFire() {
         if (!hit(ami)) {
             continue;
         }
-        var enemy = getEnemies(ami.parentElement).random();
-        if (!enemy) {
-            continue;
+        var extras = [];
+        var sniped = false;
+        var lowed = false;
+        if (sl = specialLevel(ami, "Montparnasse")) {
+            for (const enemy of enemies) {
+                if (getName(enemy) == EnemyType.SNIPER) {
+                    extras.push(enemy);
+                    if (sl == 1) {
+                        for (var i = 0; i < 1; i++) {
+                            extras.push(enemy);
+                        }
+                    } else if (sl == 2) {
+                        for (var i = 0; i < 3; i++) {
+                            extras.push(enemy);
+                        }
+                    } else if (sl == 3) {
+                        for (var i = 0; i < 9; i++) {
+                            extras.push(enemy);
+                        }
+                    }
+                }
+            }
+            if (extras.length) {
+                if (sl >= 4) {
+                    sniped = true;
+                    enemies = [...extras];
+                } else {
+                    enemies = [...enemies, ...extras];
+                }
+            }
         }
+        extras = [];
+        if (sl = specialLevel(ami, "Claquesous")) {
+            for (const enemy of getEnemies(ami.parentElement)) {
+                if (getName(enemy) == EnemyType.CANNON) {
+                    extras.push(enemy);
+                    if (sl == 1) {
+                        for (var i = 0; i < 1; i++) {
+                            extras.push(enemy);
+                        }
+                    } else if (sl == 2) {
+                        for (var i = 0; i < 3; i++) {
+                            extras.push(enemy);
+                        }
+                    } else if (sl == 3) {
+                        for (var i = 0; i < 9; i++) {
+                            extras.push(enemy);
+                        }
+                    }
+                }
+            }
+            if (extras.length) {
+                if (sl >= 4 && !sniped) {
+                    enemies = [...extras];
+                } else {
+                    enemies = [...enemies, ...extras];
+                }
+            }
+        }
+        extras = [];
+        if (sl = specialLevel(ami, "Gueulemer")) {
+            var high_health = [...enemies].sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b)* getHealthMax(b) ? -1 : 1);
+            extras.push(high_health[0]);
+            if (sl > 4 && high_health.length > 1) {
+                extras.push(high_health[1]);
+            }
+            if (sl == 1) {
+                for (var i = 0; i < 1; i++) {
+                    extras.push(high_health[0]);
+                }
+            } else if (sl == 2) {
+                for (var i = 0; i < 3; i++) {
+                    extras.push(high_health[0]);
+                }
+            } else if (sl == 3) {
+                for (var i = 0; i < 9; i++) {
+                    extras.push(high_health[0]);
+                }
+            }
+            if (sl >= 4) {
+                lowed = true;
+                enemies = [...extras];
+            } else {
+                enemies = [...enemies, ...extras];
+            }
+        }
+        extras = [];
+        if (sl = specialLevel(ami, "Babet")) {
+            var low_health = [...enemies].sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b)* getHealthMax(b) ? 1 : -1);
+            extras.push(low_health[0]);
+            if (sl > 4 && low_health.length > 1) {
+                extras.push(low_health[1]);
+            }
+            if (sl == 1) {
+                for (var i = 0; i < 1; i++) {
+                    extras.push(low_health[0]);
+                }
+            } else if (sl == 2) {
+                for (var i = 0; i < 3; i++) {
+                    extras.push(low_health[0]);
+                }
+            } else if (sl == 3) {
+                for (var i = 0; i < 9; i++) {
+                    extras.push(low_health[0]);
+                }
+            }
+            if (sl >= 4 && !lowed) {
+                enemies = [...extras];
+            } else {
+                enemies = [...enemies, ...extras];
+            }
+        }
+        var enemy = enemies.random();
         if (damage(enemy, ami)) {
             if (getRandomInt(100) < 25 * specialLevel(ami, "Valjean")) {
                 if (getAllAmis().length < state_.max_amis || specialLevel(ami, "Valjean") > 4) {
@@ -2285,6 +2408,23 @@ function barricadeFire() {
             if (enemiesDead()) {
                 return;
             }
+        }
+        if (specialLevel(ami, "Babet") > 4 || specialLevel(ami, "Gueulemer") > 4) {
+            while (enemies.length > 1) {
+                enemies.splice(enemies.indexOf(enemy), 1);
+                enemy = enemies.random();
+                if (damage(enemy, ami)) {
+                    if (getRandomInt(100) < 25 * specialLevel(ami, "Valjean")) {
+                        if (getAllAmis().length < state_.max_amis || specialLevel(ami, "Valjean") > 4) {
+                            addNewCitizen();
+                        }
+                    }
+                    if (enemiesDead()) {
+                        return;
+                    }
+                }
+            }
+
         }
     }
 }
@@ -2475,7 +2615,7 @@ function recruitMe(ev) {
         container.className = "upgraderUpgradeContainer";
         container.appendChild(newUpgrader(ami, UpgraderType.DAMAGE));
         container.appendChild(newUpgrader(ami, UpgraderType.HEALTH));
-        if (specialLevel(ami, ami.id) == 4) {
+        if (specialLevel(ami, ami.id) >= 4) {
             var empty = document.createElement("div");
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>";
@@ -2758,6 +2898,8 @@ async function resolveRecover() {
     var javert_loc = null;
     var deaths = [[], [], []];
     var ammo_ran = [];
+    var initial_food = getFood();
+    var initial_ammo = getAmmo();
     for (var i = 0; i < hasChildren(refs_.lootammo); i++) {
         ammo_ran.push(getRandomInt(settings_.loot_ammo_max - settings_.loot_ammo_min + 1));
     }
@@ -2916,6 +3058,13 @@ async function resolveRecover() {
                 if (specialLevel(ami, "Joly")) {
                     setFood(getFood() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * i / settings_.recover_animation_length));
                 }
+                if (sl = specialLevel(ami, "Mme. Thenardier")) {
+                    if (sl > 4) {
+                        setFood(getFood() + Math.floor(state_.max_food * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.max_food * i / settings_.recover_animation_length));
+                    } else {
+                        setFood(getFood() + Math.floor(state_.initial_food * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.initial_food * i / settings_.recover_animation_length));
+                    }
+                }
             }
             if (state_.precheurs_open && (i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
                 var chance = settings_.scout_death;
@@ -2942,6 +3091,13 @@ async function resolveRecover() {
                 setAmmo(getAmmo() + Math.floor((specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * i / settings_.recover_animation_length));
                 if (specialLevel(ami, "Combeferre")) {
                     setAmmo(getAmmo() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * i / settings_.recover_animation_length));
+                }
+                if (sl = specialLevel(ami, "Mme. Thenardier")) {
+                    if (sl > 4) {
+                        setAmmo(getAmmo() + Math.floor(state_.max_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.max_ammo * i / settings_.recover_animation_length));
+                    } else {
+                        setAmmo(getAmmo() + Math.floor(state_.initial_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.initial_ammo * i / settings_.recover_animation_length));
+                    }
                 }
             }
             if (state_.precheurs_open && (i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
