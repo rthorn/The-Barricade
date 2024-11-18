@@ -3126,10 +3126,11 @@ async function resolveRecover() {
                     setAmmo(getAmmo() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * i / settings_.recover_animation_length));
                 }
                 if (sl = specialLevel(ami, "Mme Thenardier")) {
+                    var amounts = [0.005, 0.01, 0.02, 0.05, 0.05];
                     if (sl > 4) {
-                        setAmmo(getAmmo() + Math.floor(state_.max_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.max_ammo * i / settings_.recover_animation_length));
+                        setAmmo(getAmmo() + Math.floor(amounts[sl - 1] * state_.max_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * state_.max_ammo * i / settings_.recover_animation_length));
                     } else {
-                        setAmmo(getAmmo() + Math.floor(initial_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(initial_ammo * i / settings_.recover_animation_length));
+                        setAmmo(getAmmo() + Math.floor(amounts[sl - 1] * initial_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * initial_ammo * i / settings_.recover_animation_length));
                     }
                 }
             }
