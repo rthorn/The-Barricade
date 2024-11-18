@@ -36,7 +36,12 @@ var state_ = {
     max_ammo: 0,
     max_food: 0,
     food_buttons: new Set([]),
-    recruits: 0
+    recruits: 0,
+    citizenss: 0,
+    enemies: 0,
+    ami_lookup: {},
+    citizen_stats: null,
+    amis: new Set([])
 };
 
 var refs_ = {
@@ -915,6 +920,8 @@ function newAmi(name) {
     button.style.display = "none";
     ami.appendChild(button);
     state_.food_buttons.add(button);
+    state_.ami_lookup[ami.id] = ami;
+    state_.amis.add(ami);
     if (name == "Marius") {
         var power = document.createElement("button");
         power.type = "button";
@@ -980,7 +987,11 @@ function addNewAmi(name) {
     var ami = newAmi(name);
     refs_.lesamis.appendChild(ami);
     if (getWaveState() == WaveState.RECOVER && !isCitizen(ami)) {
-        document.getElementById(ami.id + "-upgrader").style.display = "block";
+        for (const child of ami.children) {
+            if (child.id.includes("-upgrader")) {
+                child.style.display = "block";
+            }
+        }
     }
     if (name != "Grantaire") {
         refs_.autofill.disabled = false;
@@ -990,11 +1001,8 @@ function addNewAmi(name) {
 }
 
 function addNewCitizen() {
-    var i = 0;
+    var i = state_.citizenss++;
     id = "Citizen" + i.toString();
-    while (document.getElementById(id) != null) {
-        id = "Citizen" + (i++).toString();
-    }
     var ami = addNewAmi(id);
     stackChildren(refs_.lesamis);
     if (!state_.javert && !state_.javert_dead) {
@@ -1081,6 +1089,9 @@ function newRecruit(name) {
     stats.className = "stats";
     stats.innerHTML = getStats(ami);
     ami.appendChild(stats);
+    if (name == "Citizen") {
+        state_.citizen_stats = stats;
+    }
     var button = document.createElement("button");
     button.type = "button";
     button.className = "recruitButton";
@@ -1192,12 +1203,8 @@ function canAffordUpgrader(cost, type) {
 }
 
 function newEnemy(type) {
-    var number = 1;
+    var number = state_.enemies++;
     var name = type + number;
-    while (document.getElementById(name) != null) {
-        number++;
-        name = type + number;
-    }
     var enemy = newPerson(name, "enemy");
     var stacker = document.createElement("div");
     stacker.id = enemy.id + "-stacker";
@@ -1264,7 +1271,7 @@ function getAmisBarricade() {
 }
 
 function getAllAmis() {
-    return document.querySelectorAll(".ami");
+    return [...state_.amis];
 }
 
 function getAllCitizens() {
@@ -1492,6 +1499,7 @@ function clearEnemies() {
     for (const enemy of getEnemies()) {
       enemy.remove();
     }
+    state_.enemies = 0;
 }
 
 function enemyOpacity(yes) {
@@ -1805,6 +1813,9 @@ function die(person, attacker) {
             state_.food_buttons.delete(child);
         }
     }
+    if (isAmi(person)) {
+        state_.amis.delete(person);
+    }
     if (person == state_.javert) {
         state_.javert_dead = true;
         state_.javert = null;
@@ -1852,7 +1863,12 @@ function updateStats(ami) {
     health.parentElement.style.width = (2.4 * getHealthMax(ami)) + "vw";
     health.parentElement.style.marginLeft = "calc((100% - " + health.parentElement.style.width + ") / 2)";
     setHealth(ami, (health.parentElement.getBoundingClientRect().width - currHealth)/health.parentElement.getBoundingClientRect().width * 100);
-    var bullets = document.getElementById(ami.id + "-bullets");
+    var bullets = null;
+    for (const child of ami.children) {
+        if (child.id.includes("-bullets")) {
+            bullets = child;
+        }
+    }
     bullets.innerHTML = "&#8269;";
     for (var i = 1; i <= getDamage(ami); i += 0.5) {
         bullets.innerHTML += "&#8269;";
@@ -2110,7 +2126,7 @@ function initEnemies(foresight = false) {
 // Functionality
 
 function feedAll() {
-    var locations = {};
+    var locations = new Set([]);
     while (state_.needs_food.size && getFood()) {
         for (const ami of state_.needs_food) {
             if (!getFood()) {
@@ -2178,8 +2194,10 @@ async function startWave() {
     }
     var temps = Object.keys(state_.temp_damage);
     state_.temp_damage = {};
-    for (const amid of temps) {
-        updateStats(document.getElementById(amid));
+    for (const ami of getAllAmis()) {
+        if (temps.includes(ami.id)) {
+            updateStats(ami);
+        }
     }
     transitionToRecover();
 }
@@ -2621,8 +2639,7 @@ function recruitMe(ev) {
         state_.order[id] = order;
         state_.recruits += 1;
         ev.target.parentElement.remove();
-        addNewAmi(id);
-        var ami = document.getElementById(id);
+        var ami = addNewAmi(id);
         var container = document.createElement("div");
         var amid = newPerson(ami.id + "1", "upgraderami");
         container.appendChild(amid);
@@ -2704,7 +2721,7 @@ function closeRecruit() {
 function upgraderMeMe(ev) {
     var cost = ev.target.cost;
     var type = ev.target.cost_type;
-    var ami = document.getElementById(ev.target.id.replace("-upgraderButton" + type, ""));
+    var ami = state_.ami_lookup[ev.target.id.replace("-upgraderButton" + type, "")];
     var container = ev.target.parentElement.parentElement;
     if (type == UpgraderType.DAMAGE) {
         if (getAmmo() < cost) {
@@ -2879,13 +2896,13 @@ function upgradeMe(ev) {
         $("#trainer").show();
     } else if (name.includes("damage")) {
         settings_.amis["Citizen"].damage += 0.5;
-        document.getElementById("Citizen-stats").innerHTML = settings_.amis["Citizen"].damage + "x damage, " + settings_.amis["Citizen"].health + "x health";
+        state_.citizen_stats.innerHTML = settings_.amis["Citizen"].damage + "x damage, " + settings_.amis["Citizen"].health + "x health";
         for (const citizen of getAllCitizens()) {
             updateStats(citizen);
         }
     } else if (name.includes("health")) {
         settings_.amis["Citizen"].health += 0.25;
-        document.getElementById("Citizen-stats").innerHTML = settings_.amis["Citizen"].damage + "x damage, " + settings_.amis["Citizen"].health + "x health";
+        state_.citizen_stats.innerHTML = settings_.amis["Citizen"].damage + "x damage, " + settings_.amis["Citizen"].health + "x health";
         for (const citizen of getAllCitizens()) {
             updateStats(citizen);
         }
@@ -3073,7 +3090,7 @@ async function resolveRecover() {
                 if (specialLevel(ami, "Joly")) {
                     setFood(getFood() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * i / settings_.recover_animation_length));
                 }
-                if (sl = specialLevel(ami, "Mme. Thenardier")) {
+                if (sl = specialLevel(ami, "Mme Thenardier")) {
                     var amounts = [0.005, 0.01, 0.02, 0.05, 0.05];
                     if (sl > 4) {
                         setFood(getFood() + Math.floor(amounts[sl - 1] * state_.max_food * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * state_.max_food * i / settings_.recover_animation_length));
@@ -3108,7 +3125,7 @@ async function resolveRecover() {
                 if (specialLevel(ami, "Combeferre")) {
                     setAmmo(getAmmo() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * i / settings_.recover_animation_length));
                 }
-                if (sl = specialLevel(ami, "Mme. Thenardier")) {
+                if (sl = specialLevel(ami, "Mme Thenardier")) {
                     if (sl > 4) {
                         setAmmo(getAmmo() + Math.floor(state_.max_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(state_.max_ammo * i / settings_.recover_animation_length));
                     } else {
@@ -3146,6 +3163,7 @@ async function resolveRecover() {
                         state_.food_buttons.delete(child);
                     }
                 }
+                state_.amis.delete(ami);
                 ami.remove();
             }
         }
