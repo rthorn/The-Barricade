@@ -15,6 +15,7 @@ var state_ = {
         temp_damage: {},
         needs_food: new Set([]),
         food_buttons: new Set([]),
+        eponines: new Set([]),
         last_recover: {},
         last_prepare: {}
     },
@@ -248,18 +249,6 @@ function arrayGreaterThan(a1,a2) {
         return false;
     }
     return JSON.stringify(a1) > JSON.stringify(a2);
-}
-
-function shuffle(array) {
-    var shuffled = [...array];
-    let currentIndex = shuffled.length;
-
-    while (currentIndex != 0) {
-        let randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [shuffled[currentIndex], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[currentIndex]];
-    }
-    return shuffled;
 }
 
 function scrollTop() {
@@ -945,6 +934,9 @@ function newAmi(name) {
         power.style.display = "none";
         state_.marius.buttons.add(power);
         ami.appendChild(power);
+    }
+    if (name == "Eponine") {
+        state_.amis.eponines.add(ami);
     }
     if (name == "Mme Thenardier") {
         ami.children[0].style.fontSize = "0.68vw";
@@ -1782,36 +1774,38 @@ function specialLevel(person, special) {
 
 function die(person, attacker) {
     if (isAmi(person)) {
-        for (const ami of shuffle([...state_.amis.all])) {
+        for (const ami of state_.amis.eponines) {
             if (ami.id == person.id) {
                 continue;
             }
-            if (specialLevel(ami, "Eponine")) {
-                if (specialLevel(ami, "Eponine") > 4) {
-                    setHealth(person, 100);
-                } else {
-                    refs_.lesamis.appendChild(person);
-                    setWidth(person);
-                    if (isCitizen(person)) {
-                        stackChildren(refs_.lesamis);
-                    } else {
-                        reorderChildren(refs_.lesamis);
-                    }
-                }
-                var amount = 100;
-                if (specialLevel(ami, "Eponine") == 2) {
-                    amount = 50;
-                } else if (specialLevel(ami, "Eponine") == 3) {
-                    amount = 25;
-                } else if (specialLevel(ami, "Eponine") >= 4) {
-                    amount = 10;
-                }
-                setHealth(ami, getHealth(ami) - amount/getHealthMax(ami));
-                if (getHealth(ami) <= 0) {
-                    die(ami);
-                }
-                return;
+            if (!specialLevel(ami, "Eponine")) {
+                console.error("Ami " + ami.id + " does not have Eponine special.");
+                continue;
             }
+            if (specialLevel(ami, "Eponine") > 4) {
+                setHealth(person, 100);
+            } else {
+                refs_.lesamis.appendChild(person);
+                setWidth(person);
+                if (isCitizen(person)) {
+                    stackChildren(refs_.lesamis);
+                } else {
+                    reorderChildren(refs_.lesamis);
+                }
+            }
+            var amount = 100;
+            if (specialLevel(ami, "Eponine") == 2) {
+                amount = 50;
+            } else if (specialLevel(ami, "Eponine") == 3) {
+                amount = 25;
+            } else if (specialLevel(ami, "Eponine") >= 4) {
+                amount = 10;
+            }
+            setHealth(ami, getHealth(ami) - amount/getHealthMax(ami));
+            if (getHealth(ami) <= 0) {
+                die(ami);
+            }
+            return;
         }
     }
     setHealth(person, 0);
@@ -1827,6 +1821,9 @@ function die(person, attacker) {
         state_.amis.all.delete(person);
         if (isCitizen(person)) {
             state_.citizens.num--;
+        }
+        if (state_.amis.eponines.has(person)) {
+            state_.amis.eponines.delete(person);
         }
     }
     if (person == state_.javert.ami) {
@@ -3008,6 +3005,9 @@ async function resolveRecover() {
                         }
                     }
                 }
+                if (refs_.specials["Eponine"].includes(state_.citizens.learned_specials[ami.id][remove])) {
+                    state_.amis.eponines.delete(ami);
+                }
                 state_.citizens.learned_specials[ami.id].splice(remove, 1);
             }
         }
@@ -3074,6 +3074,9 @@ async function resolveRecover() {
                         power.style.display = "none";
                         state_.marius.buttons.add(power);
                         ami.appendChild(power);
+                    }
+                    if (refs_.specials["Eponine"].includes(special)) {
+                        state_.amis.eponines.add(ami);
                     }
                     updateStats(ami);
                 }
@@ -3179,6 +3182,9 @@ async function resolveRecover() {
                 state_.amis.all.delete(ami);
                 if (isCitizen(ami)) {
                     state_.citizens.num--;
+                }
+                if (state_.amis.eponines.has(ami)) {
+                    state_.amis.eponines.delete(ami);
                 }
                 ami.remove();
             }
