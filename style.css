@@ -168,8 +168,9 @@ h3 {
 
 #recruit-limit {
     width: 100%;
-    text-align: center;
+    text-align: left;
     font-size: 1.2vw;
+    padding-left: 15.4vw;
 }
 
 #upgrade-screen {
