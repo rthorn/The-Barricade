@@ -25,6 +25,7 @@ var state_ = {
         num: 0,
         next_i: 0,
         learned_specials: {},
+        stacks: {},
         stats: null
     },
     javert: {
@@ -282,21 +283,19 @@ $(document).on('keydown keyup', function(e) {
         }
         var stacker = getStacker(existing);
         if (e.type == "keydown") {
-            for (const child of getChildren(state_.dragging.last_parent)) {
-                if (isEquivalent(child, existing)) {
-                    state_.dragging.data_transfer.push(child);
-                    stacker.textContent = (parseInt(stacker.textContent) + 1).toString();
-                    stacker.style.display = "block";
-                    child.style.display = "none";
-                    var topPos = child.getBoundingClientRect().top;
-                    var leftPos = child.getBoundingClientRect().left;
-                    document.body.appendChild(child);
-                    child.style.pointerEvents = 'none';
-                    child.style.position = "absolute";
-                    child.style.left = leftPos + scrollLeft() + "px";
-                    child.style.top = topPos + scrollTop() + "px";
-                    setWidth(child);
-                }
+            for (const child of state_.citizens.stacks[existing.id]) {
+                state_.dragging.data_transfer.push(child);
+                stacker.textContent = (parseInt(stacker.textContent) + 1).toString();
+                stacker.style.display = "block";
+                child.style.display = "none";
+                var topPos = child.getBoundingClientRect().top;
+                var leftPos = child.getBoundingClientRect().left;
+                document.body.appendChild(child);
+                child.style.pointerEvents = 'none';
+                child.style.position = "absolute";
+                child.style.left = leftPos + scrollLeft() + "px";
+                child.style.top = topPos + scrollTop() + "px";
+                setWidth(child);
             }
         } else {
             while (state_.dragging.data_transfer.length > 1) {
@@ -731,6 +730,7 @@ function stackChildren(loc) {
         var myStacker = getStacker(children[i]);
         myStacker.textContent = "1";
         myStacker.style.display = "none";
+        state_.citizens.stacks[children[i].id] = new Set([]);
         if (getWaveState() != WaveState.RECOVER && loc != refs_.lesamis) {
             continue;
         }
@@ -740,6 +740,7 @@ function stackChildren(loc) {
                 stacker.textContent = (parseInt(stacker.textContent) + 1).toString();
                 stacker.style.display = "block";
                 children[i].style.display = "none";
+                state_.citizens.stacks[children[j].id].add(children[i]);
                 break;
             }
         }
