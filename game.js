@@ -15,6 +15,7 @@ var state_ = {
         temp_damage: {},
         needs_food: new Set([]),
         food_buttons: new Set([]),
+        upgrader_buttons: new Set([]),
         eponines: new Set([]),
         last_recover: {},
         last_prepare: {}
@@ -26,7 +27,8 @@ var state_ = {
         next_i: 0,
         learned_specials: {},
         stacks: {},
-        stats: null
+        stats: null,
+        recruit_button: null
     },
     javert: {
         ami: null,
@@ -57,10 +59,16 @@ var state_ = {
     max_food: 0,
     recruits: 0,
     enemies: 0,
+    recruit_buttons: new Set([]),
+    upgrade_buttons: new Set([])
 };
 
 var refs_ = {
     specialBonusLevels: [1.5, 2, 3, 5, 5],
+    marius_progress: [0.9, 0.75, 0.5, 0.4, 0.4],
+    bossuet_extras: [1, 3, 9, 24, 24],
+    targeting_extras: [1, 3, 9, 0, 0],
+    mme_amounts: [0.005, 0.01, 0.02, 0.05, 0.05],
     reset_button: '<button type="button" class="resetButton" onClick="resetLoc(this)" hidden>&#x21bb;</button>',
     deathrisk: '<div class="deathrisk" onmouseenter="showHovertext(event)" onmouseleave="hideHovertext(event)">&#x2620</div> ',
     full_width: 'calc((100% - 4.82vw) / 2)',
@@ -129,6 +137,7 @@ function initializeVars() {
     for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel']) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
     }
+    refs_.enemy_locs = [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2];
     refs_.chanvrerie = new Set([document.getElementById('chanvrerie1'), document.getElementById('chanvrerie2'), document.getElementById('chanvrerie3')]);
     refs_.chanvrerie_labels = {};
     for (const wall of refs_.chanvrerie) {
@@ -152,9 +161,13 @@ function initializeVars() {
     }
     refs_.specials = {};
     refs_.special_ups = {};
+    refs_.specials_backwards = {};
     for (const name in settings_.amis) {
         if ("special" in settings_.amis[name]) {
             refs_.specials[name] = settings_.amis[name].special;
+            for (const special of refs_.specials[name]) {
+                refs_.specials_backwards[special] = name;
+            }
             settings_.amis[name].special_level = 1;
             while (refs_.specials[name][settings_.amis[name].special_level - 1] == "") {
                 settings_.amis[name].special_level += 1;
@@ -165,6 +178,18 @@ function initializeVars() {
                 i += 1;
             }
             refs_.special_ups[refs_.specials[name][i - 1]] = refs_.specials[name][i - 1];
+        }
+    }
+    refs_.labels = new Set([]);
+    for (const ref in refs_) {
+        if (ref.includes("_label")) {
+            if (ref.includes("_labels")) {
+                for (const label in refs_[ref]) {
+                    refs_.labels.add(refs_[ref][label]);
+                }
+            } else {
+                refs_.labels.add(refs_[ref]);
+            }
         }
     }
     state_.order = {};
@@ -271,51 +296,7 @@ document.addEventListener('contextmenu', event => {
     event.preventDefault();
 });
 
-$(document).on('keydown keyup', function(e) {
-    if (e.originalEvent.key != "Shift") {
-        return;
-    }
-    state_.dragging.shift_key = e.type == "keydown";
-    if (state_.dragging.data_transfer.length) {
-        var existing = state_.dragging.data_transfer[0];
-        if (!isCitizen(existing)) {
-            return;
-        }
-        var stacker = getStacker(existing);
-        if (e.type == "keydown") {
-            for (const child of state_.citizens.stacks[existing.id]) {
-                state_.dragging.data_transfer.push(child);
-                stacker.textContent = (parseInt(stacker.textContent) + 1).toString();
-                stacker.style.display = "block";
-                child.style.display = "none";
-                var topPos = child.getBoundingClientRect().top;
-                var leftPos = child.getBoundingClientRect().left;
-                document.body.appendChild(child);
-                child.style.pointerEvents = 'none';
-                child.style.position = "absolute";
-                child.style.left = leftPos + scrollLeft() + "px";
-                child.style.top = topPos + scrollTop() + "px";
-                setWidth(child);
-            }
-        } else {
-            while (state_.dragging.data_transfer.length > 1) {
-                var dragged = state_.dragging.data_transfer.pop();
-                state_.dragging.last_parent.appendChild(dragged);
-                dragged.style.pointerEvents = 'auto';
-                dragged.style.position = "static";
-                stacker.textContent = "1";
-                stacker.style.display = "none";
-                setWidth(dragged);
-            }
-            stackChildren(state_.dragging.last_parent);
-        }
-        setLabel(state_.dragging.last_parent);
-    }
-});
-
-function isScreen(element) {
-    return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen;
-}
+// Hovertext
 
 function deathriskText() {
     return "Has " + settings_.scout_death + "% chance of death";
@@ -352,10 +333,58 @@ function hideHovertext(e) {
     refs_.hovertext.style.display = "none";
 }
 
+// Dragging
+
+$(document).on('keydown keyup', function(e) {
+    if (e.originalEvent.key != "Shift") {
+        return;
+    }
+    state_.dragging.shift_key = e.type == "keydown";
+    if (!state_.dragging.data_transfer.length) {
+        return;
+    }
+    var existing = state_.dragging.data_transfer[0];
+    if (!isCitizen(existing)) {
+        return;
+    }
+    var stacker = getStacker(existing);
+    if (e.type == "keydown") {
+        for (const citizen of state_.citizens.stacks[existing.id]) {
+            addToDrag(citizen);
+            stacker.textContent = (parseInt(stacker.textContent) + 1).toString();
+        }
+        if (state_.citizens.stacks[existing.id].size) {
+            stacker.style.display = "block";
+        }
+    } else {
+        while (state_.dragging.data_transfer.length > 1) {
+            removeFromDrag(state_.dragging.data_transfer.pop());
+        }
+        stacker.textContent = "1";
+        stacker.style.display = "none";
+        stackChildren(state_.dragging.last_parent);
+    }
+    setLabel(state_.dragging.last_parent);
+});
+
+function addToDrag(citizen) {
+    state_.dragging.data_transfer.push(citizen);
+    citizen.style.display = "none";
+    document.body.appendChild(citizen);
+}
+
+function removeFromDrag(citizen) {
+    state_.dragging.last_parent.appendChild(citizen);
+}
+
+function isScreen(element) {
+    return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen;
+}
+
 $(document).on('mousedown', function(e) {
     var screen = isScreen(e.target);
     var target = e.target;
-    if (new Set(["foodButton", "upgrader", "mariusButton"]).has(e.target.className)) {
+    if (["foodButton", "upgrader", "mariusButton"].includes(e.target.className)) {
         return;
     }
     while (target.parentElement && !state_.dragging.draggable.has(target)) {
@@ -426,10 +455,9 @@ function mouseMove(e) {
     var diffX = e.screenX - state_.dragging.last_mouse[0];
     var diffY = e.screenY - state_.dragging.last_mouse[1];
     state_.dragging.last_mouse = [e.screenX, e.screenY];
-    for (const dragging of state_.dragging.data_transfer) {
-        dragging.style.left = (parseInt(dragging.style.left.match(/\d+/)[0]) + diffX) +'px';
-        dragging.style.top = (parseInt(dragging.style.top.match(/\d+/)[0]) + diffY) +'px';
-    }
+    var dragging = state_.dragging.data_transfer[0];
+    dragging.style.left = (parseInt(dragging.style.left.match(/\d+/)[0]) + diffX) +'px';
+    dragging.style.top = (parseInt(dragging.style.top.match(/\d+/)[0]) + diffY) +'px';
 }
 
 function dragstartAmi(ev) {
@@ -442,31 +470,29 @@ function dragstartAmi(ev) {
     }
     state_.dragging.last_mouse = [ev.originalEvent.screenX, ev.originalEvent.screenY];
     state_.dragging.last_parent = target.parentElement;
+    state_.dragging.data_transfer.push(target);
     if (state_.dragging.shift_key && isCitizen(target)) {
-        for (const child of getChildren(target.parentElement)) {
-            if (isEquivalent(child, target)) {
-                state_.dragging.data_transfer.push(child);
-            }
+        for (const child of state_.citizens.stacks[target.id]) {
+            state_.dragging.data_transfer.push(child);
         }
     } else {
-        state_.dragging.data_transfer.push(target);
         if (isCitizen(target)) {
             var stacker = getStacker(target);
             stacker.innerHTML = "1";
             stacker.style.display = "none";
         }
     }
+    var topPos = target.getBoundingClientRect().top;
+    var leftPos = target.getBoundingClientRect().left;
     for (const dragging of state_.dragging.data_transfer) {
-        var topPos = dragging.getBoundingClientRect().top;
-        var leftPos = dragging.getBoundingClientRect().left;
         document.body.appendChild(dragging);
-        dragging.style.pointerEvents = 'none';
-        dragging.style.position = "absolute";
-        dragging.style.left = leftPos + scrollLeft() + "px";
-        dragging.style.top = topPos + scrollTop() + "px";
-        setWidth(dragging);
     }
-    if (isCitizen(state_.dragging.data_transfer[0])) {
+    target.style.pointerEvents = 'none';
+    target.style.position = "absolute";
+    target.style.left = leftPos + scrollLeft() + "px";
+    target.style.top = topPos + scrollTop() + "px";
+    setWidth(target);
+    if (isCitizen(target) && !state_.dragging.shift_key) {
         stackChildren(state_.dragging.last_parent);
     }
     setLabel(state_.dragging.last_parent);
@@ -660,14 +686,22 @@ function barricadeHasSpace() {
     return false;
 }
 
-function getStacker(person) {
+function getChild(person, className) {
     for (const child of person.children) {
-        if (child.className == "stacker") {
+        if (child.className == className) {
             return child;
         }
     }
-    console.error("No stacker found on person: " + person.id);
+    console.error("No " + className + " found on person: " + person.id);
     return null;
+}
+
+function getStacker(person) {
+    return getChild(person, "stacker");
+}
+
+function getFeed(ami) {
+    return getChild(ami, "foodButton");
 }
 
 function getResetButton(loc) {
@@ -747,55 +781,56 @@ function stackChildren(loc) {
     }
 }
 
-function stackEnemies(enemy_loc) {
-    for (const loc of [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
-        if (enemy_loc && enemy_loc != loc) {
+function stackAllEnemies() {
+    for (const loc of refs_.enemy_locs) {
+        stackEnemies(loc);
+    }
+}
+
+function stackEnemies(loc) {
+    for (const type in settings_.enemies) {
+        var width = loc.id.includes("mondetour") || loc.id.includes("precheurs") ? 3 : 14;
+        if (type == EnemyType.SNIPER) {
+            width = Math.floor(width * 2 / 3);
+        } else if (type == EnemyType.CANNON) {
+            width = Math.ceil(width * 1 / 3);
+        }
+        var total = 0;
+        for (const child of loc.children) {
+            if (child.id.includes(type)) {
+                total += 1;
+            }
+        }
+        if (!total) {
             continue;
         }
-        for (const type in settings_.enemies) {
-            var width = loc.id.includes("mondetour") || loc.id.includes("precheurs") ? 3 : 14;
-            if (type == EnemyType.SNIPER) {
-                width = Math.floor(width * 2 / 3);
-            } else if (type == EnemyType.CANNON) {
-                width = Math.ceil(width * 1 / 3);
-            }
-            var total = 0;
-            for (const child of loc.children) {
-                if (child.id.includes(type)) {
-                    total += 1;
-                }
-            }
-            if (!total) {
+        var size = 5*Math.ceil(total / width / 5);
+        var remainder = Math.floor(total / size) + total % size <= width;
+        var init = -1;
+        for (var i = 0; i < loc.children.length; i++) {
+            if (!loc.children[i].id.includes(type)) {
                 continue;
             }
-            var size = 5*Math.ceil(total / width / 5);
-            var remainder = Math.floor(total / size) + total % size <= width;
-            var init = -1;
-            for (var i = 0; i < loc.children.length; i++) {
-                if (!loc.children[i].id.includes(type)) {
-                    continue;
-                }
-                if (init == -1) {
-                    init = i;
-                }
-                loc.children[i].style.display = "inline-block";
-                var myStacker = getStacker(loc.children[i]);
-                myStacker.textContent = "1";
-                myStacker.style.display = "none";
-                if (total <= width) {
-                    continue;
-                }
-                for (var j = init; j < (remainder ? Math.min(i, Math.floor(total / size) * size + init) : i); j++) {
-                    if (isEquivalent(loc.children[i], loc.children[j])) {
-                        var stacker = getStacker(loc.children[j]);
-                        if (loc.children[j].style.display == "none" || parseInt(stacker.textContent) >= size) {
-                            continue;
-                        }
-                        stacker.textContent = (parseInt(stacker.textContent) + 1).toString();
-                        stacker.style.display = "block";
-                        loc.children[i].style.display = "none";
-                        break;
+            if (init == -1) {
+                init = i;
+            }
+            loc.children[i].style.display = "inline-block";
+            var myStacker = getStacker(loc.children[i]);
+            myStacker.textContent = "1";
+            myStacker.style.display = "none";
+            if (total <= width) {
+                continue;
+            }
+            for (var j = init; j < (remainder ? Math.min(i, Math.floor(total / size) * size + init) : i); j++) {
+                if (isEquivalent(loc.children[i], loc.children[j])) {
+                    var stacker = getStacker(loc.children[j]);
+                    if (loc.children[j].style.display == "none" || parseInt(stacker.textContent) >= size) {
+                        continue;
                     }
+                    stacker.textContent = (parseInt(stacker.textContent) + 1).toString();
+                    stacker.style.display = "block";
+                    loc.children[i].style.display = "none";
+                    break;
                 }
             }
         }
@@ -806,12 +841,7 @@ function setWidth(ami) {
     ami.style.marginLeft = null;
     ami.style.marginRight = null;
     if (specialLevel(ami, "Marius") && !isOnBarricade(ami)) {
-        for (const child of ami.children) {
-            if (child.id.includes("-mariuspower")) {
-                child.style.display = "none";
-                break;
-            }
-        }
+        getChild(ami, "mariusButton").style.display = "none";
     }
     if (getWaveState() == WaveState.RECOVER || ami.parentElement == document.body || ami.parentElement == refs_.lesamis) {
         return;
@@ -877,11 +907,33 @@ function setLabel(loc) {
     }
 }
 
+function getResetButtons() {
+    var reset_buttons = [];
+    for (const label of refs_.labels) {
+        if (label.children.length && label.children[0].className == "resetButton") {
+            reset_buttons.push(label.children[0]);
+        }
+    }
+    return reset_buttons
+}
+
 function setLabels() {
     clearLabels();
     for (const loc of refs_.ami_locations) {
         setLabel(loc);
     }
+}
+
+function newMariusButton(ami) {
+    var power = document.createElement("button");
+    power.type = "button";
+    power.className = "mariusButton";
+    power.id = ami.id + "-mariuspower";
+    power.onclick = function(){ mariusPower(event) };
+    power.textContent = "End wave (-" + mariusCost() + " ammo)";
+    power.style.display = "none";
+    state_.marius.buttons.add(power);
+    return power;
 }
 
 function newPerson(id, type) {
@@ -926,15 +978,7 @@ function newAmi(name) {
     state_.amis.lookup[ami.id] = ami;
     state_.amis.all.add(ami);
     if (name == "Marius") {
-        var power = document.createElement("button");
-        power.type = "button";
-        power.className = "mariusButton";
-        power.id = ami.id + "-mariuspower";
-        power.onclick = function(){ mariusPower(event) };
-        power.textContent = "End wave (-500 ammo)";
-        power.style.display = "none";
-        state_.marius.buttons.add(power);
-        ami.appendChild(power);
+        ami.appendChild(newMariusButton(ami));
     }
     if (name == "Eponine") {
         state_.amis.eponines.add(ami);
@@ -942,7 +986,7 @@ function newAmi(name) {
     if (name == "Mme Thenardier") {
         ami.children[0].style.fontSize = "0.68vw";
     }
-    if (!(getName(ami) in refs_.specials)) {
+    if (!(ami.id in refs_.specials)) {
         var stacker = document.createElement("div");
         stacker.id = ami.id + "-stacker";
         stacker.className = "stacker";
@@ -959,8 +1003,9 @@ function newAmi(name) {
         upgrader.id = ami.id + "-upgrader";
         upgrader.onclick = function(){ upgraderMe(event) };
         upgrader.innerHTML = "&#8679;";
-        upgrader.style.display = "none";
+        upgrader.style.display = getWave() > 1 ? "block" : "none";
         ami.appendChild(upgrader);
+        state_.amis.upgrader_buttons.add(upgrader);
     }
     var bullets = document.createElement("span");
     bullets.id = ami.id + "-bullets";
@@ -992,13 +1037,6 @@ function getStats(ami) {
 function addNewAmi(name) {
     var ami = newAmi(name);
     refs_.lesamis.appendChild(ami);
-    if (getWaveState() == WaveState.RECOVER && !isCitizen(ami)) {
-        for (const child of ami.children) {
-            if (child.id.includes("-upgrader")) {
-                child.style.display = "block";
-            }
-        }
-    }
     if (name != "Grantaire") {
         refs_.autofill.disabled = false;
     }
@@ -1016,11 +1054,7 @@ function addNewCitizen() {
         var chance = i <= settings_.initial_javert_threshold ? settings_.initial_javert_chance : settings_.javert_chance;
         if (getRandomInt(100) < chance) {
             state_.javert.ami = ami;
-            for (const child of ami.children) {
-                if (child.id == ami.id + "-label") {
-                    state_.javert.label = child;
-                }
-            }
+            state_.javert.label = getChild(ami, "aminame");
             if (!state_.javert.label) {
                 console.error("No label found in Javert: " + ami.id);
             }
@@ -1037,13 +1071,11 @@ function addNewRecruit(name) {
         }
         refs_.recruit_limit.hidden = false;
     }
-    if (getWave() > 1) {
-      refs_.recruit.innerHTML = "<b>Recruit**</b>";
-    }
+    refs_.recruit.innerHTML = "<b>Recruit**</b>";
 }
 
 function addNewEnemy(name, loc) {
-    loc.appendChild(newEnemy(name));
+    return loc.appendChild(newEnemy(name));
 }
 
 function isAmi(element) {
@@ -1109,6 +1141,7 @@ function newRecruit(name) {
         button.disabled = true;
     }
     ami.appendChild(button);
+    state_.recruit_buttons.add(button);
     return ami;
 }
 
@@ -1136,6 +1169,7 @@ function newUpgrade(name) {
         button.disabled = true;
     }
     upgrade.appendChild(button);
+    state_.upgrade_buttons.add(button);
     return upgrade;
 }
 
@@ -1317,11 +1351,9 @@ function autoFill() {
     refs_.autofill.disabled = true;
     if (getWaveState() == WaveState.PREPARE) {
         var high_health = 
-            [...getChildren(refs_.lesamis)]
-                .sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b)* getHealthMax(b) ? -1 : 1);
+            getChildren(refs_.lesamis).sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b) * getHealthMax(b) ? -1 : 1);
         var high_dam = 
-            [...getChildren(refs_.lesamis)]
-                .sort((a, b) => getDamage(a) < getDamage(b) ? -1 : getDamage(a) == getDamage(b) ? (getHealth(a) * getHealthMax(a) < getHealth(b)* getHealthMax(b) ? -1 : 1) : 1);
+            getChildren(refs_.lesamis).sort((a, b) => getDamage(a) < getDamage(b) ? -1 : getDamage(a) == getDamage(b) ? (getHealth(a) * getHealthMax(a) < getHealth(b) * getHealthMax(b) ? -1 : 1) : 1);
         if (state_.javert.ami && state_.javert.label.textContent == "Javert" && high_health.includes(state_.javert.ami)) {
             high_health.splice(high_health.indexOf(state_.javert.ami), 1);
             high_dam.splice(high_dam.indexOf(state_.javert.ami), 1);
@@ -1498,6 +1530,21 @@ function getEnemies(ami_loc) {
     return [...refs_.lesenemies1.children, ...refs_.lesenemies2.children, ...refs_.lesenemiesmondetour1.children, ...refs_.lesenemiesmondetour2.children, ...refs_.lesenemiesprecheurs1.children, ...refs_.lesenemiesprecheurs2.children];
 }
 
+function getSpecialEnemies(ami_loc) {
+    if (refs_.chanvrerie.has(ami_loc)) {
+        return [...refs_.lesenemies1.children];
+    } else if (refs_.mondetour.has(ami_loc)) {
+        return [...refs_.lesenemiesmondetour1.children];
+    } else if (refs_.precheurs.has(ami_loc)) {
+        return [...refs_.lesenemiesprecheurs1.children];
+    } else if (ami_loc == refs_.rightside) {
+        return [...refs_.lesenemiesprecheurs1.children, ...refs_.lesenemies1.children];
+    } else if (ami_loc == refs_.corinthe) {
+        return [...refs_.lesenemiesmondetour1.children, ...refs_.lesenemies1.children];
+    }
+    return [...refs_.lesenemies1.children, ...refs_.lesenemies2.children, ...refs_.lesenemiesmondetour1.children, ...refs_.lesenemiesmondetour2.children, ...refs_.lesenemiesprecheurs1.children, ...refs_.lesenemiesprecheurs2.children];
+}
+
 function clearEnemies() {
     for (const enemy of getEnemies()) {
       enemy.remove();
@@ -1506,7 +1553,7 @@ function clearEnemies() {
 }
 
 function enemyOpacity(yes) {
-    for (const loc of [refs_.lesenemies1, refs_.lesenemies2, refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
+    for (const loc of refs_.enemy_locs) {
       loc.style.opacity = yes ? 1 : 0.5
     }
 }
@@ -1516,22 +1563,27 @@ function getHeight(wall) {
 }
 
 function setHeight(wall, value) {
-    var pixels = Math.min(Math.max(value/100 * settings_.max_height, 0), settings_.max_height);
-    wall.style.height = pixels + "vw";
+    var vw = Math.min(Math.max(value * settings_.max_height / 100, 0), settings_.max_height);
+    wall.style.height = vw + "vw";
     if (refs_.mondetour.has(wall) || refs_.precheurs.has(wall)) {
-        wall.style.top = ((wall.id.includes("1") ? 16.85 : 20.35) + settings_.max_height - pixels) + "vw";
+        wall.style.top = ((wall.id.includes("1") ? 16.85 : 20.35) + settings_.max_height - vw) + "vw";
     } else {
-        wall.style.top = (9.63 + settings_.max_height - pixels) + "vw";
+        wall.style.top = (9.63 + settings_.max_height - vw) + "vw";
     }
-    if (wallMax(wall) == state_.structures.wall_num[wall.id]) {
+    switch (wallMax(wall) / state_.structures.wall_num[wall.id]) {
+      case 1:
         wall.style.filter = "brightness(120%)";
-    } else if (wallMax(wall) == 2 * state_.structures.wall_num[wall.id]) {
+        break;
+      case 2:
         wall.style.filter = "brightness(110%)";
-    } else if (wallMax(wall) == 3 * state_.structures.wall_num[wall.id]) {
+        break;
+      case 3:
         wall.style.filter = "brightness(100%)";
-    } else if (wallMax(wall) == 4 * state_.structures.wall_num[wall.id]) {
+        break;
+      case 4:
         wall.style.filter = "brightness(95%)";
-    } else {
+        break;
+      default:
         wall.style.filter = "brightness(90%)";
     }
 }
@@ -1671,16 +1723,6 @@ function feed(event) {
     feedAmi(ami, true);
 }
 
-function getFeed(ami) {
-    for (const child of ami.children) {
-        if (child.id.includes("-feed")) {
-            return child;
-        }
-    }
-    console.error("No feed button found on ami: " + ami.id);
-    return null;
-}
-
 function updateFood() {
     refs_.feed.innerText = "Feed all (" + state_.amis.needs_food.size + ")";
     refs_.feed.disabled = state_.amis.needs_food.size == 0 || getFood() <= 0;
@@ -1760,17 +1802,45 @@ function damage(person, attacker) {
 
 function specialLevel(person, special) {
     if (person.id == special) {
-        return settings_.amis[getName(person)].special_level;
+        return settings_.amis[person.id].special_level;
     }
     var bonus = special != "Cosette" && specialLevel(person, "Cosette");
     if (person.id in state_.citizens.learned_specials) {
         for (const learned_special of state_.citizens.learned_specials[person.id]) {
-            if (refs_.specials[special].includes(learned_special)) {
+            if (refs_.specials_backwards[learned_special] == special) {
                 return refs_.specials[special].indexOf(learned_special) + 1 + (bonus ? 1 : 0);
             }
         }
     }
     return 0;
+}
+
+function deleteAmiState(ami) {
+    for (const child of ami.children) {
+        if (child.id.includes("-mariuspower")) {
+            state_.marius.buttons.delete(child);
+        }
+        if (child.id.includes("-feed")) {
+            state_.amis.food_buttons.delete(child);
+        }
+        if (child.id.includes("-upgrader")) {
+            state_.amis.upgrader_buttons.delete(child);
+        }
+    }
+    state_.amis.all.delete(ami);
+    if (isCitizen(ami)) {
+        state_.citizens.num--;
+    }
+    if (state_.amis.eponines.has(ami)) {
+        state_.amis.eponines.delete(ami);
+    }
+    if (ami.id in state_.amis.temp_damage) {
+        delete state_.amis.temp_damage[ami.id];
+    }
+    if (ami == state_.javert.ami) {
+        state_.javert.ami = null;
+        state_.javert.label = null;
+    }
 }
 
 function die(person, attacker) {
@@ -1786,6 +1856,7 @@ function die(person, attacker) {
             if (specialLevel(ami, "Eponine") > 4) {
                 setHealth(person, 100);
             } else {
+                setHealth(person, 1);
                 refs_.lesamis.appendChild(person);
                 setWidth(person);
                 if (isCitizen(person)) {
@@ -1795,12 +1866,16 @@ function die(person, attacker) {
                 }
             }
             var amount = 100;
-            if (specialLevel(ami, "Eponine") == 2) {
-                amount = 50;
-            } else if (specialLevel(ami, "Eponine") == 3) {
-                amount = 25;
-            } else if (specialLevel(ami, "Eponine") >= 4) {
-                amount = 10;
+            switch (specialLevel(ami, "Eponine")) {
+                case 2:
+                    amount = 50;
+                    break;
+                case 3:
+                    amount = 25;
+                    break;
+                case 4:
+                case 5:
+                    amount = 10;
             }
             setHealth(ami, getHealth(ami) - amount/getHealthMax(ami));
             if (getHealth(ami) <= 0) {
@@ -1810,27 +1885,8 @@ function die(person, attacker) {
         }
     }
     setHealth(person, 0);
-    for (const child of person.children) {
-        if (child.id.includes("-mariuspower")) {
-            state_.marius.buttons.delete(child);
-        }
-        if (child.id.includes("-feed")) {
-            state_.amis.food_buttons.delete(child);
-        }
-    }
-    if (isAmi(person)) {
-        state_.amis.all.delete(person);
-        if (isCitizen(person)) {
-            state_.citizens.num--;
-        }
-        if (state_.amis.eponines.has(person)) {
-            state_.amis.eponines.delete(person);
-        }
-    }
     if (person == state_.javert.ami) {
         state_.javert.dead = true;
-        state_.javert.ami = null;
-        state_.javert.label = null;
     } else if (specialLevel(person, "Prouvaire")) {
         setHope(getHope() + 25 * Math.min(specialLevel(person, "Prouvaire"), 4));
     } else if (isCitizen(person)) {
@@ -1839,8 +1895,8 @@ function die(person, attacker) {
         setHope(getHope() - settings_.hope_death);
     }
     var enemy_parent = isEnemy(person) ? person.parentElement : null;
-    if (person.id in state_.amis.temp_damage) {
-        delete state_.amis.temp_damage[person.id];
+    if (isAmi(person)) {
+        deleteAmiState(person);
     }
     person.remove();
     if (enemy_parent) {
@@ -1865,7 +1921,27 @@ function barricadeDead() {
 }
 
 function enemiesDead() {
-    return refs_.lesenemies1.children.length == 0 && refs_.lesenemies2.children.length == 0 && refs_.lesenemiesmondetour1.children.length == 0 && refs_.lesenemiesmondetour2.children.length == 0 && refs_.lesenemiesprecheurs1.children.length == 0 && refs_.lesenemiesprecheurs2.children.length == 0;
+    for (const loc of refs_.enemy_locs) {
+        if (loc.children.length) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function dotStyle(sl) {
+    switch (sl) {
+      case 2:
+        return "0.08vw solid black";
+      case 3:
+        return "0.08vw solid silver";
+      case 4:
+        return "0.08vw solid gold";
+      case 5:
+        return "0.16vw solid gold";
+      default:
+        return null;
+    }
 }
 
 function updateStats(ami) {
@@ -1874,149 +1950,64 @@ function updateStats(ami) {
     health.parentElement.style.width = (2.4 * getHealthMax(ami)) + "vw";
     health.parentElement.style.marginLeft = "calc((100% - " + health.parentElement.style.width + ") / 2)";
     setHealth(ami, (health.parentElement.getBoundingClientRect().width - currHealth)/health.parentElement.getBoundingClientRect().width * 100);
-    var bullets = null;
-    for (const child of ami.children) {
-        if (child.id.includes("-bullets")) {
-            bullets = child;
-        }
-    }
+    var bullets = getChild(ami, "bullets");
     bullets.innerHTML = "&#8269;";
     for (var i = 1; i <= getDamage(ami); i += 0.5) {
         bullets.innerHTML += "&#8269;";
     }
-    ami.appendChild(bullets);
     if (isCitizen(ami)) {
+        var to_remove = []
         for (const child of ami.children) {
             if (child.classList.contains("dot")) {
-                child.remove();
-                break;
+                to_remove.push(child);
             }
+        }
+        for (const child of to_remove) {
+            child.remove();
         }
         if (ami.id in state_.citizens.learned_specials) {
             var marginLeft = -1.6;
-            for (const special in refs_.specials) {
-                for (const learned_special of state_.citizens.learned_specials[ami.id]) {
-                    if (refs_.specials[special].includes(learned_special)) {
-                        var dot = document.createElement("span");
-                        dot.classList.add("dot", special.replace(" ", "") + "Power");
-                        if (specialLevel(ami, special) == 2) {
-                            dot.style.border = "0.08vw solid black";
-                        }
-                        if (specialLevel(ami, special) == 3) {
-                            dot.style.border = "0.08vw solid silver";
-                        }
-                        if (specialLevel(ami, special) == 4) {
-                            dot.style.border = "0.08vw solid gold";
-                        }
-                        if (specialLevel(ami, special) == 5) {
-                            dot.style.border = "0.16vw solid gold";
-                        }
-                        ami.appendChild(dot);
-                        dot.style.marginLeft = marginLeft + "vw";
-                        marginLeft += 0.8;
-                    }
-                }
-            }
-        }
-    } else {
-        var dot = document.createElement("span");
-        dot.classList.add("dot", getName(ami).replace(" ", "") + "Power");
-        if (specialLevel(ami, ami.id) == 2) {
-            dot.style.border = "0.08vw solid black";
-        }
-        if (specialLevel(ami, ami.id) == 3) {
-            dot.style.border = "0.08vw solid silver";
-        }
-        if (specialLevel(ami, ami.id) == 4) {
-            dot.style.border = "0.08vw solid gold";
-        }
-        if (specialLevel(ami, ami.id) == 5) {
-            dot.style.border = "0.16vw solid gold";
-        }
-        ami.appendChild(dot);
-        var upgrader = document.createElement("button");
-    }
-}
-
-function getLabels() {
-    var labels = []
-    for (const ref in refs_) {
-        if (ref.includes("_label")) {
-            if (ref.includes("_labels")) {
-                for (const label in refs_[ref]) {
-                    labels.push(refs_[ref][label]);
-                }
-            } else {
-                labels.push(refs_[ref]);
+            for (const learned_special of state_.citizens.learned_specials[ami.id]) {
+                var special = refs_.specials_backwards[learned_special];
+                var dot = document.createElement("span");
+                dot.classList.add("dot", special.replace(" ", "") + "Power");
+                dot.style.border = dotStyle(specialLevel(ami, special));
+                ami.appendChild(dot);
+                dot.style.marginLeft = marginLeft + "vw";
+                marginLeft += 0.8;
             }
         }
     }
-    return labels;
 }
 
 function clearLabels() {
-    for (const label of getLabels()) {
+    for (const label of refs_.labels) {
         label.textContent = "";
     }
 }
 
 function updateProgress(i) {
     refs_.progress.style.width = (100 - (i + 1)/settings_.fire_per_wave*100).toString() + "%";
-    if ((i >= settings_.fire_per_wave * 0.9)) {
-        for (const button of state_.marius.buttons) {
-            if (refs_.barricade.has(button.parentElement.parentElement)) {
-                if (getAmmo() >= mariusCost()) {
-                    button.disabled = false;
-                }
-                button.textContent = "End wave (-" + mariusCost() + " ammo)";
-                button.style.display = "block";
+    for (const button of state_.marius.buttons) {
+        if (button.style.display == "none" && refs_.barricade.has(button.parentElement.parentElement) && i >= settings_.fire_per_wave * refs_.marius_progress[specialLevel(button.parentElement, "Marius") - 1]) {
+            if (getAmmo() >= mariusCost()) {
+                button.disabled = false;
             }
-        }
-    }
-    if ((i >= settings_.fire_per_wave * 0.75)) {
-        for (const button of state_.marius.buttons) {
-            if (refs_.barricade.has(button.parentElement.parentElement) && specialLevel(button.parentElement, "Marius") >= 2) {
-                if (getAmmo() >= mariusCost()) {
-                    button.disabled = false;
-                }
-                button.textContent = "End wave (-" + mariusCost() + " ammo)";
-                button.style.display = "block";
-            }
-        }
-    }
-    if ((i >= settings_.fire_per_wave * 0.5)) {
-        for (const button of state_.marius.buttons) {
-            if (refs_.barricade.has(button.parentElement.parentElement) && specialLevel(button.parentElement, "Marius") >= 3) {
-                if (getAmmo() >= mariusCost()) {
-                    button.disabled = false;
-                }
-                button.textContent = "End wave (-" + mariusCost() + " ammo)";
-                button.style.display = "block";
-            }
-        }
-    }
-    if ((i >= settings_.fire_per_wave * 0.4)) {
-        for (const button of state_.marius.buttons) {
-            if (refs_.barricade.has(button.parentElement.parentElement) && specialLevel(button.parentElement, "Marius") >= 4) {
-                if (getAmmo() >= mariusCost()) {
-                    button.disabled = false;
-                }
-                button.textContent = "End wave (-" + mariusCost() + " ammo)";
-                button.style.display = "block";
-            }
+            button.textContent = "End wave (-" + mariusCost() + " ammo)";
+            button.style.display = "block";
         }
     }
 }
 
 function updateRecruit() {
     refs_.recruit_limit.innerText = "Recruit limit: " + state_.citizens.num + "/" + state_.citizens.max
-    for (const button of document.querySelectorAll(".recruitButton")) {
+    for (const button of state_.recruit_buttons) {
         button.disabled = getHope() < settings_.amis[button.parentElement.id].cost || (state_.citizens.num >= state_.citizens.max && button.parentElement.id == "Citizen");
     }
 }
 
 function updateUpgrade() {
-    for (const button of document.querySelectorAll(".upgradeButton")) {
+    for (const button of state_.upgrade_buttons) {
         button.disabled = !canAfford(button.parentElement.id);
     }
 }
@@ -2033,6 +2024,9 @@ function wallAdjust(wall, amount, up) {
 
 function enemiesPerWave(type, wave) {
     var adjusted_wave = wave - settings_.enemies[type].level + 1;
+    if (wave >= 40) {
+        adjusted_wave += (wave - 39) * (wave * 2 - 60) / 2;
+    }
     var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * 4 / 5)
     if (type != EnemyType.SOLDIER) {
         return Math.ceil(num/5);
@@ -2120,7 +2114,6 @@ function initEnemies(foresight = false) {
             addEnemies(enemy, wave, foresight);
         }
     }
-    stackEnemies();
     while (state_.sabotage > 0) {
         state_.sabotage = state_.sabotage - 1;
         if (getRandomInt(100) < 33) {
@@ -2131,6 +2124,7 @@ function initEnemies(foresight = false) {
             }
         }
     }
+    stackAllEnemies();
 }
 
 
@@ -2150,7 +2144,7 @@ function feedAll() {
         }
     }
     for (const loc of locations) {
-        stackChildren(ami.parentElement);
+        stackChildren(loc);
     }
 }
 
@@ -2243,23 +2237,8 @@ function enemyFire(i) {
         var options = [...barricadeFor(enemy.parentElement)];
         for (const wall of barricadeFor(enemy.parentElement)) {
             for (const child of getChildren(wall)) {
-                if (specialLevel(child, "Bossuet") >= 1) {
-                    for (var j = 0; j < 1; j++) {
-                        options.push(wall);
-                    }
-                }
-                if (specialLevel(child, "Bossuet") >= 2) {
-                    for (var j = 0; j < 2; j++) {
-                        options.push(wall);
-                    }
-                }
-                if (specialLevel(child, "Bossuet") >= 3) {
-                    for (var j = 0; j < 6; j++) {
-                        options.push(wall);
-                    }
-                }
-                if (specialLevel(child, "Bossuet") >= 4) {
-                    for (var j = 0; j < 15; j++) {
+                if (sl = specialLevel(child, "Bossuet")) {
+                    for (var j = 0; j < refs_.bossuet_extras[sl - 1]; j++) {
                         options.push(wall);
                     }
                 }
@@ -2280,23 +2259,8 @@ function enemyFire(i) {
         } else {
             var options = getName(enemy) == EnemyType.SNIPER ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall);
             for (const child of getName(enemy) == EnemyType.SNIPER ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall)) {
-                if (specialLevel(child, "Bossuet") >= 1) {
-                    for (var j = 0; j < 1; j++) {
-                        options.push(child);
-                    }
-                }
-                if (specialLevel(child, "Bossuet") >= 2) {
-                    for (var j = 0; j < 2; j++) {
-                        options.push(child);
-                    }
-                }
-                if (specialLevel(child, "Bossuet") >= 3) {
-                    for (var j = 0; j < 6; j++) {
-                        options.push(child);
-                    }
-                }
-                if (specialLevel(child, "Bossuet") >= 4) {
-                    for (var j = 0; j < 15; j++) {
+                if (sl = specialLevel(child, "Bossuet")) {
+                    for (var j = 0; j < refs_.bossuet_extras[sl - 1]; j++) {
                         options.push(child);
                     }
                 }
@@ -2334,21 +2298,11 @@ function barricadeFire() {
         var sniped = false;
         var lowed = false;
         if (sl = specialLevel(ami, "Montparnasse")) {
-            for (const enemy of enemies) {
+            for (const enemy of getSpecialEnemies(ami.parentElement)) {
                 if (getName(enemy) == EnemyType.SNIPER) {
                     extras.push(enemy);
-                    if (sl == 1) {
-                        for (var i = 0; i < 1; i++) {
-                            extras.push(enemy);
-                        }
-                    } else if (sl == 2) {
-                        for (var i = 0; i < 3; i++) {
-                            extras.push(enemy);
-                        }
-                    } else if (sl == 3) {
-                        for (var i = 0; i < 9; i++) {
-                            extras.push(enemy);
-                        }
+                    for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
+                        extras.push(enemy);
                     }
                 }
             }
@@ -2363,21 +2317,11 @@ function barricadeFire() {
         }
         extras = [];
         if (sl = specialLevel(ami, "Claquesous")) {
-            for (const enemy of getEnemies(ami.parentElement)) {
+            for (const enemy of getSpecialEnemies(ami.parentElement)) {
                 if (getName(enemy) == EnemyType.CANNON) {
                     extras.push(enemy);
-                    if (sl == 1) {
-                        for (var i = 0; i < 1; i++) {
-                            extras.push(enemy);
-                        }
-                    } else if (sl == 2) {
-                        for (var i = 0; i < 3; i++) {
-                            extras.push(enemy);
-                        }
-                    } else if (sl == 3) {
-                        for (var i = 0; i < 9; i++) {
-                            extras.push(enemy);
-                        }
+                    for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
+                        extras.push(enemy);
                     }
                 }
             }
@@ -2396,18 +2340,8 @@ function barricadeFire() {
             if (sl > 4 && high_health.length > 1) {
                 extras.push(high_health[1]);
             }
-            if (sl == 1) {
-                for (var i = 0; i < 1; i++) {
-                    extras.push(high_health[0]);
-                }
-            } else if (sl == 2) {
-                for (var i = 0; i < 3; i++) {
-                    extras.push(high_health[0]);
-                }
-            } else if (sl == 3) {
-                for (var i = 0; i < 9; i++) {
-                    extras.push(high_health[0]);
-                }
+            for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
+                extras.push(high_health[0]);
             }
             if (sl >= 4) {
                 lowed = true;
@@ -2423,18 +2357,8 @@ function barricadeFire() {
             if (sl > 4 && low_health.length > 1) {
                 extras.push(low_health[1]);
             }
-            if (sl == 1) {
-                for (var i = 0; i < 1; i++) {
-                    extras.push(low_health[0]);
-                }
-            } else if (sl == 2) {
-                for (var i = 0; i < 3; i++) {
-                    extras.push(low_health[0]);
-                }
-            } else if (sl == 3) {
-                for (var i = 0; i < 9; i++) {
-                    extras.push(low_health[0]);
-                }
+            for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
+                extras.push(low_health[0]);
             }
             if (sl >= 4 && !lowed) {
                 enemies = [...extras];
@@ -2445,7 +2369,7 @@ function barricadeFire() {
         var enemy = enemies.random();
         if (damage(enemy, ami)) {
             if (getRandomInt(100) < 25 * specialLevel(ami, "Valjean")) {
-                if (state_.citizens.num < state_.citizens.max || specialLevel(ami, "Valjean") > 4) {
+                if (state_.citizens.num < state_.citizens.max || (specialLevel(ami, "Valjean") > 4 && state_.citizens.num < (state_.citizens.max*2))) {
                     addNewCitizen();
                 }
             }
@@ -2459,7 +2383,7 @@ function barricadeFire() {
                 enemy = enemies.random();
                 if (damage(enemy, ami)) {
                     if (getRandomInt(100) < 25 * specialLevel(ami, "Valjean")) {
-                        if (state_.citizens.num < state_.citizens.max || specialLevel(ami, "Valjean") > 4) {
+                        if (state_.citizens.num < state_.citizens.max || (specialLevel(ami, "Valjean") > 4 && state_.citizens.num < (state_.citizens.max*2))) {
                             addNewCitizen();
                         }
                     }
@@ -2576,7 +2500,7 @@ function transitionToRecover() {
             state_.amis.needs_food.add(ami);
         }
     }
-    for (const upgrader of document.querySelectorAll(".upgrader")) {
+    for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.display = "block";
     }
     updateFood();
@@ -2623,8 +2547,13 @@ function recruitMe(ev) {
     if (cost > getHope()) {
         return;
     }
+    state_.recruit_buttons.delete(ev.target);
     if (isCitizen(ev.target.parentElement)) {
         addNewCitizen();
+        state_.citizens.recruit_button = ev.target;
+        if (state_.citizens.num >= state_.citizens.max) {
+            ev.target.disabled = true;
+        }
         if (!state_.citizens.active) {
             state_.citizens.active = true;
             var firstChild = refs_.upgrade_screen.children[1];
@@ -2692,10 +2621,10 @@ function disableButtons() {
     refs_.reset.style.pointerEvents = "none";
     refs_.ready.style.pointerEvents = "none";
     refs_.hovertext.style.visibility = "hidden";
-    for (const upgrader of document.querySelectorAll(".upgrader")) {
+    for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.pointerEvents = "none";
     }
-    for (const button of document.querySelectorAll(".resetButton")) {
+    for (const button of getResetButtons()) {
         button.style.visibility = "hidden";
     }
     for (const button of state_.amis.food_buttons) {
@@ -2711,10 +2640,10 @@ function reenableButtons() {
     refs_.reset.style.pointerEvents = "auto";
     refs_.ready.style.pointerEvents = "auto";
     refs_.hovertext.style.visibility = "visible";
-    for (const upgrader of document.querySelectorAll(".upgrader")) {
+    for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.pointerEvents = "auto";
     }
-    for (const button of document.querySelectorAll(".resetButton")) {
+    for (const button of getResetButtons()) {
         button.style.visibility = "visible";
     }
     for (const button of state_.amis.food_buttons) {
@@ -2738,7 +2667,7 @@ function upgraderMeMe(ev) {
             return;
         }
         setAmmo(getAmmo() - cost);
-        settings_.amis[getName(ami)].damage += 1;
+        settings_.amis[ami.id].damage += 1;
         if (getDamage(ami) < 4) {
             container.insertBefore(newUpgrader(ami, UpgraderType.DAMAGE), ev.target.parentElement);
         } else {
@@ -2760,7 +2689,7 @@ function upgraderMeMe(ev) {
             return;
         }
         setFood(getFood() - cost);
-        settings_.amis[getName(ami)].health += 0.25;
+        settings_.amis[ami.id].health += 0.25;
         if (getHealthMax(ami) < 2) {
             container.insertBefore(newUpgrader(ami, UpgraderType.HEALTH), ev.target.parentElement);
         } else {
@@ -2783,7 +2712,7 @@ function upgraderMeMe(ev) {
             return;
         }
         setHope(getHope() - cost);
-        settings_.amis[getName(ami)].special_level += 1;
+        settings_.amis[ami.id].special_level += 1;
         if (specialLevel(ami, ami.id) < 4) {
             container.insertBefore(newUpgrader(ami, UpgraderType.SPECIAL), ev.target.parentElement);
         } else {
@@ -2833,6 +2762,7 @@ function closeUpgrader() {
 
 function upgradeMe(ev) {
     var name = ev.target.parentElement.id;
+    state_.upgrade_buttons.delete(ev.target);
     if (settings_.upgrades[name].cost_type == CostType.FOOD) {
         setFood(getFood() - settings_.upgrades[name].cost_value);
         updateFood();
@@ -2858,6 +2788,7 @@ function upgradeMe(ev) {
 
     if (name.includes("recruit-limit")) {
         state_.citizens.max += 10;
+        state_.citizens.recruit_button.disabled = state_.citizens.num >= state_.citizens.max;
     } else if (name.includes("corinthe-limit")) {
         state_.structures.corinthe_max += settings_.starting_building_limit;
     } else if (name == "open-building") {
@@ -2934,33 +2865,8 @@ function closeUpgrade() {
     reenableButtons();
 }
 
-async function resolveRecover() {
-    var ran = getRandomInt(settings_.recover_animation_length);
-    state_.foresight = false;
+function detectJavert() {
     var javert_loc = null;
-    var deaths = [[], [], []];
-    var ammo_ran = [];
-    var initial_food = getFood();
-    var initial_ammo = getAmmo();
-    for (var i = 0; i < hasChildren(refs_.lootammo); i++) {
-        ammo_ran.push(getRandomInt(settings_.loot_ammo_max - settings_.loot_ammo_min + 1));
-    }
-    var food_ran = [];
-    for (var i = 0; i < hasChildren(refs_.lootfood); i++) {
-        food_ran.push(getRandomInt(settings_.loot_food_max - settings_.loot_food_min + 1));
-    }
-    var wall_ran = [];
-    var wall_children = 0;
-    for (const wall of refs_.barricade) {
-        wall_children += hasChildren(wall);
-    }
-    for (var i = 0; i < wall_children; i++) {
-        wall_ran.push(getRandomInt((settings_.wall_repair_max - settings_.wall_repair_min)*5 + 1)/5);
-    }
-    var hope_ran = [];
-    for (var i = 0; i < hasChildren(refs_.lesamis); i++) {
-        hope_ran.push(getRandomInt(settings_.hope_drink_max - settings_.hope_drink_min + 1));
-    }
     if (state_.javert.ami) {
         javert_loc = state_.javert.ami.parentElement;
         for (const ami of getChildren(javert_loc)) {
@@ -2978,231 +2884,156 @@ async function resolveRecover() {
             }
         }
     }
-    if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
-        for (const trainer of getChildren(refs_.trainer)) {
-            for (const ami of getChildren(refs_.rightside)) {
-                if (!(ami.id in state_.citizens.learned_specials)) {
-                    continue;
-                }
-                for (var i = 0; i < state_.citizens.learned_specials[ami.id].length; i++) {
-                    if (refs_.specials[getName(trainer)].includes(state_.citizens.learned_specials[ami.id][i])) {
-                        state_.citizens.learned_specials[ami.id].splice(i, 1);
-                        i--;
-                    }
-                }
-            }
-        }
+    return javert_loc;
+}
+
+function prepTraining(javert_loc) {
+    for (const trainer of getChildren(refs_.trainer)) {
         for (const ami of getChildren(refs_.rightside)) {
             if (!(ami.id in state_.citizens.learned_specials)) {
                 continue;
             }
-            while (state_.citizens.learned_specials[ami.id].length > state_.training - hasChildren(refs_.trainer)) {
-                var remove = getRandomInt(state_.training);
-                if (refs_.specials["Marius"].includes(state_.citizens.learned_specials[ami.id][remove])) {
-                    for (const child of ami.children) {
-                        if (child.id.includes("-mariuspower")) {
-                            state_.marius.buttons.delete(child);
-                            child.remove();
-                        }
-                    }
+            for (var i = 0; i < state_.citizens.learned_specials[ami.id].length; i++) {
+                if (refs_.specials_backwards[state_.citizens.learned_specials[ami.id][i]] == trainer.id) {
+                    state_.citizens.learned_specials[ami.id].splice(i, 1);
+                    i--;
                 }
-                if (refs_.specials["Eponine"].includes(state_.citizens.learned_specials[ami.id][remove])) {
-                    state_.amis.eponines.delete(ami);
-                }
-                state_.citizens.learned_specials[ami.id].splice(remove, 1);
             }
         }
     }
-    for (var i = 0; i < settings_.recover_animation_length; i++) {
-        var num = -1;
-        var amis = [];
-        for (const wall of refs_.barricade) {
-            if (wall == javert_loc) {
+    for (const ami of getChildren(refs_.rightside)) {
+        if (!(ami.id in state_.citizens.learned_specials)) {
+            continue;
+        }
+        while (state_.citizens.learned_specials[ami.id].length > state_.training - hasChildren(refs_.trainer)) {
+            var remove = getRandomInt(state_.training);
+            if (refs_.specials_backwards[state_.citizens.learned_specials[ami.id][remove]] == "Marius") {
+                var button = getChild(ami, "mariusButton");
+                state_.marius.buttons.delete(button);
+                button.remove();
+            }
+            if (refs_.specials_backwards[state_.citizens.learned_specials[ami.id][remove]] == "Eponine") {
+                state_.amis.eponines.delete(ami);
+            }
+            state_.citizens.learned_specials[ami.id].splice(remove, 1);
+        }
+    }
+}
+
+function genRan(len, min, max) {
+    var ran = [];
+    for (var i = 0; i < len; i++) {
+        ran.push(getRandomInt(max - min + 1));
+    }
+    return ran;
+}
+
+function resolveWalls(javert_loc, wall_ran) {
+    var num = -1;
+    for (const wall of refs_.barricade) {
+        if (wall == javert_loc) {
+            continue;
+        }
+        for (const child of getChildren(wall)) {
+            num += 1;
+            if (sl = specialLevel(child, "Feuilly")) {
+                wallAdjust(wall, refs_.specialBonusLevels[sl - 1] * (sl > 4 ? settings_.wall_repair_max : (settings_.wall_repair_min + wall_ran[num])) / settings_.recover_animation_length, true);
+            } else {
+                wallAdjust(wall, (settings_.wall_repair_min + wall_ran[num]) / settings_.recover_animation_length, true);
+            }
+        }
+    }
+}
+
+function resolveRest(i) {
+    var heal_amount = settings_.base_rest_heal_amount;
+    var temp_damage_amount = settings_.base_rest_boost_amount;
+    for (const child of state_.amis.all) {
+        if (sl = specialLevel(child, "Courfeyrac")) {
+            if (sl <= 4 && child.parentElement != refs_.corinthe) {
                 continue;
             }
-            for (const child of getChildren(wall)) {
-                num += 1;
-                if (sl = specialLevel(child, "Feuilly")) {
-                    wallAdjust(wall, refs_.specialBonusLevels[sl - 1] * (sl > 4 ? settings_.wall_repair_max : (settings_.wall_repair_min + wall_ran[num])) / settings_.recover_animation_length, true);
-                } else {
-                    wallAdjust(wall, (settings_.wall_repair_min + wall_ran[num]) / settings_.recover_animation_length, true);
-                }
-            }
+            temp_damage_amount += 5 * sl;
+            heal_amount += 5 * sl;
         }
-        if (javert_loc != refs_.corinthe) {
-            for (const ami of getChildren(refs_.corinthe)) {
-                var heal_amount = settings_.base_rest_heal_amount;
-                var temp_damage_amount = settings_.base_rest_boost_amount;
-                for (const child of state_.amis.all) {
-                    if (sl = specialLevel(child, "Courfeyrac")) {
-                        if (sl <= 4 && child.parentElement != refs_.corinthe) {
-                            continue;
-                        }
-                        temp_damage_amount += 5 * sl;
-                        heal_amount += 5 * sl;
-                    }
-                }
-                heal(ami, heal_amount / settings_.recover_animation_length);
-                state_.amis.temp_damage[ami.id] = temp_damage_amount * (i + 1) / settings_.recover_animation_length / 100;
-                updateStats(ami);
-            }
-        }
-        if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
-            var num = -1;
-            for (const trainer of getChildren(refs_.trainer)) {
-                var special = refs_.specials[getName(trainer)][specialLevel(trainer, trainer.id) - 1];
-                for (const ami of getChildren(refs_.rightside)) {
-                    num += 1;
-                    if (num%settings_.recover_animation_length != i) {
-                        continue;
-                    }
-                    if (!(ami.id in state_.citizens.learned_specials)) {
-                        state_.citizens.learned_specials[ami.id] = [special];
-                    } else {
-                        if (special in state_.citizens.learned_specials[ami.id]) {
-                            continue;
-                        }
-                        state_.citizens.learned_specials[ami.id].push(special);
-                        state_.citizens.learned_specials[ami.id] = state_.citizens.learned_specials[ami.id].sort();
-                    }
-                    if (refs_.specials["Marius"].includes(special)) {
-                        var power = document.createElement("button");
-                        power.type = "button";
-                        power.className = "mariusButton";
-                        power.id = ami.id + "-mariuspower";
-                        power.onclick = function(){ mariusPower() };
-                        power.textContent = "End wave (-" + mariusCost() + " ammo)";
-                        power.style.display = "none";
-                        state_.marius.buttons.add(power);
-                        ami.appendChild(power);
-                    }
-                    if (refs_.specials["Eponine"].includes(special)) {
-                        state_.amis.eponines.add(ami);
-                    }
-                    updateStats(ami);
-                }
-            }
-        }
-        if (javert_loc != refs_.lesamis) {
-            var num = -1;
-            for (const ami of getChildren(refs_.lesamis)) {
-                num += 1;
-                if (getFood() > 0) {
-                    setHope(getHope() + Math.floor((specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * i / settings_.recover_animation_length));
-                    if (specialLevel(ami, "Grantaire")) {
-                        setHope(getHope() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * (specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * (specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * i / settings_.recover_animation_length));
-                    }
-                }
-            }
-        }
-        var num = -1;
-        for (const ami of getChildren(refs_.lootfood)) {
+    }
+    for (const ami of getChildren(refs_.corinthe)) {
+        heal(ami, heal_amount / settings_.recover_animation_length);
+        state_.amis.temp_damage[ami.id] = temp_damage_amount * (i + 1) / settings_.recover_animation_length / 100;
+        updateStats(ami);
+    }
+}
+
+function resolveTraining(i) {
+    var num = -1;
+    for (const trainer of getChildren(refs_.trainer)) {
+        var special = refs_.specials[trainer.id][specialLevel(trainer, trainer.id) - 1];
+        for (const ami of getChildren(refs_.rightside)) {
             num += 1;
-            while (deaths[0].includes(num)) {
-                num += 1
-            }
-            if (javert_loc != refs_.lootfood) {
-                setFood(getFood() + Math.floor((specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * i / settings_.recover_animation_length));
-                if (specialLevel(ami, "Joly")) {
-                    setFood(getFood() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Joly") - 1] - 1) * (specialLevel(ami, "Joly") > 4 ? settings_.loot_food_max : (settings_.loot_food_min + food_ran[num])) * i / settings_.recover_animation_length));
-                }
-                if (sl = specialLevel(ami, "Mme Thenardier")) {
-                    var amounts = [0.005, 0.01, 0.02, 0.05, 0.05];
-                    if (sl > 4) {
-                        setFood(getFood() + Math.floor(amounts[sl - 1] * state_.max_food * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * state_.max_food * i / settings_.recover_animation_length));
-                    } else {
-                        setFood(getFood() + Math.floor(amounts[sl - 1] * initial_food * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * initial_food * i / settings_.recover_animation_length));
-                    }
-                }
-            }
-            if (state_.structures.precheurs_open && (i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
-                var chance = settings_.scout_death;
-                if (specialLevel(ami, "Thenardier")) {
-                    chance = chance - chance / 4 * specialLevel(ami, "Thenardier");
-                }
-                if (ami == state_.javert.ami) {
-                    chance = 0;
-                }
-                if (getRandomInt(100) < chance) {
-                    die(ami);
-                    deaths[0].push(num);
-                    continue;
-                }
-            }
-        }
-        num = -1;
-        for (const ami of getChildren(refs_.lootammo)) {
-            num += 1;
-            while (deaths[1].includes(num)) {
-                num += 1
-            }
-            if (javert_loc != refs_.lootammo) {
-                setAmmo(getAmmo() + Math.floor((specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * i / settings_.recover_animation_length));
-                if (specialLevel(ami, "Combeferre")) {
-                    setAmmo(getAmmo() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Combeferre") - 1] - 1) * (specialLevel(ami, "Combeferre") > 4 ? settings_.loot_ammo_max : (settings_.loot_ammo_min + ammo_ran[num])) * i / settings_.recover_animation_length));
-                }
-                if (sl = specialLevel(ami, "Mme Thenardier")) {
-                    var amounts = [0.005, 0.01, 0.02, 0.05, 0.05];
-                    if (sl > 4) {
-                        setAmmo(getAmmo() + Math.floor(amounts[sl - 1] * state_.max_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * state_.max_ammo * i / settings_.recover_animation_length));
-                    } else {
-                        setAmmo(getAmmo() + Math.floor(amounts[sl - 1] * initial_ammo * (i + 1) / settings_.recover_animation_length) - Math.floor(amounts[sl - 1] * initial_ammo * i / settings_.recover_animation_length));
-                    }
-                }
-            }
-            if (state_.structures.precheurs_open && (i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
-                var chance = settings_.scout_death;
-                if (specialLevel(ami, "Thenardier")) {
-                    chance = chance - chance / 4 * specialLevel(ami, "Thenardier");
-                }
-                if (ami == state_.javert.ami) {
-                    chance = 0;
-                }
-                if (getRandomInt(100) < chance) {
-                    die(ami);
-                    deaths[1].push(num);
-                    continue;
-                }
-            }
-        }
-        if (!state_.structures.precheurs_open && i == (ran + 8) % settings_.recover_animation_length) {
-            for (const ami of getChildren(refs_.dismiss)) {
-                if (ami == state_.javert.ami) {
-                    setHope(getHope() + settings_.javert_hope);
-                    state_.javert.ami = null;
-                    state_.javert.label = null;
-                }
-                for (const child of ami.children) {
-                    if (child.id.includes("-mariuspower")) {
-                        state_.marius.buttons.delete(child);
-                    }
-                    if (child.id.includes("-feed")) {
-                        state_.amis.food_buttons.delete(child);
-                    }
-                }
-                state_.amis.all.delete(ami);
-                if (isCitizen(ami)) {
-                    state_.citizens.num--;
-                }
-                if (state_.amis.eponines.has(ami)) {
-                    state_.amis.eponines.delete(ami);
-                }
-                ami.remove();
-            }
-        }
-        num = -1;
-        for (const ami of getChildren(refs_.scout)) {
-            num += 1;
-            while (deaths[2].includes(num)) {
-                num += 1
-            }
-            if (i != (settings_.recover_animation_length + ran + num - 1) % settings_.recover_animation_length) {
+            if (num%settings_.recover_animation_length != i) {
                 continue;
             }
+            if (!(ami.id in state_.citizens.learned_specials)) {
+                state_.citizens.learned_specials[ami.id] = [special];
+            } else {
+                state_.citizens.learned_specials[ami.id].push(special);
+                state_.citizens.learned_specials[ami.id] = state_.citizens.learned_specials[ami.id].sort();
+            }
+            if (trainer.id == "Marius") {
+                ami.appendChild(newMariusButton(ami));
+            }
+            if (trainer.id == "Eponine") {
+                state_.amis.eponines.add(ami);
+            }
+            updateStats(ami);
+        }
+    }
+}
+
+function resolveDrinking(i, hope_ran) {
+    var num = -1;
+    for (const ami of getChildren(refs_.lesamis)) {
+        num += 1;
+        setHope(getHope() + Math.floor((specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * i / settings_.recover_animation_length));
+        if (specialLevel(ami, "Grantaire")) {
+            setHope(getHope() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * (specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * (specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * i / settings_.recover_animation_length));
+        }
+    }
+}
+
+function resolveLooting(loc, i, ran, deaths, min, max, initial, alltime, set, get, special) {
+    var num = -1;
+    for (const ami of getChildren(loc)) {
+        num += 1;
+        while (deaths.includes(num)) {
+            num += 1
+        }
+        set(get() + Math.floor((specialLevel(ami, special) > 4 ? max : (min + ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((specialLevel(ami, special) > 4 ? max : (min + ran[num])) * i / settings_.recover_animation_length));
+        if (specialLevel(ami, special)) {
+            set(get() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, special) - 1] - 1) * (specialLevel(ami, special) > 4 ? max : (min + ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, special) - 1] - 1) * (specialLevel(ami, special) > 4 ? max : (min + ran[num])) * i / settings_.recover_animation_length));
+        }
+        if (sl = specialLevel(ami, "Mme Thenardier")) {
+            if (sl > 4) {
+                set(get() + Math.floor(refs_.mme_amounts[sl - 1] * alltime * (i + 1) / settings_.recover_animation_length) - Math.floor(refs_.mme_amounts[sl - 1] * alltime * i / settings_.recover_animation_length));
+            } else {
+                set(get() + Math.floor(refs_.mme_amounts[sl - 1] * initial * (i + 1) / settings_.recover_animation_length) - Math.floor(refs_.mme_amounts[sl - 1] * initial * i / settings_.recover_animation_length));
+            }
+        }
+    }
+}
+
+function resolveDeath(loc, i, ran, deaths) {
+    var num = -1;
+    for (const ami of getChildren(loc)) {
+        num += 1;
+        while (deaths.includes(num)) {
+            num += 1
+        }
+        if ((i == (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length)) {
             var chance = settings_.scout_death;
             if (sl = specialLevel(ami, "Thenardier")) {
                 chance = chance - chance / 4 * sl;
-                if (sl > 4) {
+                if (loc == refs_.scout && sl > 4) {
                     state_.sabotage += 1;
                 }
             }
@@ -3211,11 +3042,80 @@ async function resolveRecover() {
             }
             if (getRandomInt(100) < chance) {
                 die(ami);
-                deaths[2].push(num);
+                deaths.push(num);
                 continue;
             }
-            if (javert_loc != refs_.scout) {
-                state_.foresight = true;
+        }
+    }
+    return deaths;
+}
+
+function resolveScouting(i, deaths) {
+    var num = -1;
+    for (const ami of getChildren(refs_.scout)) {
+        num += 1;
+        while (deaths.includes(num)) {
+            num += 1
+        }
+        if (i != (settings_.recover_animation_length - ran + num - 1) % settings_.recover_animation_length) {
+            continue;
+        }
+        state_.foresight = true;
+    }
+}
+
+async function resolveRecover() {
+    var ran = getRandomInt(settings_.recover_animation_length);
+    state_.foresight = false;
+    var deaths = [[], [], []];
+    var initial_food = getFood();
+    var initial_ammo = getAmmo();
+    var ammo_ran = genRan(hasChildren(refs_.lootammo), settings_.loot_ammo_min, settings_.loot_ammo_max);
+    var food_ran = genRan(hasChildren(refs_.lootfood), settings_.loot_food_min, settings_.loot_food_max);
+    var hope_ran = genRan(hasChildren(refs_.lesamis), settings_.hope_drink_min, settings_.hope_drink_max);
+    var wall_children = 0;
+    for (const wall of refs_.barricade) {
+        wall_children += hasChildren(wall);
+    }
+    var wall_ran = genRan(wall_children, settings_.wall_repair_min * 5, settings_.wall_repair_max * 5).map(function(v) { return v/5;});
+    var javert_loc = detectJavert();
+    if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
+        prepTraining();
+    }
+    for (var i = 0; i < settings_.recover_animation_length; i++) {
+        resolveWalls(javert_loc, wall_ran);
+        if (javert_loc != refs_.corinthe) {
+            resolveRest(i);
+        }
+        if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
+            resolveTraining(i);
+        }
+        if (javert_loc != refs_.lesamis && initial_food > 0) {
+            resolveDrinking(i, hope_ran);
+        }
+        if (javert_loc != refs_.lootfood) {
+            resolveLooting(refs_.lootfood, i, food_ran, deaths[0], settings_.loot_food_min, settings_.loot_food_max, initial_food, state_.max_food, setFood, getFood, "Joly");
+        }
+        if (state_.structures.precheurs_open) {
+            deaths[0] = resolveDeath(refs_.lootfood, i, ran, deaths[0]);
+        }
+        if (javert_loc != refs_.lootammo) {
+            resolveLooting(refs_.lootammo, i, ammo_ran, deaths[1], settings_.loot_ammo_min, settings_.loot_ammo_max, initial_ammo, state_.max_ammo, setAmmo, getAmmo, "Combeferre");
+        }
+        if (state_.structures.precheurs_open) {
+            deaths[1] = resolveDeath(refs_.lootammo, i, ran, deaths[1]);
+        }
+        deaths[2] = resolveDeath(refs_.scout, i, ran, deaths[2]);
+        if (javert_loc != refs_.scout) {
+            resolveScouting(i, deaths[2]);
+        }
+        if (!state_.structures.precheurs_open && i == (ran + 8) % settings_.recover_animation_length) {
+            for (const ami of getChildren(refs_.dismiss)) {
+                if (ami == state_.javert.ami) {
+                    setHope(getHope() + settings_.javert_hope);
+                }
+                deleteAmiState(ami);
+                ami.remove();
             }
         }
         await sleep(settings_.recover_sleep_ms);
@@ -3226,15 +3126,15 @@ async function prepareForNextWave() {
     for (const ami of state_.amis.all) {
         state_.amis.last_recover[ami.id] = ami.parentElement;
     }
-    for (const ami of state_.amis.all) {
-        getFeed(ami).style.display = "none";
+    for (const button of state_.amis.food_buttons) {
+        button.style.display = "none";
     }
     $("#recruit").hide();
     $("#upgrade").hide();
     $("#autofill").hide();
     $("#ready").hide();
     $("#reset").hide();
-    for (const upgrader of document.querySelectorAll(".upgrader")) {
+    for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.display = "none";
     }
     refs_.feed.style.display = "none";

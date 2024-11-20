@@ -426,7 +426,7 @@ var settings_ = {
 				"50% chance to recruit enemies instead of killing them, up to recruit limit",
 				"75% chance to recruit enemies instead of killing them, up to recruit limit",
 				"100% chance to recruit enemies instead of killing them, up to recruit limit",
-				"100% chance to recruit enemies instead of killing them, ignores recruit limit"
+				"100% chance to recruit enemies instead of killing them, up to 2x recruit limit"
 			],
 			"cost": 100
 		},
