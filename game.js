@@ -1355,7 +1355,7 @@ function newAmi(name) {
         upgrader.id = ami.id + "-upgrader";
         upgrader.onclick = function(){ upgraderMe(event) };
         upgrader.innerHTML = "&#8679;";
-        upgrader.style.display = (getWaveState() == WaveState.RELOADING) ? "block" : "none";
+        upgrader.style.display = (getWaveState() == WaveState.RECOVER) ? "block" : "none";
         ami.appendChild(upgrader);
         state_.amis.upgrader_buttons.add(upgrader);
     }
