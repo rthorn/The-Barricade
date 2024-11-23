@@ -424,7 +424,7 @@ function loadGame() {
     refs_.trainer.style.width = null;
     refs_.trainer.style.marginLeft = null;
     $("#trainer").hide();
-    refs_.dismiss.style.visiblity = "visible";
+    refs_.dismiss.style.visibility = "visible";
     $("#state").text("Wave " + save.w);
     settings_.mondetour_opens = save.m;
     settings_.precheurs_opens = save.p;
@@ -1472,7 +1472,7 @@ function enablePrecheurs() {
     refs_.lootfood.style.height = "8.03vw";
     refs_.lootfood.style.width = "20.06vw";
     refs_.lootfood.style.right = "calc(50% + 13.80vw)";
-    refs_.dismiss.style.visiblity = "hidden";
+    refs_.dismiss.style.visibility = "hidden";
 }
 
 function newRecruit(name) {
