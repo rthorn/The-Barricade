@@ -518,7 +518,7 @@ var settings_ = {
 			"cost": 200
 		},
 		"Victor Hugo": {
-			"level": 50,
+			"level": 40,
 			"damage": 2,
 			"health": 2,
 			"special": ["", "", "",

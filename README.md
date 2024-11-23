@@ -45,4 +45,4 @@ Snipers can shoot any *ami*, including in buildings, and cannons will knock all 
 
 *Amis* in buildings can attack enemies on either side of the building, and be attacked by snipers from either side.
 
-Once you gain 10000 hope and purchase the revolution upgrade or recruit Victor Hugo for 2000 hope after wave 50, you win the game.
+Once you gain 10000 hope and purchase the revolution upgrade or recruit Victor Hugo for 2000 hope after wave 40, you win the game.
