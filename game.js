@@ -17,6 +17,7 @@ var state_ = {
         food_buttons: new Set([]),
         upgrader_buttons: new Set([]),
         eponines: new Set([]),
+        bossuets: new Set([]),
         last_recover: {},
         last_prepare: {}
     },
@@ -395,6 +396,7 @@ function loadGame() {
     state_.amis.food_buttons = new Set([]);
     state_.amis.upgrader_buttons = new Set([]);
     state_.amis.eponines = new Set([]);
+    state_.amis.bossuets = new Set([]);
     state_.marius.buttons = new Set([]);
     state_.recruit_buttons = new Set([]);
     state_.upgrade_buttons = new Set([]);
@@ -1371,6 +1373,9 @@ function newAmi(name) {
     if (name == "Eponine") {
         state_.amis.eponines.add(ami);
     }
+    if (name == "Bossuet") {
+        state_.amis.bossuets.add(ami);
+    }
     if (name == "Mme Thenardier") {
         ami.children[0].style.fontSize = "0.68vw";
     }
@@ -2226,6 +2231,9 @@ function deleteAmiState(ami) {
     if (state_.amis.eponines.has(ami)) {
         state_.amis.eponines.delete(ami);
     }
+    if (state_.amis.bossuets.has(ami)) {
+        state_.amis.bossuets.delete(ami);
+    }
     if (ami.id in state_.amis.temp_damage) {
         delete state_.amis.temp_damage[ami.id];
     }
@@ -2764,12 +2772,10 @@ function enemyFire(i) {
           continue;
         }
         var options = [...barricadeFor(enemy.parentElement)];
-        for (const wall of barricadeFor(enemy.parentElement)) {
-            for (const child of getChildren(wall)) {
-                if (sl = specialLevel(child, "Bossuet")) {
-                    for (var j = 0; j < refs_.bossuet_extras[sl - 1]; j++) {
-                        options.push(wall);
-                    }
+        for (const ami of state_.amis.bossuets) {
+            if (options.includes(ami.parentElement)) {
+                for (var j = 0; j < refs_.bossuet_extras[specialLevel(ami, "Bossuet") - 1]; j++) {
+                    options.push(ami.parentElement);
                 }
             }
         }
@@ -2787,10 +2793,10 @@ function enemyFire(i) {
             }
         } else {
             var options = getName(enemy) == EnemyType.SNIPER ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall);
-            for (const child of getName(enemy) == EnemyType.SNIPER ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall)) {
-                if (sl = specialLevel(child, "Bossuet")) {
-                    for (var j = 0; j < refs_.bossuet_extras[sl - 1]; j++) {
-                        options.push(child);
+            for (const ami of state_.amis.bossuets) {
+                if (options.includes(ami)) {
+                    for (var j = 0; j < refs_.bossuet_extras[specialLevel(ami, "Bossuet") - 1]; j++) {
+                        options.push(ami);
                     }
                 }
             }
@@ -3467,6 +3473,9 @@ function prepTraining(javert_loc) {
             if (refs_.specials_backwards[state_.citizens.learned_specials[ami.id][remove]] == "Eponine") {
                 state_.amis.eponines.delete(ami);
             }
+            if (refs_.specials_backwards[state_.citizens.learned_specials[ami.id][remove]] == "Bossuet") {
+                state_.amis.bossuets.delete(ami);
+            }
             state_.citizens.learned_specials[ami.id].splice(remove, 1);
         }
     }
@@ -3532,6 +3541,9 @@ function resolveTraining(i) {
             }
             if (trainer.id == "Eponine") {
                 state_.amis.eponines.add(ami);
+            }
+            if (trainer.id == "Bossuet") {
+                state_.amis.bossuets.add(ami);
             }
             updateStats(ami);
         }
