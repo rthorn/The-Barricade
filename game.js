@@ -2697,7 +2697,6 @@ async function startWave() {
     freezeDragging(refs_.rightside);
     enemyOpacity(true);
     transitionToDay();
-    await sleep(300);
     $("#substate").text("Fight!");
     if (!refs_.lesenemies2.children.length) {
         initEnemies();
