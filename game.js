@@ -70,11 +70,11 @@ var state_ = {
 var initials_ = {};
 
 var refs_ = {
-    specialBonusLevels: [1.5, 2, 3, 5, 5],
+    special_bonus_levels: [1, 1.5, 2, 3, 5, 5],
     marius_progress: [0.9, 0.75, 0.5, 0.4, 0.4],
     bossuet_extras: [1, 3, 9, 24, 24],
     targeting_extras: [1, 3, 9, 0, 0],
-    mme_amounts: [0.005, 0.01, 0.02, 0.05, 0.05],
+    mme_amounts: [0, 0.005, 0.01, 0.02, 0.05, 0.05],
     reset_button: '<button type="button" class="resetButton" onClick="resetLoc(this)" hidden>&#x21bb;</button>',
     deathrisk: '<div class="deathrisk" onmouseenter="showHovertext(event)" onmouseleave="hideHovertext(event)">&#x2620</div> ',
     full_width: 'calc((100% - 4.82vw) / 2)',
@@ -2168,7 +2168,7 @@ function damage(person, attacker) {
             die(person);
             return true;
         }
-        bonus = refs_.specialBonusLevels[specialLevel(attacker, "Bahorel") - 1];
+        bonus = refs_.special_bonus_levels[specialLevel(attacker, "Bahorel")];
     }
     if (specialLevel(attacker, "Montparnasse") > 4 && getName(person) == EnemyType.SNIPER) {
         bonus *= 2;
@@ -3488,11 +3488,7 @@ function resolveWalls(javert_loc, wall_ran) {
         }
         for (const child of getChildren(wall)) {
             num += 1;
-            if (sl = specialLevel(child, "Feuilly")) {
-                wallAdjust(wall, refs_.specialBonusLevels[sl - 1] * (sl > 4 ? settings_.wall_repair_max : (settings_.wall_repair_min + wall_ran[num])) / settings_.recover_animation_length, true);
-            } else {
-                wallAdjust(wall, (settings_.wall_repair_min + wall_ran[num]) / settings_.recover_animation_length, true);
-            }
+            wallAdjust(wall, refs_.special_bonus_levels[specialLevel(child, "Feuilly")] * (specialLevel(child, "Feuilly") > 4 ? settings_.wall_repair_max : (settings_.wall_repair_min + wall_ran[num])) / settings_.recover_animation_length, true);
         }
     }
 }
@@ -3542,14 +3538,16 @@ function resolveTraining(i) {
     }
 }
 
+function recoverDiff(full, i) {
+    return Math.floor(full * (i + 1) / settings_.recover_animation_length) - Math.floor(full * i / settings_.recover_animation_length);
+}
+
 function resolveDrinking(i, hope_ran) {
     var num = -1;
     for (const ami of getChildren(refs_.lesamis)) {
         num += 1;
-        setHope(getHope() + Math.floor((specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * i / settings_.recover_animation_length));
-        if (specialLevel(ami, "Grantaire")) {
-            setHope(getHope() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * (specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, "Grantaire") - 1] - 1) * (specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num])) * i / settings_.recover_animation_length));
-        }
+        var full = (refs_.special_bonus_levels[specialLevel(ami, "Grantaire")]) * (specialLevel(ami, "Grantaire") > 4 ? settings_.hope_drink_max : (settings_.hope_drink_min + hope_ran[num]));
+        setHope(getHope() + recoverDiff(full, i));
     }
 }
 
@@ -3560,17 +3558,9 @@ function resolveLooting(loc, i, ran, deaths, min, max, initial, alltime, set, ge
         while (deaths.includes(num)) {
             num += 1
         }
-        set(get() + Math.floor((specialLevel(ami, special) > 4 ? max : (min + ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((specialLevel(ami, special) > 4 ? max : (min + ran[num])) * i / settings_.recover_animation_length));
-        if (specialLevel(ami, special)) {
-            set(get() + Math.floor((refs_.specialBonusLevels[specialLevel(ami, special) - 1] - 1) * (specialLevel(ami, special) > 4 ? max : (min + ran[num])) * (i + 1) / settings_.recover_animation_length) - Math.floor((refs_.specialBonusLevels[specialLevel(ami, special) - 1] - 1) * (specialLevel(ami, special) > 4 ? max : (min + ran[num])) * i / settings_.recover_animation_length));
-        }
-        if (sl = specialLevel(ami, "Mme Thenardier")) {
-            if (sl > 4) {
-                set(get() + Math.floor(refs_.mme_amounts[sl - 1] * alltime * (i + 1) / settings_.recover_animation_length) - Math.floor(refs_.mme_amounts[sl - 1] * alltime * i / settings_.recover_animation_length));
-            } else {
-                set(get() + Math.floor(refs_.mme_amounts[sl - 1] * initial * (i + 1) / settings_.recover_animation_length) - Math.floor(refs_.mme_amounts[sl - 1] * initial * i / settings_.recover_animation_length));
-            }
-        }
+        var bonus = refs_.mme_amounts[specialLevel(ami, "Mme Thenardier")] * (specialLevel(ami, "Mme Thenardier") > 4 ? alltime : initial);
+        var full = (refs_.special_bonus_levels[specialLevel(ami, special)]) * (specialLevel(ami, special) > 4 ? max : (min + ran[num])) + bonus;
+        set(get() + recoverDiff(full, i));
     }
 }
 
