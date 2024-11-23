@@ -64,7 +64,7 @@ var state_ = {
     purchased_upgrades: [],
     reloading: false,
     fast: false,
-    dead: []
+    dead: new Set([])
 };
 
 var initials_ = {};
@@ -115,16 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initials_.settings = JSON.parse(JSON.stringify(settings_));
     initials_.refs = JSON.parse(JSON.stringify(refs_));
     initials_.state = JSON.parse(JSON.stringify(state_));
-    initials_.state.dragging.draggable = new Set([]);
-    initials_.state.dragging.droppable = new Set([]);
-    initials_.state.amis.all = new Set([]);
-    initials_.state.amis.needs_food = new Set([]);
-    initials_.state.amis.food_buttons = new Set([]);
-    initials_.state.amis.upgrader_buttons = new Set([]);
-    initials_.state.amis.eponines = new Set([]);
-    initials_.state.marius.buttons = new Set([]);
-    initials_.state.recruit_buttons = new Set([]);
-    initials_.state.upgrade_buttons = new Set([]);
     startNewGame();
 });
 
@@ -183,6 +173,7 @@ function initializeVars() {
         state_.dragging.droppable.add(wall);
         refs_.lookup[wall.id] = wall;
     }
+    refs_.ami_locations_ordered = [...refs_.ami_locations].sort();
     refs_.barricade = new Set([...refs_.chanvrerie, ...refs_.mondetour]);
     refs_.precheurs = new Set([document.getElementById('precheurs1'), document.getElementById('precheurs2')]);
     refs_.precheurs_container = document.getElementById('precheurs');
@@ -194,8 +185,10 @@ function initializeVars() {
     refs_.specials = {};
     refs_.special_ups = {};
     refs_.specials_backwards = {};
+    refs_.amis_ordered = [];
     for (const name in settings_.amis) {
         if ("special" in settings_.amis[name]) {
+            refs_.amis_ordered.push(name);
             refs_.specials[name] = settings_.amis[name].special;
             for (const special of refs_.specials[name]) {
                 refs_.specials_backwards[special] = name;
@@ -214,6 +207,12 @@ function initializeVars() {
             refs_.special_ups[refs_.specials[name][i - 1]] = refs_.specials[name][i - 1];
         }
     }
+    refs_.upgrades_ordered = [];
+    for (const name in settings_.upgrades) {
+        refs_.upgrades_ordered.push(name);
+    }
+    refs_.upgrades_ordered = refs_.upgrades_ordered.sort();
+    refs_.amis_ordered = refs_.amis_ordered.sort();
     refs_.labels = new Set([]);
     for (const ref in refs_) {
         if (ref.includes("_label")) {
@@ -384,12 +383,14 @@ function loadGame() {
     for (const upgrader of getChildren(refs_.upgrader_screen)) {
         upgrader.remove();
     }
+    clearEnemies();
     refs_ = JSON.parse(JSON.stringify(initials_.refs));
     state_ = JSON.parse(JSON.stringify(initials_.state));
     settings_ = JSON.parse(JSON.stringify(initials_.settings));
     state_.dragging.draggable = new Set([]);
     state_.dragging.droppable = new Set([]);
     state_.amis.all = new Set([]);
+    state_.dead = new Set([]);
     state_.amis.needs_food = new Set([]);
     state_.amis.food_buttons = new Set([]);
     state_.amis.upgrader_buttons = new Set([]);
@@ -398,16 +399,24 @@ function loadGame() {
     state_.recruit_buttons = new Set([]);
     state_.upgrade_buttons = new Set([]);
     state_.reloading = true;
+
+    refs_.amis_ordered = [];
+    for (const name in settings_.amis) {
+        if ("special" in settings_.amis[name]) {
+            refs_.amis_ordered.push(name);
+        }
+    }
+    refs_.amis_ordered = refs_.amis_ordered.sort();
     for (const ami in save.a) {
-        if (!ami.includes("Citizen")) {
+        if (!ami.includes("c")) {
             if ("h" in save.a[ami]) {
-                settings_.amis[ami].health = save.a[ami].h;
+                settings_.amis[refs_.amis_ordered[ami]].health = save.a[ami].h;
             }
             if ("d" in save.a[ami]) {
-                settings_.amis[ami].damage = save.a[ami].d;
+                settings_.amis[refs_.amis_ordered[ami]].damage = save.a[ami].d;
             }
             if ("s" in save.a[ami]) {
-                settings_.amis[ami].special_level = save.a[ami].s;
+                settings_.amis[refs_.amis_ordered[ami]].special_level = save.a[ami].s;
             }
         }
     }
@@ -516,22 +525,31 @@ function loadGame() {
                 addNewEnemy(EnemyType.CANNON, refs_.lesenemiesprecheurs1);
             }
         }
-        stackEnemies();
+        stackAllEnemies();
+        enemyOpacity(false);
+        if (getWaveState() == WaveState.RECOVER && !state_.structures.mondetour_open) {
+            refs_.lesenemiesmondetour1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - getWave()));
+            refs_.lesenemiesmondetour2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - getWave()));
+        }
+        if (getWaveState() == WaveState.RECOVER && !state_.structures.precheurs_open) {
+            refs_.lesenemiesprecheurs1.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - getWave()));
+            refs_.lesenemiesprecheurs2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.precheurs_opens - getWave()));
+        }
     }
     for (const ami of state_.amis.all) {
-        if (!(ami.id in save.a)) {
+        if (!(refs_.amis_ordered.indexOf(ami.id) in save.a)) {
             die(ami);
         }
     }
     var citizen_recruit = null;
     for (const recruit of getChildren(refs_.recruit_screen)) {
-        if ("z" in save && save.z.includes(recruit.id)) {
+        if ("z" in save && save.z.includes(refs_.amis_ordered.indexOf(recruit.id))) {
             var ev = {};
             ev.target = recruit.children[recruit.children.length - 1];
             die(recruitMe(ev));
             continue;
         }
-        if (recruit.id in save.a) {
+        if (refs_.amis_ordered.indexOf(recruit.id) in save.a) {
             var ev = {};
             ev.target = recruit.children[recruit.children.length - 1];
             recruitMe(ev);
@@ -542,14 +560,15 @@ function loadGame() {
     }
     for (const ami in save.a) {
         var real_ami = null;
-        if (ami.includes("Citizen")) {
+        if (ami >= 100) {
             var ev = {};
             ev.target = citizen_recruit;
             real_ami = recruitMe(ev);
             if ("l" in save.a[ami]) {
                 state_.citizens.learned_specials[real_ami.id] = [];
-                for (const special in save.a[ami].l) {
-                    state_.citizens.learned_specials[real_ami.id].push(refs_.specials[special][save.a[ami].l[special] - 1]);
+                for (const s in save.a[ami].l) {
+                    var special = refs_.amis_ordered[s];
+                    state_.citizens.learned_specials[real_ami.id].push(refs_.specials[special][save.a[ami].l[s] - 1]);
                 }
             }
             if ("j" in save.a[ami]) {
@@ -560,13 +579,17 @@ function loadGame() {
                 }
             }
         } else {
-            real_ami = state_.amis.lookup[ami];
+            real_ami = state_.amis.lookup[refs_.amis_ordered[ami]];
         }
         if ("c" in save.a[ami]) {
             setHealth(real_ami, save.a[ami].c);
         }
-        state_.amis.last_recover[real_ami.id] = refs_.lookup[save.a[ami].r];
-        state_.amis.last_prepare[real_ami.id] = refs_.lookup[save.a[ami].p];
+        if ("r" in save.a[ami]) {
+            state_.amis.last_recover[real_ami.id] = refs_.ami_locations_ordered[save.a[ami].r];
+        }
+        if ("p" in save.a[ami]) {
+            state_.amis.last_prepare[real_ami.id] = refs_.ami_locations_ordered[save.a[ami].p];
+        }
         if ("t" in save.a[ami]) {
             state_.amis.temp_damage[real_ami.id] = save.a[ami].t;
         }
@@ -575,7 +598,7 @@ function loadGame() {
     if ("o" in save) {
         while (save.o.length) {
             for (const upgrade of getChildren(refs_.upgrade_screen)) {
-                if (save.o[0] == upgrade.id) {
+                if (refs_.upgrades_ordered[save.o[0]] == upgrade.id) {
                     var ev = {};
                     ev.target = upgrade.children[1];
                     upgradeMe(ev);
@@ -586,7 +609,9 @@ function loadGame() {
         }
     }
     if ("z" in save) {
-        state_.dead = save.z;
+        for (const ami of save.z) {
+            state_.dead.add(refs_.amis_ordered[ami]);
+        }
     }
     if (getWaveState() == WaveState.RECOVER) {
         for (const ami of state_.amis.all) {
@@ -696,6 +721,7 @@ function hideHovertext(e) {
 
 $(document).on('keydown keyup', function(e) {
     if (e.originalEvent.keyCode == 32) {
+        e.preventDefault();
         state_.fast = e.type == "keydown";
         return;
     }
@@ -1412,7 +1438,7 @@ function addNewCitizen() {
     id = "Citizen" + i.toString();
     var ami = addNewAmi(id);
     stackChildren(refs_.lesamis);
-    if (!state_.javert.ami && !state_.javert.dead) {
+    if (!state_.javert.ami && !state_.javert.dead && !state_.reloading) {
         var chance = i <= settings_.initial_javert_threshold ? settings_.initial_javert_chance : settings_.javert_chance;
         if (getRandomInt(100) < chance) {
             state_.javert.ami = ami;
@@ -1460,6 +1486,7 @@ function enablePrecheurs() {
     for (const wall of refs_.precheurs) {
         refs_.barricade.add(wall);
         refs_.ami_locations.add(wall);
+        refs_.ami_locations_ordered.push(wall);
         state_.dragging.droppable.add(wall);
         setLabel(wall);
     }
@@ -2194,7 +2221,7 @@ function deleteAmiState(ami) {
     if (isCitizen(ami)) {
         state_.citizens.num--;
     } else if (!state_.reloading) {
-        state_.dead.push(ami.id);
+        state_.dead.add(ami.id);
     }
     if (state_.amis.eponines.has(ami)) {
         state_.amis.eponines.delete(ami);
@@ -2531,20 +2558,26 @@ function saveGame() {
         save.e = state_.sabotage;
     }
     if (state_.purchased_upgrades.length) {
-        save.o = state_.purchased_upgrades;
+        save.o = [];
+        for (const upgrade of state_.purchased_upgrades) {
+            save.o.push(refs_.upgrades_ordered.indexOf(upgrade));
+        }
     }
     if (state_.dead.length) {
-        save.z = state_.dead;
+        save.z = [];
+        for (const ami of state_.dead) {
+            save.z.push(refs_.amis_ordered.indexOf(ami));
+        }
     }
     for (const wall of [...refs_.chanvrerie].sort(function(x, y) { return x.id < y.id ? -1 : 1 })) {
-        save.b.push(getHeight(wall));
+        save.b.push(Math.floor(getHeight(wall) * 100) / 100);
     }
     for (const wall of [...refs_.mondetour].sort(function(x, y) { return x.id < y.id ? -1 : 1 })) {
-        save.b.push(getHeight(wall));
+        save.b.push(Math.floor(getHeight(wall) * 100) / 100);
     }
     if (state_.structures.precheurs_open) {
         for (const wall of [...refs_.precheurs].sort(function(x, y) { return x.id < y.id ? -1 : 1 })) {
-            save.b.push(getHeight(wall));
+            save.b.push(Math.floor(getHeight(wall) * 100) / 100);
         }
     }
     for (const loc of refs_.enemy_locs) {
@@ -2560,19 +2593,19 @@ function saveGame() {
             }
             for (const child of loc.children) {
                 if (getName(child) == EnemyType.SOLDIER) {
-                    if (a in save.c[index]) {
+                    if ("a" in save.c[index]) {
                         save.c[index].a++;
                     } else {
                         save.c[index].a = 1;
                     }
                 } else if (getName(child) == EnemyType.SNIPER) {
-                    if (b in save.c[index]) {
+                    if ("b" in save.c[index]) {
                         save.c[index].b++;
                     } else {
                         save.c[index].b = 1;
                     }
                 } else {
-                    if (c in save.c[index]) {
+                    if ("c" in save.c[index]) {
                         save.c[index].c++;
                     } else {
                         save.c[index].c = 1;
@@ -2582,12 +2615,15 @@ function saveGame() {
         }
     }
     for (const ami of state_.amis.all) {
-        var ami_state = {
-            r: state_.amis.last_recover[ami.id].id,
-            p: state_.amis.last_prepare[ami.id].id,
-        };
+        var ami_state = {};
+        if (state_.amis.last_recover[ami.id] != refs_.lesamis) {
+            ami_state.r = refs_.ami_locations_ordered.indexOf(state_.amis.last_recover[ami.id]);
+        }
+        if (state_.amis.last_prepare[ami.id] != refs_.lesamis) {
+            ami_state.p = refs_.ami_locations_ordered.indexOf(state_.amis.last_prepare[ami.id]);
+        }
         if (getHealth(ami) != 100) {
-            ami_state.c = getHealth(ami);
+            ami_state.c = Math.floor(getHealth(ami));
         }
         if (!isCitizen(ami)) {
             if (settings_.amis[getName(ami)].health != 1) {
@@ -2603,7 +2639,7 @@ function saveGame() {
         if (ami.id in state_.citizens.learned_specials) {
             ami_state.l = {};
             for (const learned of state_.citizens.learned_specials[ami.id]) {
-                ami_state.l[refs_.specials_backwards[learned]] = refs_.specials[refs_.specials_backwards[learned]].indexOf(learned) + 1;
+                ami_state.l[refs_.amis_ordered.indexOf(refs_.specials_backwards[learned])] = refs_.specials[refs_.specials_backwards[learned]].indexOf(learned) + 1;
             }
         }
         if (ami == state_.javert.ami) {
@@ -2612,7 +2648,11 @@ function saveGame() {
         if (ami.id in state_.amis.temp_damage) {
             ami_state.t = state_.amis.temp_damage[ami.id];
         }
-        save.a[ami.id] = ami_state;
+        if (isCitizen(ami)) {
+            save.a[100 + parseInt(ami.id.match(/\d+/)[0])] = ami_state;
+        } else {
+            save.a[refs_.amis_ordered.indexOf(ami.id)] = ami_state;
+        }
     }
     refs_.game.style.color = "black";
     refs_.game.value = btoa(JSON.stringify(save));
