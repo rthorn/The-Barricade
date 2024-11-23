@@ -63,6 +63,7 @@ var state_ = {
     upgrade_buttons: new Set([]),
     purchased_upgrades: [],
     reloading: false,
+    fast: false,
     dead: []
 };
 
@@ -694,6 +695,10 @@ function hideHovertext(e) {
 // Dragging
 
 $(document).on('keydown keyup', function(e) {
+    if (e.originalEvent.keyCode == 32) {
+        state_.fast = e.type == "keydown";
+        return;
+    }
     if (e.originalEvent.key != "Shift") {
         return;
     }
@@ -2668,7 +2673,7 @@ async function startWave() {
         if (state_.marius.active) {
             break;
         }
-        await sleep(settings_.sleep_ms);
+        await sleep(settings_.sleep_ms / (state_.fast ? 3 : 1));
     }
     refs_.progressbar.style.display = "none";
 
