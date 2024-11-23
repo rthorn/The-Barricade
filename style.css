@@ -893,6 +893,22 @@ button[type=button]:enabled {
     background-color: green;
 }
 
+.MontparnassePower {
+    background-color: cadetblue;
+}
+
+.BabetPower {
+    background-color: darkgoldenrod;
+}
+
+.GueulemerPower {
+    background-color: lightsalmon;
+}
+
+.ClaquesousPower {
+    background-color: lightpink;
+}
+
 .GavrochePower {
     background-color: turquoise;
 }
