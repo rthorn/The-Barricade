@@ -426,6 +426,9 @@ function loadGame() {
     $("#state").text("Wave " + save.w);
     settings_.mondetour_opens = save.m;
     settings_.precheurs_opens = save.p;
+    if (getWave() >= settings_.mondetour_opens) {
+        enableMondetour();
+    }
     if (getWave() >= settings_.precheurs_opens || (getWave() == settings_.precheurs_opens - 1 && getWaveState() == WaveState.RECOVER)) {
         enablePrecheurs();
     }
@@ -2534,7 +2537,7 @@ function saveGame() {
     }
     for (const loc of refs_.enemy_locs) {
         if (loc.children.length) {
-            if (!(c in save)) {
+            if (!("c" in save)) {
                 save.c = [{}, {}, {}];
             }
             var index = 0;
