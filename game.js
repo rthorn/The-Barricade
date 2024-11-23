@@ -199,7 +199,9 @@ function initializeVars() {
             for (const special of refs_.specials[name]) {
                 refs_.specials_backwards[special] = name;
             }
-            settings_.amis[name].special_level = 1;
+            if (!("special_level" in settings_.amis[name])) {
+                settings_.amis[name].special_level = 1;
+            }
             while (refs_.specials[name][settings_.amis[name].special_level - 1] == "") {
                 settings_.amis[name].special_level += 1;
             }
