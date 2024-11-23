@@ -2201,6 +2201,11 @@ function deleteAmiState(ami) {
         state_.javert.ami = null;
         state_.javert.label = null;
     }
+    for (const upgrader of getChildren(refs_.upgrader_screen)) {
+        if (upgrader.id.includes(ami.id)) {
+            upgrader.remove();
+        }
+    }
 }
 
 function die(person, attacker) {
