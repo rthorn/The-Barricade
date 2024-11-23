@@ -3547,7 +3547,7 @@ function resolveDeath(loc, i, ran, deaths) {
     return deaths;
 }
 
-function resolveScouting(i, deaths) {
+function resolveScouting(i, ran, deaths) {
     var num = -1;
     for (const ami of getChildren(refs_.scout)) {
         num += 1;
@@ -3604,7 +3604,7 @@ async function resolveRecover() {
         }
         deaths[2] = resolveDeath(refs_.scout, i, ran, deaths[2]);
         if (javert_loc != refs_.scout) {
-            resolveScouting(i, deaths[2]);
+            resolveScouting(i, ran, deaths[2]);
         }
         if (!state_.structures.precheurs_open && i == (ran + 8) % settings_.recover_animation_length) {
             for (const ami of getChildren(refs_.dismiss)) {
