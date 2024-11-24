@@ -3345,7 +3345,7 @@ function achievements() {
         div.className = "achievement";
         var achieved = getAchievements().includes(":" + refs_.achievements_ordered.indexOf(achievement) + ":");
         var star = '<font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>';
-        div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? star + "This achievement is secret. Keep playing to unlock." : star + settings_.achievements[achievement].description;
+        div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? star + "Secret achievement" : star + settings_.achievements[achievement].description;
         refs_.achievements_screen.appendChild(div);
         if (achieved) {
             achieveds += 1;
