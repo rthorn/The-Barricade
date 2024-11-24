@@ -228,6 +228,11 @@ function initializeVars() {
         refs_.upgrades_ordered.push(name);
     }
     refs_.upgrades_ordered = refs_.upgrades_ordered.sort();
+    refs_.achievements_ordered = [];
+    for (const name in settings_.achievements) {
+        refs_.achievements_ordered.push(name);
+    }
+    refs_.achievements_ordered = refs_.achievements_ordered.sort();
     refs_.amis_ordered = refs_.amis_ordered.sort();
     refs_.labels = new Set([]);
     for (const ref in refs_) {
@@ -368,16 +373,8 @@ function toVW(px) {
 function setDifficulty(ev) {
     if (ev.target.id == "easy") {
         state_.difficulty = Difficulty.EASY;
-        settings_.loot_ammo_min = settings_.loot_ammo_max;
-        settings_.loot_food_min = settings_.loot_food_max;
-        settings_.hope_drink_min = settings_.hope_drink_max;
-        settings_.wall_repair_min = settings_.wall_repair_max;
     } else if (ev.target.id == "hard") {
         state_.difficulty = Difficulty.HARD;
-        settings_.loot_ammo_max = settings_.loot_ammo_min;
-        settings_.loot_food_max = settings_.loot_food_min;
-        settings_.hope_drink_max = settings_.hope_drink_min;
-        settings_.wall_repair_max = settings_.wall_repair_min;
     } else {
         state_.difficulty = Difficulty.NORMAL;
     }
@@ -3309,18 +3306,19 @@ function getAchievements() {
             return c.substring(name.length, c.length);
         }
     }
-    return "";
+    return ":";
 }
 
 function achieve(achievement) {
-    if (getAchievements().includes(achievement + "-")) {
+    var index = refs_.achievements_ordered.indexOf(achievement)
+    if (getAchievements().includes(":" + index + ":")) {
         return;
     }
     var now = new Date();
     var time = now.getTime();
     var expireTime = time + 86400000*365;
     now.setTime(expireTime);
-    document.cookie = "achievements=" + getAchievements() + achievement + "-" + "; expires=" + now.toUTCString() + "; path=/";
+    document.cookie = "achievements=" + getAchievements() + index + ":" + "; expires=" + now.toUTCString() + "; path=/";
 }
 
 function achievements() {
@@ -3329,9 +3327,9 @@ function achievements() {
     for (const achievement in settings_.achievements) {
         var div = document.createElement("div");
         div.className = "achievement";
-        var achieved = getAchievements().includes(achievement + "-");
+        var achieved = getAchievements().includes(":" + refs_.achievements_ordered.indexOf(achievement) + ":");
         var star = '<font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>';
-        div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? "This achievement is secret. Keep playing to unlock." : star + settings_.achievements[achievement].description;
+        div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? star + "This achievement is secret. Keep playing to unlock." : star + settings_.achievements[achievement].description;
         refs_.achievements_screen.appendChild(div);
         if (achieved) {
             achieveds += 1;

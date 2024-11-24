@@ -560,5 +560,17 @@ var settings_ = {
 			"description": "Win the game on Hard difficulty",
 			"hidden": false
 		},
+		"mabeuf": {
+			"description": "Mabeuf is the first ami to die",
+			"hidden": true
+		},
+		"eponine": {
+			"description": "Eponine dies saving Marius",
+			"hidden": true
+		},
+		"gavroche": {
+			"description": "Gavroche dies looting ammo",
+			"hidden": true
+		},
 	}
 }
