@@ -66,7 +66,8 @@ var state_ = {
     purchased_upgrades: [],
     reloading: false,
     fast: false,
-    dead: new Set([])
+    dead: new Set([]),
+    difficulty: 2
 };
 
 var initials_ = {};
@@ -111,6 +112,13 @@ const EnemyType = Object.freeze({
     CANNON: "Cannon"
 });
 
+const Difficulty = Object.freeze({
+    UNKNOWN: 0,
+    EASY: 1,
+    NORMAL: 2,
+    HARD: 3
+});
+
 // Initialization
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -118,6 +126,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initials_.refs = JSON.parse(JSON.stringify(refs_));
     initials_.state = JSON.parse(JSON.stringify(state_));
     startNewGame();
+    disableButtons();
+    refs_.achievements.style.pointerEvents = "auto";
 });
 
 function startNewGame() {
@@ -151,7 +161,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements']) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements']) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name];
     }
@@ -351,6 +361,32 @@ function toVW(px) {
 
 // Event handlers
 
+function setDifficulty(ev) {
+    if (ev.target.id == "easy") {
+        state_.difficulty = Difficulty.EASY;
+        settings_.loot_ammo_min = settings_.loot_ammo_max;
+        settings_.loot_food_min = settings_.loot_food_max;
+        settings_.hope_drink_min = settings_.hope_drink_max;
+        settings_.wall_repair_min = settings_.wall_repair_max;
+    } else if (ev.target.id == "hard") {
+        state_.difficulty = Difficulty.HARD;
+        settings_.loot_ammo_max = settings_.loot_ammo_min;
+        settings_.loot_food_max = settings_.loot_food_min;
+        settings_.hope_drink_max = settings_.hope_drink_min;
+        settings_.wall_repair_max = settings_.wall_repair_min;
+    } else {
+        state_.difficulty = Difficulty.NORMAL;
+    }
+    if (refs_.newgame_screen.style.display != "none") {
+        refs_.newgame_screen.style.display = "none";
+        reenableButtons();
+        document.body.appendChild(refs_.game);
+        document.body.appendChild(refs_.load);
+        refs_.game.style.top = "8.8vw";
+        refs_.load.style.top = "8.8vw";
+    }
+}
+
 function loadGame() {
     if (!refs_.game.value) {
         return;
@@ -466,6 +502,12 @@ function loadGame() {
         if (settings_.amis[name].level < getWave() || (settings_.amis[name].level == getWave() && getWaveState() == WaveState.RECOVER)) {
             addNewRecruit(name);
         }
+    }
+    if ("v" in save) {
+        state_.difficulty = save.v;
+        var difficulty = save.v == 1 ? "easy" : "hard";
+        var ev = { target: { id: difficulty } }
+        setDifficulty(ev);
     }
     setAmmo(save.d);
     setFood(save.g);
@@ -1086,11 +1128,11 @@ function unfreezeDragging(location) {
 // Helpers
 
 function getChildren(target) {
-    return [...target.children].slice(target == refs_.rightside || target == refs_.recruit_screen ? 2 : 1);
+    return [...target.children].slice(target == refs_.rightside || target == refs_.recruit_screen || target == refs_.achievements_screen ? 2 : 1);
 }
 
 function hasChildren(target) {
-    return target.children.length - (target == refs_.rightside || target == refs_.recruit_screen ? 2 : 1);
+    return target.children.length - (target == refs_.rightside || target == refs_.recruit_screen || target == refs_.achievements_screen ? 2 : 1);
 }
 
 function wallMax(wall) {
@@ -2499,9 +2541,21 @@ function enemiesPerWave(type, wave) {
     if (wave >= 40) {
         adjusted_wave += (wave - 39) * 5;
     }
-    var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * 4 / 5)
+    var adjust = 4/5;
+    if (state_.difficulty == Difficulty.EASY) {
+        adjust = 3/5;
+    } else if (state_.difficulty == Difficulty.HARD) {
+        adjust = 6/5;
+    }
+    var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * adjust)
+    var adjust2 = 5;
+    if (state_.difficulty == Difficulty.EASY) {
+        adjust2 = 6;
+    } else if (state_.difficulty == Difficulty.HARD) {
+        adjust2 = 3;
+    }
     if (type != EnemyType.SOLDIER) {
-        return Math.ceil(num/5);
+        return Math.ceil(num/adjust2);
     }
     return num;
 }
@@ -2617,6 +2671,9 @@ function saveGame() {
     };
     if (getWaveState() == WaveState.RECOVER) {
         save.s = 1;
+    }
+    if (state_.difficulty != Difficulty.NORMAL) {
+        save.v = state_.difficulty;
     }
     if (state_.javert.dead) {
         save.j = 1;
@@ -3228,7 +3285,48 @@ function recruit() {
     disableButtons();
 }
 
+function getAchievements() {
+    var name = "achievements=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function achieve(achievement) {
+    if (getAchievements().includes(achievement + "-")) {
+        return;
+    }
+    var now = new Date();
+    var time = now.getTime();
+    var expireTime = time + 86400000*365;
+    now.setTime(expireTime);
+    document.cookie = "achievements=" + getAchievements() + achievement + "-" + "; expires=" + now.toUTCString() + "; path=/";
+}
+
 function achievements() {
+    var achieveds = 0;
+    var total = 0;
+    for (const achievement in settings_.achievements) {
+        var div = document.createElement("div");
+        div.className = "achievement";
+        var achieved = getAchievements().includes(achievement + "-");
+        var star = '<font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>';
+        div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? "This achievement is secret. Keep playing to unlock." : star + settings_.achievements[achievement].description;
+        refs_.achievements_screen.appendChild(div);
+        if (achieved) {
+            achieveds += 1;
+        }
+        total += 1;
+    }
+    refs_.achievements_progress.innerHTML = achieveds + "/" + total + " achievements unlocked";
     refs_.achievements_screen.style.display = "inline-block";
     disableButtons();
 }
@@ -3283,6 +3381,9 @@ function closeRecruit() {
 
 function closeAchievements() {
     refs_.achievements_screen.style.display = "none";
+    for (const child of getChildren(refs_.achievements_screen)) {
+        child.remove();
+    }
     reenableButtons();
 }
 
@@ -3858,7 +3959,16 @@ function revolution() {
     }
     disableButtons();
     refs_.load.style.pointerEvents = "auto";
+    refs_.achievements.style.pointerEvents = "auto";
     refs_.game.value = "";
+    switch (state_.difficulty) {
+        case Difficulty.HARD:
+            achieve("hard");
+        case Difficulty.NORMAL:
+            achieve("normal");
+        case Difficulty.EASY:
+            achieve("easy");
+    }
 }
 
 function gameOver() {
@@ -3869,5 +3979,6 @@ function gameOver() {
     }
     disableButtons();
     refs_.load.style.pointerEvents = "auto";
+    refs_.achievements.style.pointerEvents = "auto";
     refs_.game.value = "";
 }

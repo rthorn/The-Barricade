@@ -546,5 +546,19 @@ var settings_ = {
 			"health": 1,
 			"speed": 18
 		}
+	},
+	"achievements": {
+		"easy": {
+			"description": "Win the game on Easy difficulty or higher",
+			"hidden": false
+		},
+		"normal": {
+			"description": "Win the game on Normal difficulty or higher",
+			"hidden": false
+		},
+		"hard": {
+			"description": "Win the game on Hard difficulty",
+			"hidden": false
+		},
 	}
 }
