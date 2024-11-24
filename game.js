@@ -5,6 +5,7 @@ var state_ = {
         draggable: new Set([]),
         droppable: new Set([]),
         shift_key: false,
+        ctrl_key: false,
         data_transfer: [],
         last_parent: null,
         last_mouse: []
@@ -166,6 +167,7 @@ function initializeVars() {
         state_.dragging.droppable.add(wall);
         refs_.lookup[wall.id] = wall;
     }
+    refs_.chanvrerie_ordered = [...refs_.chanvrerie].sort();
     refs_.mondetour = new Set([document.getElementById('mondetour1'), document.getElementById('mondetour2')]);
     refs_.mondetour_labels = {};
     for (const wall of refs_.mondetour) {
@@ -176,6 +178,7 @@ function initializeVars() {
     }
     refs_.ami_locations_ordered = [...refs_.ami_locations].sort();
     refs_.barricade = new Set([...refs_.chanvrerie, ...refs_.mondetour]);
+    refs_.barricade_ordered = [...refs_.barricade].sort();
     refs_.precheurs = new Set([document.getElementById('precheurs1'), document.getElementById('precheurs2')]);
     refs_.precheurs_container = document.getElementById('precheurs');
     refs_.precheurs_labels = {};
@@ -722,6 +725,11 @@ function hideHovertext(e) {
 // Dragging
 
 $(document).on('keydown keyup', function(e) {
+    if (e.originalEvent.keyCode == 17) {
+        e.preventDefault();
+        state_.dragging.ctrl_key = e.type == "keydown";
+        return;
+    }
     if (e.originalEvent.keyCode == 32) {
         e.preventDefault();
         state_.fast = e.type == "keydown";
@@ -907,6 +915,10 @@ function dropAmi(ev) {
         return;
     }
     var cit = isCitizen(dragged_list[0]);
+    var index = null;
+    if (dragged_list.length > 1 && state_.dragging.ctrl_key && (refs_.chanvrerie.has(target) || (refs_.barricade.has(target) && state_.structures.mondetour_open))) {
+        index = state_.structures.mondetour_open ? refs_.barricade_ordered.indexOf(target) : refs_.chanvrerie_ordered.indexOf(target);
+    }
     while (dragged_list.length) {
         var dragged = dragged_list.pop();
         if (target == state_.dragging.last_parent) {
@@ -956,17 +968,33 @@ function dropAmi(ev) {
         }
         target.appendChild(dragged);
         setWidth(dragged);
+        if (index != null) {
+            index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
+            target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
+        }
     }
-    setLabel(target);
-    if (isCitizen(dragged)) {
-        stackChildren(target);
+    if (index != null) {
+        for (const wall of (state_.structures.mondetour_open ? refs_.barricade : refs_.chanvrerie)) {
+            setLabel(wall);
+            stackChildren(wall);
+        }
+        if (cit) {
+            stackChildren(state_.dragging.last_parent);
+        } else {
+            reorderChildren(state_.dragging.last_parent);
+        }
     } else {
-        reorderChildren(target);
-    }
-    if (cit) {
-        stackChildren(state_.dragging.last_parent);
-    } else {
-        reorderChildren(state_.dragging.last_parent);
+        setLabel(target);
+        if (isCitizen(dragged)) {
+            stackChildren(target);
+        } else {
+            reorderChildren(target);
+        }
+        if (cit) {
+            stackChildren(state_.dragging.last_parent);
+        } else {
+            reorderChildren(state_.dragging.last_parent);
+        }
     }
     setLabel(state_.dragging.last_parent);
     if (getWaveState() == WaveState.RECOVER) {
@@ -1495,6 +1523,7 @@ function enablePrecheurs() {
         state_.dragging.droppable.add(wall);
         setLabel(wall);
     }
+    refs_.barricade_ordered = [...refs_.barricade].sort();
     for (const upgrade in settings_.upgrades) {
         if (upgrade.includes("precheurs")) {
             addNewUpgrade(upgrade);
