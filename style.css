@@ -642,7 +642,7 @@ button[type=button]:enabled {
 
 .ami {
     display: inline-block;
-    transition: color 0.1s ease-in-out;
+    transition: color 0.2s ease-in-out;
     width: 4.815vw;
     font-size: 2.81vw;
     text-align: center;

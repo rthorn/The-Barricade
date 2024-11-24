@@ -1961,12 +1961,13 @@ function getBarricadeHeight() {
 }
 
 async function flash(element) {
+    console.log(element.style.color);
     if (isAmi(element)) {
         element.style.color = "gold";
     } else {
         element.style.backgroundColor = "gold";
     }
-    await sleep(100);
+    await sleep(200);
     if (isAmi(element)) {
         if (getHealth(element) > 33) {
             element.style.color = "black";
@@ -2153,7 +2154,7 @@ function getHealthMax(person) {
 function setHealth(person, value) {
     var health = getHealthDiv(person);
     health.style.width = Math.min(Math.max(value, 0), 100) + "%";
-    if (isAmi(person)) {
+    if (isAmi(person) && person.style.color != "gold") {
         if (getHealth(person) > 33) {
             person.style.color = "black";
         } else {
@@ -3328,6 +3329,7 @@ function achieve(achievement) {
     if (getAchievements().includes(":" + index + ":")) {
         return;
     }
+    refs_.achievements.style.backgroundColor = "gold";
     var now = new Date();
     var time = now.getTime();
     var expireTime = time + 86400000*365;
@@ -3353,6 +3355,7 @@ function achievements() {
     refs_.achievements_progress.innerHTML = achieveds + "/" + total + " achievements unlocked";
     refs_.achievements_screen.style.display = "inline-block";
     disableButtons();
+    refs_.achievements.style.backgroundColor = null;
 }
 
 function disableButtons() {
