@@ -3333,6 +3333,9 @@ function achieve(achievement) {
     if (getAchievements().includes(":" + index + ":")) {
         return;
     }
+    if (achievement != "easy" && state_.difficulty == Difficulty.EASY) {
+        return;
+    }
     refs_.achievements.style.backgroundColor = "gold";
     var now = new Date();
     var time = now.getTime();
