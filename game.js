@@ -919,6 +919,7 @@ function dropAmi(ev) {
     if (dragged_list.length > 1 && state_.dragging.ctrl_key && (refs_.chanvrerie.has(target) || (refs_.barricade.has(target) && state_.structures.mondetour_open))) {
         index = state_.structures.mondetour_open ? refs_.barricade_ordered.indexOf(target) : refs_.chanvrerie_ordered.indexOf(target);
     }
+    var dragged = null;
     while (dragged_list.length) {
         if (target == state_.dragging.last_parent) {
             break;
@@ -955,7 +956,7 @@ function dropAmi(ev) {
                 }
             }
         }
-        var dragged = dragged_list.pop();
+        dragged = dragged_list.pop();
         if (!hasSpace(target)) {
             var ami = ev.target.parentElement;
             if (isAmi(ev.target)) {
@@ -1000,7 +1001,7 @@ function dropAmi(ev) {
         }
     } else {
         setLabel(target);
-        if (isCitizen(dragged)) {
+        if (cit) {
             stackChildren(target);
         } else {
             reorderChildren(target);
