@@ -2558,9 +2558,7 @@ function enemiesPerWave(type, wave) {
     }
     var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * adjust)
     var adjust2 = 5;
-    if (state_.difficulty == Difficulty.EASY) {
-        adjust2 = 6;
-    } else if (state_.difficulty == Difficulty.HARD) {
+    if (state_.difficulty == Difficulty.HARD) {
         adjust2 = 3;
     }
     if (type != EnemyType.SOLDIER) {
