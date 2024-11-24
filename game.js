@@ -3419,6 +3419,9 @@ function closeAchievements() {
     }
     if (refs_.newgame_screen.style.display == "none") {
         reenableButtons();
+    } else {
+        refs_.achievements.style.pointerEvents = "auto";
+        refs_.load.style.pointerEvents = "auto";
     }
 }
 
