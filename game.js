@@ -20,7 +20,8 @@ var state_ = {
         eponines: new Set([]),
         bossuets: new Set([]),
         last_recover: {},
-        last_prepare: {}
+        last_prepare: {},
+        dead: 0
     },
     citizens: {
         active: false,
@@ -527,6 +528,9 @@ function loadGame() {
     }
     if ("e" in save) {
         state_.sabotage = save.e;
+    }
+    if ("x" in save) {
+        state_.amis.dead = save.x;
     }
     var i = 0;
     for (const wall of [...refs_.chanvrerie].sort(function(x, y) { return x.id < y.id ? -1 : 1 })) {
@@ -2397,6 +2401,9 @@ function die(person, attacker) {
             }
             setHealth(ami, getHealth(ami) - amount/getHealthMax(ami));
             if (getHealth(ami) <= 0) {
+                if (person.id == "Marius") {
+                    achieve("eponine");
+                }
                 die(ami);
             }
             return;
@@ -2404,6 +2411,12 @@ function die(person, attacker) {
     }
     setHealth(person, 0);
     if (!state_.reloading) {
+        if (isAmi(person)) {
+            state_.amis.dead += 1;
+            if (state_.amis.dead == 1 && person.id == "Mabeuf") {
+                achieve("mabeuf");
+            }
+        }
         if (person == state_.javert.ami) {
             state_.javert.dead = true;
         } else if (specialLevel(person, "Prouvaire")) {
@@ -2690,6 +2703,9 @@ function saveGame() {
     }
     if (state_.sabotage) {
         save.e = state_.sabotage;
+    }
+    if (state_.amis.dead) {
+        save.x = state_.amis.dead;
     }
     if (state_.purchased_upgrades.length) {
         save.o = [];
@@ -3785,6 +3801,9 @@ function resolveDeath(loc, i, ran, deaths) {
                 chance = 0;
             }
             if (getRandomInt(100) < chance) {
+                if (ami.id == "Gavroche" && ami.parentElement == refs_.lootammo) {
+                    achieve("gavroche");
+                }
                 die(ami);
                 deaths.push(num);
                 continue;
