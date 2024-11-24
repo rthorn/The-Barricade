@@ -3353,6 +3353,9 @@ function disableButtons() {
     refs_.ready.style.pointerEvents = "none";
     refs_.hovertext.style.visibility = "hidden";
     refs_.load.style.pointerEvents = "none";
+    for (const ami of state_.amis.all) {
+        ami.style.pointerEvents = "none";
+    }
     for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.pointerEvents = "none";
     }
@@ -3374,6 +3377,9 @@ function reenableButtons() {
     refs_.ready.style.pointerEvents = "auto";
     refs_.hovertext.style.visibility = "visible";
     refs_.load.style.pointerEvents = "auto";
+    for (const ami of state_.amis.all) {
+        ami.style.pointerEvents = "auto";
+    }
     for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.pointerEvents = "auto";
     }
@@ -3396,7 +3402,9 @@ function closeAchievements() {
     for (const child of getChildren(refs_.achievements_screen)) {
         child.remove();
     }
-    reenableButtons();
+    if (refs_.newgame_screen.style.display == "none") {
+        reenableButtons();
+    }
 }
 
 function upgraderMeMe(ev) {
