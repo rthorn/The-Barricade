@@ -920,7 +920,6 @@ function dropAmi(ev) {
         index = state_.structures.mondetour_open ? refs_.barricade_ordered.indexOf(target) : refs_.chanvrerie_ordered.indexOf(target);
     }
     while (dragged_list.length) {
-        var dragged = dragged_list.pop();
         if (target == state_.dragging.last_parent) {
             break;
         }
@@ -955,6 +954,9 @@ function dropAmi(ev) {
                     continue;
                 }
             }
+        }
+        var dragged = dragged_list.pop();
+        if (!hasSpace(target)) {
             var ami = ev.target.parentElement;
             if (isAmi(ev.target)) {
                 ami = ev.target;
