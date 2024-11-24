@@ -726,12 +726,12 @@ function loadGame() {
         }
     }
     refs_.autofill.disabled = false;
-    if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace())) {
+    if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace()) || (hasChildren(refs_.lesamis) == 1 && state_.javert.ami && state_.javert.ami.parentElement == refs_.lesamis && javertDiscovered())) {
         refs_.autofill.disabled = true;
     } else if (getWaveState == WaveState.RECOVER) {
         var disable = true;
         for (const ami of getChildren(refs_.lesamis)) {
-            if (!specialLevel(ami, "Grantaire")) {
+            if (!specialLevel(ami, "Grantaire") && (!state_.javert.ami || state_.javert.ami != ami || !javertDiscovered())) {
                 disable = false;
                 break;
             }
@@ -1102,12 +1102,12 @@ function dropAmi(ev) {
         }
     } else {
         refs_.reset.disabled = false;
-        if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace())) {
+        if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace()) || (hasChildren(refs_.lesamis) == 1 && state_.javert.ami && state_.javert.ami.parentElement == refs_.lesamis && javertDiscovered())) {
             refs_.autofill.disabled = true;
         } else if (getWaveState == WaveState.RECOVER) {
             var disable = true;
             for (const ami of getChildren(refs_.lesamis)) {
-                if (!specialLevel(ami, "Grantaire")) {
+                if (!specialLevel(ami, "Grantaire") && (!state_.javert.ami || state_.javert.ami != ami || !javertDiscovered())) {
                     disable = false;
                     break;
                 }
@@ -1148,8 +1148,12 @@ function wallMax(wall) {
     return settings_.wall_min*state_.structures.wall_num[wall.id] + state_.structures.wall_num[wall.id]*Math.floor((getHeight(wall) + 5)/25);
 }
 
+function javertDiscovered() {
+    return state_.javert.ami && state_.javert.label.textContent == "Javert" && !state_.javert.dead;
+}
+
 function isEquivalent(ami1, ami2) {
-    if ((ami1 == state_.javert.ami || ami2 == state_.javert.ami) && state_.javert.label.textContent == "Javert") {
+    if ((ami1 == state_.javert.ami || ami2 == state_.javert.ami) && javertDiscovered()) {
         return false;
     }
     return getName(ami1) == getName(ami2) && arraysEqual(state_.citizens.learned_specials[ami1.id], state_.citizens.learned_specials[ami2.id]);
@@ -1232,9 +1236,9 @@ function isOnBarricade(ami) {
 function sort_order(ami1, ami2) {
     var name1 = state_.order[getName(ami1)];
     var name2 = state_.order[getName(ami2)];
-    if (state_.javert.ami && ami1 == state_.javert.ami && state_.javert.label.textContent == "Javert") {
+    if (state_.javert.ami && ami1 == state_.javert.ami && javertDiscovered()) {
         name1 = state_.order["Javert"];
-    } else if (state_.javert.ami && ami2 == state_.javert.ami && state_.javert.label.textContent == "Javert") {
+    } else if (state_.javert.ami && ami2 == state_.javert.ami && javertDiscovered()) {
         name2 = state_.order["Javert"];
     }
     if (name1 == name2) {
@@ -1863,7 +1867,7 @@ function autoFill() {
             getChildren(refs_.lesamis).sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b) * getHealthMax(b) ? -1 : 1);
         var high_dam = 
             getChildren(refs_.lesamis).sort((a, b) => getDamage(a) < getDamage(b) ? -1 : getDamage(a) == getDamage(b) ? (getHealth(a) * getHealthMax(a) < getHealth(b) * getHealthMax(b) ? -1 : 1) : 1);
-        if (state_.javert.ami && state_.javert.label.textContent == "Javert" && high_health.includes(state_.javert.ami)) {
+        if (javertDiscovered() && high_health.includes(state_.javert.ami)) {
             high_health.splice(high_health.indexOf(state_.javert.ami), 1);
             high_dam.splice(high_dam.indexOf(state_.javert.ami), 1);
         }
@@ -1905,7 +1909,7 @@ function autoFill() {
         return;
     } else if (getWaveState() == WaveState.RECOVER) {
         for (const ami of getChildren(refs_.lesamis)) {
-            if (ami == state_.javert.ami && !state_.structures.precheurs_open && state_.javert.label.textContent == "Javert") {
+            if (ami == state_.javert.ami && !state_.structures.precheurs_open && javertDiscovered()) {
                 refs_.dismiss.appendChild(ami);
                 continue;
             } else if (getHealth(ami) <= 55 || specialLevel(ami, "Courfeyrac")) {
@@ -2794,7 +2798,7 @@ function saveGame() {
             }
         }
         if (ami == state_.javert.ami) {
-            ami_state.j = state_.javert.label.textContent == "Javert" ? 1 : 0;
+            ami_state.j = javertDiscovered ? 1 : 0;
         }
         if (ami.id in state_.amis.temp_damage) {
             ami_state.t = state_.amis.temp_damage[ami.id];
@@ -3209,7 +3213,7 @@ function transitionToRecover() {
     } else {
         var disable = true;
         for (const ami of getChildren(refs_.lesamis)) {
-            if (!specialLevel(ami, "Grantaire")) {
+            if (!specialLevel(ami, "Grantaire") && (!state_.javert.ami || state_.javert.ami != ami || !javertDiscovered())) {
                 disable = false;
                 break
             }
@@ -3971,7 +3975,7 @@ async function prepareForNextWave() {
     for (const loc of refs_.ami_locations) {
         stackChildren(loc);
     }
-    if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace())) {
+    if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace()) || (hasChildren(refs_.lesamis) == 1 && state_.javert.ami && state_.javert.ami.parentElement == refs_.lesamis && javertDiscovered())) {
         refs_.autofill.disabled = true;
     }
     reenableButtons();
