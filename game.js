@@ -940,7 +940,20 @@ function dropAmi(ev) {
                         reorderChildren(target);
                     }
                 }
-                break;
+                if (index == null) {
+                    break;
+                } else {
+                    var no = 0;
+                    while (!hasSpace(target) && no < (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
+                        no++;
+                        index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
+                        target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
+                    }
+                    if (no >= (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
+                        break;
+                    }
+                    continue;
+                }
             }
             var ami = ev.target.parentElement;
             if (isAmi(ev.target)) {
