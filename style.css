@@ -187,6 +187,17 @@ h3 {
     overflow: scroll;
 }
 
+#achievements-screen {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    background: gray;
+    z-index: 999;
+    overflow: scroll;
+}
+
 #recruit-limit {
     width: 100%;
     text-align: left;
@@ -245,6 +256,12 @@ h3 {
 }
 
 #close-upgrade {
+    margin: .16vw;
+    display: block;
+    font-size: 1.6vw;
+}
+
+#close-achievements {
     margin: .16vw;
     display: block;
     font-size: 1.6vw;

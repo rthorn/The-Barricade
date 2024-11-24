@@ -127,6 +127,7 @@ function startNewGame() {
     setLabels();
     refs_.reset.disabled = true;
     closeRecruit();
+    closeAchievements();
     closeUpgrade();
     closeUpgrader();
     hideHovertext();
@@ -150,7 +151,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game']) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements']) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name];
     }
@@ -365,6 +366,18 @@ function loadGame() {
             refs_.game.style.color = "red";
             return;
         }
+    }
+    if ($("#substate").text().includes("(Wave")) {
+        $("#substate").text("Prepare");
+        $("#state").text("Wave 1");
+        $("#reset").show();
+        $("#autofill").show();
+        $("#ready").show();
+        $("#progressbar").hide();
+        for (const loc of refs_.ami_locations) {
+            unfreezeDragging(loc);
+        }
+        reenableButtons();
     }
     if ("s" in save) {
         if (getWaveState() != WaveState.RECOVER) {
@@ -803,6 +816,10 @@ $(document).on('mousedown', function(e) {
         }
         if (refs_.upgrader_screen.style.display != "none") {
             closeUpgrader();
+            return;
+        }
+        if (refs_.achievements_screen.style.display != "none") {
+            closeAchievements();
             return;
         }
     }
@@ -3211,10 +3228,16 @@ function recruit() {
     disableButtons();
 }
 
+function achievements() {
+    refs_.achievements_screen.style.display = "inline-block";
+    disableButtons();
+}
+
 function disableButtons() {
     refs_.upgrade.style.pointerEvents = "none";
     refs_.feed.style.pointerEvents = "none";
     refs_.recruit.style.pointerEvents = "none";
+    refs_.achievements.style.pointerEvents = "none";
     refs_.autofill.style.pointerEvents = "none";
     refs_.reset.style.pointerEvents = "none";
     refs_.ready.style.pointerEvents = "none";
@@ -3236,6 +3259,7 @@ function reenableButtons() {
     refs_.feed.style.pointerEvents = "auto";
     refs_.recruit.style.pointerEvents = "auto";
     refs_.autofill.style.pointerEvents = "auto";
+    refs_.achievements.style.pointerEvents = "auto";
     refs_.reset.style.pointerEvents = "auto";
     refs_.ready.style.pointerEvents = "auto";
     refs_.hovertext.style.visibility = "visible";
@@ -3254,6 +3278,11 @@ function reenableButtons() {
 function closeRecruit() {
     refs_.recruit.innerHTML = "Recruit";
     refs_.recruit_screen.style.display = "none";
+    reenableButtons();
+}
+
+function closeAchievements() {
+    refs_.achievements_screen.style.display = "none";
     reenableButtons();
 }
 
@@ -3822,11 +3851,14 @@ function revolution() {
     $("#lootfood").hide();
     $("#scout").hide();
     closeRecruit();
+    closeUpgrade();
     $("#feed").hide();
     for (const loc of refs_.ami_locations) {
         freezeDragging(loc);
     }
     disableButtons();
+    refs_.load.style.pointerEvents = "auto";
+    refs_.game.value = "";
 }
 
 function gameOver() {
@@ -3836,4 +3868,6 @@ function gameOver() {
         freezeDragging(loc);
     }
     disableButtons();
+    refs_.load.style.pointerEvents = "auto";
+    refs_.game.value = "";
 }
