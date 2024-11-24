@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     startNewGame();
     disableButtons();
     refs_.achievements.style.pointerEvents = "auto";
+    refs_.load.style.pointerEvents = "auto";
 });
 
 function startNewGame() {
@@ -261,6 +262,9 @@ function initializeAmis() {
             addNewAmi(name);
         }
     }
+}
+
+function initializeAmisUpgrades() {
     for (const ami of [...state_.amis.all].sort((a, b) => sort_order(a, b))) {
         var container = document.createElement("div");
         var amid = newPerson(ami.id + "1", "upgraderami");
@@ -377,6 +381,7 @@ function setDifficulty(ev) {
     } else {
         state_.difficulty = Difficulty.NORMAL;
     }
+    initializeAmisUpgrades();
     if (refs_.newgame_screen.style.display != "none") {
         refs_.newgame_screen.style.display = "none";
         reenableButtons();
@@ -492,6 +497,15 @@ function loadGame() {
     $("#state").text("Wave " + save.w);
     settings_.mondetour_opens = save.m;
     settings_.precheurs_opens = save.p;
+    if ("v" in save) {
+        state_.difficulty = save.v;
+        var difficulty = save.v == 1 ? "easy" : "hard";
+        var ev = { target: { id: difficulty } }
+        setDifficulty(ev);
+    } else {
+        var ev = { target: { id: "normal" } }
+        setDifficulty(ev);
+    }
     if (getWave() >= settings_.mondetour_opens) {
         enableMondetour();
     }
@@ -502,12 +516,6 @@ function loadGame() {
         if (settings_.amis[name].level < getWave() || (settings_.amis[name].level == getWave() && getWaveState() == WaveState.RECOVER)) {
             addNewRecruit(name);
         }
-    }
-    if ("v" in save) {
-        state_.difficulty = save.v;
-        var difficulty = save.v == 1 ? "easy" : "hard";
-        var ev = { target: { id: difficulty } }
-        setDifficulty(ev);
     }
     setAmmo(save.d);
     setFood(save.g);
@@ -1683,7 +1691,11 @@ function newUpgrader(ami, type) {
         desc = "Health: " + getHealthMax(ami) + "x -&gt " + (getHealthMax(ami) + 0.25) + "x";
     } else if (type == UpgraderType.SPECIAL) {
         cost_type = CostType.HOPE;
-        cost += 30;
+        if (state_.difficulty == Difficulty.NORMAL) {
+            cost += 30;
+        } else if (state_.difficulty == Difficulty.HARD) {
+            cost += 80;
+        }
         cost *= 2 ** (specialLevel(ami, ami.id) - 1);
         desc = refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "<br>-&gt<br>" + refs_.specials[ami.id][specialLevel(ami, ami.id)];
     }
