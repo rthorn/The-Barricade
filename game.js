@@ -412,7 +412,11 @@ function loadGame() {
         }
     }
     if ($("#substate").text().includes("(Wave")) {
-        $("#substate").text("Prepare");
+        if (document.body.style.backgroundColor == "black") {
+            $("#substate").text("Recover");
+        } else {
+            $("#substate").text("Prepare");
+        }
         $("#state").text("Wave 1");
         $("#reset").show();
         $("#autofill").show();
@@ -423,15 +427,18 @@ function loadGame() {
         }
         reenableButtons();
     }
+    console.log(getWaveState());
+    state_.reloading = true;
     if ("s" in save) {
         if (getWaveState() != WaveState.RECOVER) {
             transitionToRecover();
         }
     } else {
-        if (getWaveState() == WaveState.RECOVER) {
+        if (getWaveState() != WaveState.PREPARE) {
             prepareForNextWave();
         }
     }
+    console.log(getWaveState());
     for (const ami of state_.amis.all) {
         ami.remove();
     }
@@ -460,7 +467,6 @@ function loadGame() {
     state_.marius.buttons = new Set([]);
     state_.recruit_buttons = new Set([]);
     state_.upgrade_buttons = new Set([]);
-    state_.reloading = true;
 
     refs_.amis_ordered = [];
     for (const name in settings_.amis) {
@@ -3990,6 +3996,8 @@ async function resolveRecover() {
     if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
         prepTraining();
     }
+    console.log(settings_.recover_animation_length);
+    console.log(settings_.recover_sleep_ms);
     for (var i = 0; i < settings_.recover_animation_length; i++) {
         resolveWalls(javert_loc, wall_ran);
         if (javert_loc != refs_.corinthe) {
@@ -4050,7 +4058,9 @@ async function prepareForNextWave() {
         upgrader.style.display = "none";
     }
     refs_.feed.style.display = "none";
-    await resolveRecover();
+    if (!state_.reloading) {
+        await resolveRecover();
+    }
     transitionToDawn();
     $("#substate").text("Prepare");
     refs_.lesamis.style.border = "0.08vw dotted lightgray";
