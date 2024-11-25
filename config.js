@@ -595,7 +595,7 @@ var settings_ = {
 			"hidden": false
 		},
 		"overachiever": {
-			"name": "Over-Achiever",
+			"name": "Overachiever",
 			"description": "Beat Wave 50",
 			"hidden": false
 		},
@@ -629,19 +629,34 @@ var settings_ = {
 			"description": "Have 5000 food at once",
 			"hidden": false
 		},
+		"scouting": {
+			"name": "Knowledge is Power",
+			"description": "Scout every wave in a winning game",
+			"hidden": false
+		},
+		"upgrader": {
+			"name": "Upgrader",
+			"description": "Purchase every upgrade in a single game",
+			"hidden": false
+		},
+		"recruiter": {
+			"name": "Recruiter",
+			"description": "Recruit every named Ami in a single game",
+			"hidden": false
+		},
 		"javert": {
 			"name": "I'll Be Back",
 			"description": "Dismiss Javert 3 times in a single game",
 			"hidden": false
 		},
+		"thenardier": {
+			"name": "In Sickness and in Health",
+			"description": "Train at least one citizen in both Thenardier and Mme Thenardier's fully upgraded abilities",
+			"hidden": false
+		},
 		"cosette": {
 			"name": "The Lark",
 			"description": "Combine Cosette's special with a fully upgraded special",
-			"hidden": false
-		},
-		"thenardier": {
-			"name": "In Sickness and in Health",
-			"description": "Train at least one citizen in both Thenardier and Mme Thenardier's abilities",
 			"hidden": false
 		},
 		"grantaire": {
@@ -681,11 +696,11 @@ var settings_ = {
 		},
 		"bookaccurate": {
 			"name": "Book Accurate",
-			"description": "All your current Amis die",
+			"description": "Lose with all your Amis dead",
 			"hidden": true
 		},
 		"happyending": {
-			"name": "Happy Ending",
+			"name": "Fix Fic",
 			"description": "Win without a single Ami death",
 			"hidden": true
 		}

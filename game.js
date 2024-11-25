@@ -72,7 +72,8 @@ var state_ = {
     difficulty: 2,
     permetstu: null,
     drunk: null,
-    killed: 0
+    killed: 0,
+    scouted: true
 };
 
 var initials_ = {};
@@ -529,6 +530,9 @@ function loadGame() {
     }
     if ("q" in save) {
         state_.javert.dismissals = save.q;
+    }
+    if ("r" in save) {
+        state_.scouted = false;
     }
     if ("u" in save) {
         state_.marius.uses = save.u;
@@ -2484,11 +2488,6 @@ function die(person, attacker) {
     var enemy_parent = isEnemy(person) ? person.parentElement : null;
     if (isAmi(person)) {
         deleteAmiState(person);
-        if (!state_.reloading) {
-            if (!state_.amis.all.size) {
-                achieve("bookaccurate");
-            }
-        }
     }
     person.remove();
     if (enemy_parent) {
@@ -2763,6 +2762,9 @@ function saveGame() {
     }
     if (state_.sabotage) {
         save.e = state_.sabotage;
+    }
+    if (!state_.scouted) {
+        save.r = 0;
     }
     if (state_.drunk != null && !state_.drunk) {
         save.t = 0;
@@ -3348,6 +3350,9 @@ function recruitMe(ev) {
         state_.order[id] = order;
         state_.recruits += 1;
         ev.target.parentElement.remove();
+        if ((getWave() >= 30 && hasChildren(refs_.recruit_screen) == 1) || (getWave() >= 40 && hasChildren(refs_.recruit_screen) == 2)) {
+            achieve("recruiter");
+        }
         ami = addNewAmi(id);
         var container = document.createElement("div");
         var amid = newPerson(ami.id + "1", "upgraderami");
@@ -3651,6 +3656,9 @@ function upgradeMe(ev) {
     }
     ev.target.parentElement.remove();
     updateUpgrade();
+    if (hasChildren(refs_.upgrade_screen) == 1 && state_.structures.precheurs_open && state_.citizens.next_i) {
+        achieve("upgrader");
+    }
 
     if (name.includes("recruit-limit")) {
         state_.citizens.max += 10;
@@ -3884,7 +3892,7 @@ function resolveTraining(i) {
                 }
             }
             if (state_.training > 2 && ["Thenardier", "Mme Thenardier"].includes(trainer.id)) {
-                if (specialLevel(ami, "Thenardier") && specialLevel(ami, "Mme Thenardier")) {
+                if (specialLevel(ami, "Thenardier") >= 4 && specialLevel(ami, "Mme Thenardier") >= 4) {
                     achieve("thenardier");
                 }
             }
@@ -4074,6 +4082,8 @@ async function prepareForNextWave() {
     enemyOpacity(false);
     if (state_.foresight) {
         initEnemies();
+    } else {
+        state_.scouted = false;
     }
     $("#lootfood").hide();
     $("#lootammo").hide();
@@ -4149,8 +4159,8 @@ function revolution() {
             achieve("easy");
     }
     var pedantic = true;
-    for (const recruit of getChildren(refs_.recruit_screen)) {
-        if (["Montparnasse", "Babet", "Gueulemer", "Claquesous", "Thenardier", "Mme Thenardier", "Cosette"].includes(recruit.id)) {
+    for (const recruit of ["Montparnasse", "Babet", "Gueulemer", "Claquesous", "Thenardier", "Mme Thenardier", "Cosette"]) {
+        if (recruit in state_.amis.lookup) {
             pedantic = false;
             break;
         }
@@ -4167,6 +4177,9 @@ function revolution() {
     if (!state_.killed) {
         achieve("pacifist");
     }
+    if (state_.scouted) {
+        achieve("scouting");
+    }
 }
 
 function gameOver() {
@@ -4179,4 +4192,7 @@ function gameOver() {
     refs_.load.style.pointerEvents = "auto";
     refs_.achievements.style.pointerEvents = "auto";
     refs_.game.value = "";
+    if (!state_.amis.all.size) {
+        achieve("bookaccurate");
+    }
 }
