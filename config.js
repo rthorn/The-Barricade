@@ -589,6 +589,16 @@ var settings_ = {
 			"description": "Get all barricade walls to max height",
 			"hidden": false
 		},
+		"endlessammo": {
+			"name": "Endless Ammunition",
+			"description": "Have 100,000 ammo at once",
+			"hidden": false
+		},
+		"hungry": {
+			"name": "Hungry",
+			"description": "Have 5000 food at once",
+			"hidden": false
+		},
 		"abcs": {
 			"name": "Les Amis de l'ABC",
 			"description": "Beat Wave 15 without recruiting a single Citizen",
@@ -603,6 +613,16 @@ var settings_ = {
 			"name": "In Sickness and in Health",
 			"description": "Train at least one citizen in both Thenardier and Mme Thenardier's abilities",
 			"hidden": false
+		},
+		"grantaire": {
+			"name": "Pylades Drunk",
+			"description": "Recruit Grantaire and win without ever using him in combat",
+			"hidden": true
+		},
+		"gavroche": {
+			"name": "La Faute à Voltaire",
+			"description": "Gavroche dies looting ammo",
+			"hidden": true
 		},
 		"mabeuf": {
 			"name": "The Flag",
@@ -619,15 +639,25 @@ var settings_ = {
 			"description": "Train at least one citizen in Montparnasse, Babet, Gueulemer, and Claquesous' abilities",
 			"hidden": true
 		},
-		"gavroche": {
-			"name": "La Faute à Voltaire",
-			"description": "Gavroche dies looting ammo",
-			"hidden": true
-		},
 		"permetstu": {
 			"name": "Permets-tu?",
 			"description": "Enjolras and Grantaire die in the same place and wave",
 			"hidden": true
 		},
+		"pedantic": {
+			"name": "Pedantic",
+			"description": "Win a game without recruiting named Amis who weren't actually at the barricade",
+			"hidden": true
+		},
+		"bookaccurate": {
+			"name": "Book Accurate",
+			"description": "All your current Amis die",
+			"hidden": true
+		},
+		"happyending": {
+			"name": "Happy Ending",
+			"description": "Win without a single Ami death",
+			"hidden": true
+		}
 	}
 }

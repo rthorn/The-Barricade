@@ -70,7 +70,8 @@ var state_ = {
     fast: false,
     dead: new Set([]),
     difficulty: 2,
-    permetstu: null
+    permetstu: null,
+    drunk: null
 };
 
 var initials_ = {};
@@ -671,6 +672,9 @@ function loadGame() {
     }
     if ("y" in save && state_.citizens.next_i < save.y) {
         state_.citizens.next_i = save.y;
+    }
+    if ("t" in save) {
+        state_.drunk = false;
     }
     if ("o" in save) {
         while (save.o.length) {
@@ -1504,6 +1508,9 @@ function newAmi(name) {
     if (name == "Bossuet") {
         state_.amis.bossuets.add(ami);
     }
+    if (name == "Grantaire") {
+        state_.drunk = true;
+    }
     if (name == "Mme Thenardier") {
         ami.children[0].style.fontSize = "0.68vw";
     }
@@ -2220,6 +2227,9 @@ function setAmmo(value) {
             button.disabled = true;
         }
     }
+    if (value >= 100000) {
+        achieve("endlessammo");
+    }
 }
 
 function useAmmo() {
@@ -2249,6 +2259,9 @@ function setFood(value) {
     } else {
         refs_.lesamis_label.style.color = "black";
         refs_.lesamis_label.style.textDecoration = null;
+    }
+    if (value >= 5000) {
+        achieve("hungry");
     }
 }
 
@@ -2464,6 +2477,11 @@ function die(person, attacker) {
     var enemy_parent = isEnemy(person) ? person.parentElement : null;
     if (isAmi(person)) {
         deleteAmiState(person);
+        if (!state_.reloading) {
+            if (!state_.amis.all.size) {
+                achieve("bookaccurate");
+            }
+        }
     }
     person.remove();
     if (enemy_parent) {
@@ -2738,6 +2756,9 @@ function saveGame() {
     if (state_.sabotage) {
         save.e = state_.sabotage;
     }
+    if (state_.drunk != null && !state_.drunk) {
+        save.t = 0;
+    }
     if (state_.amis.dead) {
         save.x = state_.amis.dead;
     }
@@ -2871,6 +2892,9 @@ async function startWave() {
     clearLabels();
     for (const ami of state_.amis.all) {
         state_.amis.last_prepare[ami.id] = ami.parentElement;
+    }
+    if ("Grantaire" in state_.amis.lookup && state_.amis.lookup["Grantaire"].parentElement != refs_.lesamis) {
+        state_.drunk = false;
     }
     $("#ready").hide();
     $("#reset").hide();
@@ -4089,6 +4113,22 @@ function revolution() {
             achieve("normal");
         case Difficulty.EASY:
             achieve("easy");
+    }
+    var pedantic = true;
+    for (const recruit of getChildren(refs_.recruit_screen)) {
+        if (["Montparnasse", "Babet", "Gueulemer", "Claquesous", "Thenardier", "Mme Thenardier", "Cosette"].includes(recruit.id)) {
+            pedantic = false;
+            break;
+        }
+    }
+    if (pedantic) {
+        achieve("pedantic");
+    }
+    if (state_.drunk) {
+        achieve("grantaire");
+    }
+    if (!state_.amis.dead) {
+        achieve("happyending");
     }
 }
 

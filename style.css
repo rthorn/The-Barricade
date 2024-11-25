@@ -676,12 +676,13 @@ button[type=button]:enabled {
 }
 
 .achievement {
-    min-height: 5vw;
+    min-height: 6vw;
     font-size: 1.3vw;
     text-align: center;
     width: 33%;
     display: inline-block;
     cursor: default;
+    vertical-align: top;
 }
 
 .upgraderUpgradeContainer {
