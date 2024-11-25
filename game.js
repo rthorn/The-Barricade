@@ -71,7 +71,8 @@ var state_ = {
     dead: new Set([]),
     difficulty: 2,
     permetstu: null,
-    drunk: null
+    drunk: null,
+    killed: 0
 };
 
 var initials_ = {};
@@ -537,6 +538,9 @@ function loadGame() {
     }
     if ("x" in save) {
         state_.amis.dead = save.x;
+    }
+    if ("l" in save) {
+        state_.killed = save.l;
     }
     var i = 0;
     for (const wall of [...refs_.chanvrerie].sort(function(x, y) { return x.id < y.id ? -1 : 1 })) {
@@ -2451,6 +2455,9 @@ function die(person, attacker) {
     if (!state_.reloading) {
         if (isAmi(person)) {
             state_.amis.dead += 1;
+            if (state_.amis.dead == 50) {
+                achieve("meatgrinder");
+            }
             if (state_.amis.dead == 1 && person.id == "Mabeuf") {
                 achieve("mabeuf");
             }
@@ -2485,6 +2492,7 @@ function die(person, attacker) {
     }
     person.remove();
     if (enemy_parent) {
+        state_.killed += 1;
         stackEnemies(enemy_parent);
     }
 }
@@ -2762,6 +2770,9 @@ function saveGame() {
     if (state_.amis.dead) {
         save.x = state_.amis.dead;
     }
+    if (state_.killed) {
+        save.l = state_.killed;
+    }
     if (state_.citizens.next_i) {
         save.y = state_.citizens.next_i;
     }
@@ -2920,6 +2931,9 @@ async function startWave() {
         barricadeFire();
         if (enemiesDead()) {
             state_.finished_early = true;
+            if (i <= settings_.fire_per_wave * 9 / 10) {
+                achieve("exceedsexpectations");
+            }
             break;
         }
         updateProgress(i);
@@ -2951,6 +2965,23 @@ async function startWave() {
     }
     if (getWave() == 50) {
         achieve("overachiever");
+    }
+    var full = true;
+    for (const ami of state_.amis.all) {
+        if (sl = specialLevel(ami, "Enjolras")) {
+            setHealth(ami, getHealth(ami) + 25 * sl);
+            if (sl > 4) {
+                for (const child of getChildren(ami.parentElement)) {
+                    setHealth(child, getHealth(child) + 25);
+                }
+            }
+        }
+        if (getHealth(ami) + 0.1 < 100) {
+            full = false;
+        }
+    }
+    if (full && getWave() >= 20) {
+        achieve("impenetrable");
     }
     transitionToRecover();
 }
@@ -3164,16 +3195,6 @@ function transitionToRecover() {
     state_.dragging.last_parent = null;
     if (getWave() == settings_.precheurs_opens - 1) {
         enablePrecheurs();
-    }
-    for (const ami of state_.amis.all) {
-        if (sl = specialLevel(ami, "Enjolras")) {
-            setHealth(ami, getHealth(ami) + 25 * sl);
-            if (sl > 4) {
-                for (const child of getChildren(ami.parentElement)) {
-                    setHealth(child, getHealth(child) + 25);
-                }
-            }
-        }
     }
     $("#substate").text("Recover");
     refs_.lesamis.style.border = "solid";
@@ -3840,6 +3861,16 @@ function resolveTraining(i) {
             if (trainer.id == "Bossuet") {
                 state_.amis.bossuets.add(ami);
             }
+            if (trainer.id == "Cosette") {
+                for (const special of state_.citizens.learned_specials[ami.id]) {
+                    if (refs_.specials_backwards[special] == "Cosette") {
+                        continue;
+                    }
+                    if (specialLevel(ami, refs_.specials_backwards[special]) > 4) {
+                        achieve("cosette");
+                    }
+                }
+            }
             if (state_.training > 3 && ["Montparnasse", "Babet", "Gueulemer", "Claquesous"].includes(trainer.id)) {
                 var all = true;
                 for (const patronminette of ["Montparnasse", "Babet", "Gueulemer", "Claquesous"]) {
@@ -4086,6 +4117,9 @@ async function prepareForNextWave() {
 }
 
 function revolution() {
+    if (getWave() < 30) {
+        achieve("speedrun");
+    }
     $("#substate").text("You win! Refresh to play again (Wave " + getWave() + ")");
     $("#state").text("VIVE LA FRANCE!");
     $("#reset").hide();
@@ -4129,6 +4163,9 @@ function revolution() {
     }
     if (!state_.amis.dead) {
         achieve("happyending");
+    }
+    if (!state_.killed) {
+        achieve("pacifist");
     }
 }
 

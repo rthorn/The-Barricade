@@ -579,9 +579,39 @@ var settings_ = {
 			"description": "Win by recruiting Victor Hugo",
 			"hidden": false
 		},
+		"speedrun": {
+			"name": "Speed Run",
+			"description": "Win before Wave 30",
+			"hidden": false
+		},
+		"impenetrable": {
+			"name": "Impenetrable",
+			"description": "End Wave 20 or higher with all Amis at full health",
+			"hidden": false
+		},
+		"exceedsexpectations": {
+			"name": "Exceeds Expectations",
+			"description": "Finish a wave 90% early",
+			"hidden": false
+		},
 		"overachiever": {
 			"name": "Over-Achiever",
 			"description": "Beat Wave 50",
+			"hidden": false
+		},
+		"abcs": {
+			"name": "Les Amis de l'ABC",
+			"description": "Beat Wave 15 without recruiting a single Citizen",
+			"hidden": false
+		},
+		"meatgrinder": {
+			"name": "Meat Grinder",
+			"description": "At least 50 Amis die in a single game",
+			"hidden": false
+		},
+		"pacifist": {
+			"name": "Pacifist",
+			"description": "Win without killing a single enemy",
 			"hidden": false
 		},
 		"fortress": {
@@ -599,14 +629,14 @@ var settings_ = {
 			"description": "Have 5000 food at once",
 			"hidden": false
 		},
-		"abcs": {
-			"name": "Les Amis de l'ABC",
-			"description": "Beat Wave 15 without recruiting a single Citizen",
-			"hidden": false
-		},
 		"javert": {
 			"name": "I'll Be Back",
 			"description": "Dismiss Javert 3 times in a single game",
+			"hidden": false
+		},
+		"cosette": {
+			"name": "The Lark",
+			"description": "Combine Cosette's special with a fully upgraded special",
 			"hidden": false
 		},
 		"thenardier": {
