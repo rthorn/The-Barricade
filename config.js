@@ -549,27 +549,53 @@ var settings_ = {
 	},
 	"achievements": {
 		"easy": {
-			"description": "Win the game on Easy difficulty or higher",
+			"name": "Bourgeois",
+			"description": "Win a game on Easy difficulty or higher",
 			"hidden": false
 		},
 		"normal": {
-			"description": "Win the game on Normal difficulty or higher",
+			"name": "Student",
+			"description": "Win a game on Normal difficulty or higher",
 			"hidden": false
 		},
 		"hard": {
-			"description": "Win the game on Hard difficulty",
+			"name": "Peasant",
+			"description": "Win a game on Hard difficulty",
+			"hidden": false
+		},
+		"fortress": {
+			"name": "Fortress",
+			"description": "Get all barricade walls to max height",
+			"hidden": false
+		},
+		"abcs": {
+			"name": "Les Amis de l'ABC",
+			"description": "Beat Wave 15 without recruiting a single Citizen",
+			"hidden": false
+		},
+		"javert": {
+			"name": "I'll Be Back",
+			"description": "Dismiss Javert 3 times in a single game",
 			"hidden": false
 		},
 		"mabeuf": {
+			"name": "The Flag",
 			"description": "Mabeuf is the first ami to die",
 			"hidden": true
 		},
 		"eponine": {
+			"name": "The Guard Dog",
 			"description": "Eponine dies saving Marius",
 			"hidden": true
 		},
 		"gavroche": {
+			"name": "La Faute à Voltaire",
 			"description": "Gavroche dies looting ammo",
+			"hidden": true
+		},
+		"permetstu": {
+			"name": "Permets-tu?",
+			"description": "Enjolras and Grantaire die in the same place and wave",
 			"hidden": true
 		},
 	}

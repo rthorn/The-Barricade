@@ -36,7 +36,8 @@ var state_ = {
     javert: {
         ami: null,
         label: null,
-        dead: false
+        dead: false,
+        dismissals: 0
     },
     marius: {
         uses: 0,
@@ -68,7 +69,8 @@ var state_ = {
     reloading: false,
     fast: false,
     dead: new Set([]),
-    difficulty: 2
+    difficulty: 2,
+    permetstu: null
 };
 
 var initials_ = {};
@@ -523,6 +525,9 @@ function loadGame() {
     if ("j" in save) {
         state_.javert.dead = true;
     }
+    if ("q" in save) {
+        state_.javert.dismissals = save.q;
+    }
     if ("u" in save) {
         state_.marius.uses = save.u;
     }
@@ -663,6 +668,9 @@ function loadGame() {
             state_.amis.temp_damage[real_ami.id] = save.a[ami].t;
         }
         updateStats(real_ami);
+    }
+    if ("y" in save && state_.citizens.next_i < save.y) {
+        state_.citizens.next_i = save.y;
     }
     if ("o" in save) {
         while (save.o.length) {
@@ -841,7 +849,7 @@ function removeFromDrag(citizen) {
 }
 
 function isScreen(element) {
-    return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen;
+    return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen || element == refs_.achievements_screen;
 }
 
 $(document).on('mousedown', function(e) {
@@ -2100,6 +2108,14 @@ function setHeight(wall, value) {
       default:
         wall.style.filter = "brightness(90%)";
     }
+    if (state_.structures.precheurs_open && getHeight(wall) + 0.5 >= 100) {
+        for (const i of refs_.barricade) {
+            if (getHeight(i) + 0.5 < 100) {
+                return;
+            }
+        }
+        achieve("fortress");
+    }
 }
 
 function getHealthDiv(person) {
@@ -2421,6 +2437,15 @@ function die(person, attacker) {
             if (state_.amis.dead == 1 && person.id == "Mabeuf") {
                 achieve("mabeuf");
             }
+            if (person.id == "Enjolras" || person.id == "Grantaire") {
+                if (state_.permetstu) {
+                    if (state_.permetstu == person.parentElement) {
+                        achieve("permetstu");
+                    }
+                } else {
+                    state_.permetstu = person.parentElement;
+                }
+            }
         }
         if (person == state_.javert.ami) {
             state_.javert.dead = true;
@@ -2712,6 +2737,12 @@ function saveGame() {
     if (state_.amis.dead) {
         save.x = state_.amis.dead;
     }
+    if (state_.citizens.next_i) {
+        save.y = state_.citizens.next_i;
+    }
+    if (state_.javert.dismissals) {
+        save.q = state_.javert.dismissals;
+    }
     if (state_.purchased_upgrades.length) {
         save.o = [];
         for (const upgrade of state_.purchased_upgrades) {
@@ -2886,6 +2917,9 @@ async function startWave() {
         if (temps.includes(ami.id)) {
             updateStats(ami);
         }
+    }
+    if (getWave() == 15 && !state_.citizens.next_i) {
+        achieve("abcs");
     }
     transitionToRecover();
 }
@@ -3080,6 +3114,7 @@ function barricadeFire() {
 
 function transitionToRecover() {
     transitionToNight();
+    state_.permetstu = null;
     if (state_.dragging.data_transfer.length) {
         document.removeEventListener('mousemove', mouseMove);
     }
@@ -3351,8 +3386,8 @@ function achievements() {
         var div = document.createElement("div");
         div.className = "achievement";
         var achieved = getAchievements().includes(":" + refs_.achievements_ordered.indexOf(achievement) + ":");
-        var star = '<font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>';
-        div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? star + "Secret achievement" : star + settings_.achievements[achievement].description;
+        var name = '<b><font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>' + settings_.achievements[achievement].name + '&emsp;</b><br/>';
+        div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? name + "Secret achievement" : name + settings_.achievements[achievement].description;
         refs_.achievements_screen.appendChild(div);
         if (achieved) {
             achieveds += 1;
@@ -3889,6 +3924,10 @@ async function resolveRecover() {
             for (const ami of getChildren(refs_.dismiss)) {
                 if (ami == state_.javert.ami) {
                     setHope(getHope() + settings_.javert_hope);
+                    state_.javert.dismissals += 1;
+                    if (state_.javert.dismissals == 3) {
+                        achieve("javert");
+                    }
                 }
                 deleteAmiState(ami);
                 ami.remove();
