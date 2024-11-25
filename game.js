@@ -2931,7 +2931,7 @@ async function startWave() {
         barricadeFire();
         if (enemiesDead()) {
             state_.finished_early = true;
-            if (i <= settings_.fire_per_wave * 9 / 10) {
+            if (i <= settings_.fire_per_wave * 1 / 10) {
                 achieve("exceedsexpectations");
             }
             break;
