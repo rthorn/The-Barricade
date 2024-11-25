@@ -569,6 +569,21 @@ var settings_ = {
 			"description": "Win a game on Hard difficulty",
 			"hidden": false
 		},
+		"revolution": {
+			"name": "Revolution",
+			"description": "Win by purchasing the RÉVOLUTION! upgrade",
+			"hidden": false
+		},
+		"hugo": {
+			"name": "Mightier than the Sword",
+			"description": "Win by recruiting Victor Hugo",
+			"hidden": false
+		},
+		"overachiever": {
+			"name": "Over-Achiever",
+			"description": "Beat Wave 50",
+			"hidden": false
+		},
 		"fortress": {
 			"name": "Fortress",
 			"description": "Get all barricade walls to max height",
@@ -584,6 +599,11 @@ var settings_ = {
 			"description": "Dismiss Javert 3 times in a single game",
 			"hidden": false
 		},
+		"thenardier": {
+			"name": "In Sickness and in Health",
+			"description": "Train at least one citizen in both Thenardier and Mme Thenardier's abilities",
+			"hidden": false
+		},
 		"mabeuf": {
 			"name": "The Flag",
 			"description": "Mabeuf is the first ami to die",
@@ -592,6 +612,11 @@ var settings_ = {
 		"eponine": {
 			"name": "The Guard Dog",
 			"description": "Eponine dies saving Marius",
+			"hidden": true
+		},
+		"patronminette": {
+			"name": "Patron-Minette",
+			"description": "Train at least one citizen in Montparnasse, Babet, Gueulemer, and Claquesous' abilities",
 			"hidden": true
 		},
 		"gavroche": {

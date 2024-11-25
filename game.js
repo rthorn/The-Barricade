@@ -2925,6 +2925,9 @@ async function startWave() {
     if (getWave() == 15 && !state_.citizens.next_i) {
         achieve("abcs");
     }
+    if (getWave() == 50) {
+        achieve("overachiever");
+    }
     transitionToRecover();
 }
 
@@ -3338,6 +3341,7 @@ function recruitMe(ev) {
     }
     updateRecruit();
     if (id == "Victor Hugo") {
+        achieve("hugo");
         revolution();
     } else if (id == "Grantaire" && getWave() < settings_.amis["Citizen"].level) {
         refs_.recruit.disabled = true;
@@ -3672,6 +3676,7 @@ function upgradeMe(ev) {
             updateStats(citizen);
         }
     } else if (name == "revolution") {
+        achieve("revolution");
         closeUpgrade();
         revolution();
     }
@@ -3810,6 +3815,23 @@ function resolveTraining(i) {
             }
             if (trainer.id == "Bossuet") {
                 state_.amis.bossuets.add(ami);
+            }
+            if (state_.training > 3 && ["Montparnasse", "Babet", "Gueulemer", "Claquesous"].includes(trainer.id)) {
+                var all = true;
+                for (const patronminette of ["Montparnasse", "Babet", "Gueulemer", "Claquesous"]) {
+                    if (!specialLevel(ami, patronminette)) {
+                        all = false;
+                        break;
+                    }
+                }
+                if (all) {
+                    achieve("patronminette");
+                }
+            }
+            if (state_.training > 2 && ["Thenardier", "Mme Thenardier"].includes(trainer.id)) {
+                if (specialLevel(ami, "Thenardier") && specialLevel(ami, "Mme Thenardier")) {
+                    achieve("thenardier");
+                }
             }
             updateStats(ami);
         }
