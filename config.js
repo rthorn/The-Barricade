@@ -64,7 +64,13 @@ var settings_ = {
 		"training4": {
 			"description": "Citizens can be trained with up to three specials at once",
 			"cost_type": "AMMO",
-			"cost_value": 5000
+			"cost_value": 5000,
+			"unlocks": "training5"
+		},
+		"training5": {
+			"description": "Citizens can be trained with up to four specials at once",
+			"cost_type": "AMMO",
+			"cost_value": 10000
 		},
 		"damage1": {
 			"description": "Citizens do 0.5x more damage",

@@ -1360,6 +1360,10 @@ function setWidth(ami) {
     if (specialLevel(ami, "Marius") && !isOnBarricade(ami)) {
         getChild(ami, "mariusButton").style.display = "none";
     }
+    if (ami.parentElement == refs_.trainer && state_.trainers > 3) {
+        ami.style.marginLeft = refs_.half_width;
+        ami.style.marginRight = refs_.half_width;
+    }
     if (getWaveState() == WaveState.RECOVER || ami.parentElement == document.body || ami.parentElement == refs_.lesamis) {
         return;
     }
@@ -3605,7 +3609,9 @@ function upgradeMe(ev) {
         state_.structures.corinthe_max += settings_.starting_building_limit;
     } else if (name == "open-building") {
         state_.structures.rightside_max += settings_.starting_building_limit;
-        refs_.rightside.style.background = "teal";
+        if (getWaveState() == WaveState.PREPARE) {
+            refs_.rightside.style.background = "teal";
+        }
     } else if (name.includes("rightside-limit")) {
         state_.structures.rightside_max += settings_.starting_building_limit;
     } else if (name.includes("barricade-limit")) {
@@ -3631,7 +3637,6 @@ function upgradeMe(ev) {
     } else if (name.includes("barricade-defense")) {
         state_.structures.wall_damage -= 0.2;
     } else if (name.includes("training")) {
-        refs_.rightside.style.background = "teal";
         if (name == "training3") {
             state_.trainers += 1;
             refs_.trainer.style.width = "10vw";
@@ -3641,12 +3646,19 @@ function upgradeMe(ev) {
             state_.trainers += 1;
             refs_.trainer.style.width = "15vw";
             refs_.trainer.style.marginLeft = "calc(50% - 7.73vw)";
+        } else if (name == "training5") {
+            state_.training += 1;
+            state_.trainers += 1;
+            refs_.trainer.style.height = "16vw";
         } else {
             state_.training += 1;
         }
         setLabel(refs_.trainer);
         setLabel(refs_.rightside);
-        $("#trainer").show();
+        if (getWaveState() == WaveState.RECOVER) {
+            $("#trainer").show();
+            refs_.rightside.style.background = "teal";
+        }
     } else if (name.includes("damage")) {
         settings_.amis["Citizen"].damage += 0.5;
         state_.citizens.stats.innerHTML = settings_.amis["Citizen"].damage + "x damage, " + settings_.amis["Citizen"].health + "x health";
