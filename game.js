@@ -825,7 +825,7 @@ $(document).on('keydown keyup', function(e) {
         state_.fast = e.type == "keydown";
         return;
     }
-    if (e.originalEvent.key != "Shift") {
+    if (e.originalEvent.key != "Shift" || state_.dragging.shift_key) {
         return;
     }
     state_.dragging.shift_key = e.type == "keydown";
