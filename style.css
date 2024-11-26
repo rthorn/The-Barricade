@@ -231,6 +231,17 @@ h3 {
     margin-left: calc((100% - 30vw)/4);
 }
 
+.difficultysub {
+    font-size: 1vw;
+    padding: 0.5vw 0vw;
+    width: 10vw;
+    margin-left: calc((100% - 30vw)/4);
+    font-style: italic;
+    text-align: center;
+    display: inline-block;
+    vertical-align: top;
+}
+
 #difficulty-label {
     width: 100%;
     text-align: center;

@@ -135,6 +135,10 @@ document.addEventListener('DOMContentLoaded', function() {
     disableButtons();
     refs_.achievements.style.pointerEvents = "auto";
     refs_.load.style.pointerEvents = "auto";
+    if (hasAchieved("normal")) {
+        refs_.hard.disabled = false;
+        refs_.hardlabel.textContent = "";
+    }
 });
 
 function startNewGame() {
@@ -168,7 +172,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements']) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel']) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name];
     }
@@ -427,7 +431,6 @@ function loadGame() {
         }
         reenableButtons();
     }
-    console.log(getWaveState());
     state_.reloading = true;
     if ("s" in save) {
         if (getWaveState() != WaveState.RECOVER) {
@@ -438,7 +441,6 @@ function loadGame() {
             prepareForNextWave();
         }
     }
-    console.log(getWaveState());
     for (const ami of state_.amis.all) {
         ami.remove();
     }
@@ -1998,7 +2000,6 @@ function getBarricadeHeight() {
 }
 
 async function flash(element) {
-    console.log(element.style.color);
     if (isAmi(element)) {
         element.style.color = "gold";
     } else {
@@ -3427,14 +3428,18 @@ function getAchievements() {
     return ":";
 }
 
+function hasAchieved(achievement) {
+    return getAchievements().includes(":" + refs_.achievements_ordered.indexOf(achievement) + ":");
+}
+
 function achieve(achievement) {
-    var index = refs_.achievements_ordered.indexOf(achievement)
-    if (getAchievements().includes(":" + index + ":")) {
+    if (hasAchieved(achievement)) {
         return;
     }
     if (achievement != "easy" && state_.difficulty == Difficulty.EASY) {
         return;
     }
+    var index = refs_.achievements_ordered.indexOf(achievement)
     refs_.achievements.style.backgroundColor = "gold";
     var now = new Date();
     var time = now.getTime();
@@ -3449,7 +3454,7 @@ function achievements() {
     for (const achievement in settings_.achievements) {
         var div = document.createElement("div");
         div.className = "achievement";
-        var achieved = getAchievements().includes(":" + refs_.achievements_ordered.indexOf(achievement) + ":");
+        var achieved = hasAchieved(achievement);
         var name = '<b><font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>' + settings_.achievements[achievement].name + '&emsp;</b><br/>';
         div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? name + "Secret achievement" : name + settings_.achievements[achievement].description;
         refs_.achievements_screen.appendChild(div);
@@ -3996,8 +4001,6 @@ async function resolveRecover() {
     if (hasChildren(refs_.trainer) && javert_loc != refs_.rightside) {
         prepTraining();
     }
-    console.log(settings_.recover_animation_length);
-    console.log(settings_.recover_sleep_ms);
     for (var i = 0; i < settings_.recover_animation_length; i++) {
         resolveWalls(javert_loc, wall_ran);
         if (javert_loc != refs_.corinthe) {
