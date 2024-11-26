@@ -1730,9 +1730,9 @@ function newUpgrader(ami, type) {
     } else if (type == UpgraderType.SPECIAL) {
         cost_type = CostType.HOPE;
         if (state_.difficulty == Difficulty.NORMAL) {
-            cost += 30;
+            cost += 25;
         } else if (state_.difficulty == Difficulty.HARD) {
-            cost += 80;
+            cost += 75;
         }
         cost *= 2 ** (specialLevel(ami, ami.id) - 1);
         desc = refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "<br>-&gt<br>" + refs_.specials[ami.id][specialLevel(ami, ami.id)];

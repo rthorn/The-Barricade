@@ -36,7 +36,7 @@ var settings_ = {
 	"mondetour_opens": 12,
 	"precheurs_opens": 23,
 	"opening_variance": 3,
-	"base_upgrade_cost": 20,
+	"base_upgrade_cost": 25,
 	"ammo_warning_threshold": 200,
 	"food_warning_threshold": 20,
 	"hope_warning_threshold": 20,
@@ -531,6 +531,15 @@ var settings_ = {
 				"You win."
 			],
 			"cost": 2000
+			},
+		"Rachel": {
+			"level": 100,
+			"damage": 100,
+			"health": 200,
+			"special": ["", "", "",
+				"You extra win."
+			],
+			"cost": 69696969
 		}
 	},
 	"enemies": {
@@ -585,17 +594,17 @@ var settings_ = {
 			"hidden": false
 		},
 		"impenetrable": {
-			"name": "Impenetrable",
+			"name": "Je T'ai Manque",
 			"description": "End Wave 20 or higher with all Amis at full health",
 			"hidden": false
 		},
 		"exceedsexpectations": {
 			"name": "Exceeds Expectations",
-			"description": "Finish a wave 90% early",
+			"description": "Finish a wave at least 90% early",
 			"hidden": false
 		},
 		"overachiever": {
-			"name": "Overachiever",
+			"name": "The Reign of Terror",
 			"description": "Beat Wave 50",
 			"hidden": false
 		},
@@ -615,17 +624,17 @@ var settings_ = {
 			"hidden": false
 		},
 		"fortress": {
-			"name": "Fortress",
+			"name": "Am I Not Turtley Enough?",
 			"description": "Get all barricade walls to max height",
 			"hidden": false
 		},
 		"endlessammo": {
-			"name": "Endless Ammunition",
+			"name": "Ask Questions Now, Shoot Later",
 			"description": "Have 100,000 ammo at once",
 			"hidden": false
 		},
 		"hungry": {
-			"name": "Hungry",
+			"name": "Let Them Eat Cake",
 			"description": "Have 5000 food at once",
 			"hidden": false
 		},
@@ -635,28 +644,28 @@ var settings_ = {
 			"hidden": false
 		},
 		"upgrader": {
-			"name": "Upgrader",
+			"name": "Upgrade Complete",
 			"description": "Purchase every upgrade in a single game",
 			"hidden": false
 		},
 		"recruiter": {
-			"name": "Recruiter",
+			"name": "The Whole Alphabet",
 			"description": "Recruit every named Ami in a single game",
 			"hidden": false
 		},
 		"javert": {
-			"name": "I'll Be Back",
+			"name": "How Many Times Do We Have to Teach You This Lesson, Old Man?",
 			"description": "Dismiss Javert 3 times in a single game",
 			"hidden": false
 		},
 		"thenardier": {
 			"name": "In Sickness and in Health",
-			"description": "Train at least one citizen in both Thenardier and Mme Thenardier's fully upgraded abilities",
+			"description": "Have a citizen with both Thenardiers' fully upgraded abilities",
 			"hidden": false
 		},
 		"cosette": {
-			"name": "The Lark",
-			"description": "Combine Cosette's special with a fully upgraded special",
+			"name": "Even Further Beyond",
+			"description": "Combine Cosettes ability with another fully upgraded ability",
 			"hidden": false
 		},
 		"grantaire": {
