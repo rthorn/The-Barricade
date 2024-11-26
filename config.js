@@ -594,7 +594,7 @@ var settings_ = {
 			"hidden": false
 		},
 		"impenetrable": {
-			"name": "Je T'ai Manque",
+			"name": "Missed me",
 			"description": "End Wave 20 or higher with all Amis at full health",
 			"hidden": false
 		},
@@ -624,7 +624,7 @@ var settings_ = {
 			"hidden": false
 		},
 		"fortress": {
-			"name": "Am I Not Turtley Enough?",
+			"name": "Fortress",
 			"description": "Get all barricade walls to max height",
 			"hidden": false
 		},

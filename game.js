@@ -3455,7 +3455,7 @@ function achievements() {
         var div = document.createElement("div");
         div.className = "achievement";
         var achieved = hasAchieved(achievement);
-        var name = '<b><font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>' + settings_.achievements[achievement].name + '&emsp;</b><br/>';
+        var name = '<b><font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>' + settings_.achievements[achievement].name + '</b><br/>&emsp;';
         div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? name + "Secret achievement" : name + settings_.achievements[achievement].description;
         refs_.achievements_screen.appendChild(div);
         if (achieved) {
