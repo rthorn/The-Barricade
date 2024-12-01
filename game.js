@@ -3164,6 +3164,9 @@ function enemyFire(i) {
           continue;
         }
         var options = [...barricadeFor(enemy.parentElement)];
+        if (state_.challenge == 5) {
+            options = [options[1]];
+        }
         for (const ami of state_.amis.bossuets) {
             if (options.includes(ami.parentElement)) {
                 for (var j = 0; j < refs_.bossuet_extras[specialLevel(ami, "Bossuet") - 1]; j++) {

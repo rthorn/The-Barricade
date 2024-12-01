@@ -732,8 +732,12 @@ var settings_ = {
 			"rules": ["Start with only Enjolras", "No named Ami recruits", "Citizens available at Wave 1", "2x recruit limit"]
 		},
 		{
-			"name": "Siege Combat",
+			"name": "Siege Warfare",
 			"rules": ["Start with all barricades active", "Start with rightside building open", "Start with walls at max height", "Start with 10000 ammo", "Start with 1000 food", "No Feuilly"]
+		},
+		{
+			"name": "At Least They're Consistent",
+			"rules": ["Enemies only attack one wall per barricade"]
 		}
 	]
 }
