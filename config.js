@@ -713,5 +713,27 @@ var settings_ = {
 			"description": "Win without a single Ami death",
 			"hidden": true
 		}
-	}
+	},
+	"challenges": [
+		{
+			"name": "Rest Up",
+			"rules": ["Food no longer heals Amis"]
+		},
+		{
+			"name": "Unarmed",
+			"rules": ["Amis no longer shoot enemies", "No Bahorel"]
+		},
+		{
+			"name": "Opposite Day",
+			"rules": ["Start with the reverse set of named Amis"]
+		},
+		{
+			"name": "One-Man Revolution",
+			"rules": ["Start with only Enjolras", "No named Ami recruits", "Citizens available at Wave 1", "2x recruit limit"]
+		},
+		{
+			"name": "Siege Combat",
+			"rules": ["Start with all barricades active", "Start with rightside building open", "Start with walls at max height", "Start with 10000 ammo", "Start with 1000 food", "No Feuilly"]
+		}
+	]
 }

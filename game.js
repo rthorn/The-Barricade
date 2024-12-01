@@ -73,7 +73,8 @@ var state_ = {
     permetstu: null,
     drunk: null,
     killed: 0,
-    scouted: true
+    scouted: true,
+    challenge: null
 };
 
 var initials_ = {};
@@ -138,6 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (hasAchieved("normal")) {
         refs_.hard.disabled = false;
         refs_.hardlabel.textContent = "";
+        refs_.challengeslabel.textContent = "Achievements disabled";
+        initializeChallenges();
     }
 });
 
@@ -152,6 +155,28 @@ function startNewGame() {
     closeUpgrade();
     closeUpgrader();
     hideHovertext();
+}
+
+function initializeChallenges() {
+    var i = 0;
+    for (const challenge of settings_.challenges) {
+        var div = document.createElement("div");
+        div.className = "challenge";
+        div.id = "challenge" + i++;
+        var achieved = false;
+        var html = '<font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>' + challenge.name + '<br/>';
+        for (const rule of challenge.rules) {
+            html += '&ensp;<i style="font-size: 1vw">'  + rule + "</i></br>"
+        }
+        div.innerHTML = html;
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "challengeButton";
+        button.onclick = function(){ startChallenge(event) };
+        button.textContent = "Start";
+        div.appendChild(button);
+        refs_.newgame_screen.appendChild(div);
+    }
 }
 
 function initializeVars() {
@@ -172,7 +197,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel']) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'challengeslabel']) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name];
     }
@@ -399,6 +424,112 @@ function setDifficulty(ev) {
     }
 }
 
+function startChallenge(ev) {
+    var challenge_index = parseInt(ev.target.parentElement.id.slice(ev.target.parentElement.id.length - 1));
+    state_.difficulty = Difficulty.NORMAL;
+    state_.challenge = challenge_index;
+    var original = state_.reloading;
+    state_.reloading = true;
+    switch (challenge_index) {
+        case 1:
+            var bahorel = state_.amis.lookup["Bahorel"];
+            die(bahorel);
+            break;
+        case 2:
+            for (const ami of state_.amis.all) {
+                die(ami);
+            }
+            var levels = [];
+            var costs = [];
+            for (const ami in settings_.amis) {
+                if (ami == "Citizen") {
+                    continue;
+                }
+                if ("level" in settings_.amis[ami]) {
+                    if (settings_.amis[ami].level >= 40) {
+                        continue;
+                    }
+                    levels.push(settings_.amis[ami].level)
+                    delete settings_.amis[ami]["level"];
+                    costs.push(settings_.amis[ami].cost)
+                    delete settings_.amis[ami]["cost"];
+                }
+            }
+            levels = levels.sort(function(a, b) {
+              return a - b;
+            });
+            costs = costs.sort(function(a, b) {
+              return a - b;
+            });
+            var i = 0;
+            for (const ami of ["Bossuet", "Prouvaire", "Courfeyrac", "Bahorel", "Enjolras", "Feuilly", "Joly", "Combeferre"]) {
+                settings_.amis[ami].level = levels[i++];
+                settings_.amis[ami].cost = costs[i++];
+            }
+            initializeAmis();
+            state_.order = {};
+            for (const name in settings_.amis) {
+                if (!settings_.amis[name].level) {
+                    state_.order[name] = name;
+                }
+            }
+            state_.order["Enjolras"] = "AAAAAAA";
+            state_.order["Citizen"] = "zzzzzz";
+            state_.order["Javert"] = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
+            reorderChildren(refs_.lesamis);
+            break;
+        case 3:
+            for (const ami of state_.amis.all) {
+                if (ami.id != "Enjolras") {
+                    die(ami);
+                }
+            }
+            settings_.amis["Citizen"].level = 1;
+            for (const ami in settings_.amis) {
+                if (ami != "Citizen" && ami != "Enjolras") {
+                    settings_.amis[ami].level = 999999;
+                }
+            }
+            for (const upgrade in settings_.upgrades) {
+                settings_.upgrades[upgrade].description = settings_.upgrades[upgrade].description.replace("+10 recruit limit", "+20 recruit limit");
+            }
+            state_.citizens.max *= 2;
+            break;
+        case 4:
+            settings_.precheurs_opens = 1;
+            settings_.mondetour_opens = 0;
+            enableMondetour();
+            enablePrecheurs();
+            for (const upgrade of getChildren(refs_.upgrade_screen)) {
+                if (upgrade.id == "open-building") {
+                    var ev = {};
+                    ev.target = upgrade.children[1];
+                    upgradeMe(ev);
+                    break;
+                }
+            }
+            for (const wall of refs_.barricade) {
+                setHeight(wall, 9999999);
+                setAmmo(10000);
+                setFood(1000);
+            }
+            var ami = state_.amis.lookup["Feuilly"];
+            die(ami);
+            setLabels();
+            break;
+    }
+    state_.reloading = original;
+    initializeAmisUpgrades();
+    if (refs_.newgame_screen.style.display != "none") {
+        refs_.newgame_screen.style.display = "none";
+        reenableButtons();
+        document.body.appendChild(refs_.game);
+        document.body.appendChild(refs_.load);
+        refs_.game.style.top = "8.8vw";
+        refs_.load.style.top = "8.8vw";
+    }
+}
+
 function loadGame() {
     if (!refs_.game.value) {
         return;
@@ -513,8 +644,11 @@ function loadGame() {
         var difficulty = save.v == 1 ? "easy" : "hard";
         var ev = { target: { id: difficulty } }
         setDifficulty(ev);
+    } else if ("f" in save) {
+        var ev = { target: { parentElement: { id: "challenge" + save.f } } };
+        startChallenge(ev);
     } else {
-        var ev = { target: { id: "normal" } }
+        var ev = { target: { id: "normal" } };
         setDifficulty(ev);
     }
     if (getWave() >= settings_.mondetour_opens) {
@@ -827,7 +961,7 @@ $(document).on('keydown keyup', function(e) {
         state_.fast = e.type == "keydown";
         return;
     }
-    if (e.originalEvent.key != "Shift" || state_.dragging.shift_key) {
+    if (e.originalEvent.key != "Shift" || (state_.dragging.shift_key && e.type == "keydown")) {
         return;
     }
     state_.dragging.shift_key = e.type == "keydown";
@@ -2657,8 +2791,12 @@ function addEnemies(type, wave, foresight = false) {
         }
     }
     var side = wave >= settings_.precheurs_opens + 5 ? getRandomInt(2) : 1;
-    var mondetour = side ? wave - settings_.mondetour_opens + 5 : wave - settings_.precheurs_opens + 5;
-    var precheurs = side ? wave - settings_.precheurs_opens + 5 : wave - settings_.mondetour_opens + 5;
+    var mondetour = side ? wave - settings_.mondetour_opens + (state_.challenge == 4 ? 0 : 5) : wave - settings_.precheurs_opens + (state_.challenge == 4 ? 0 : 5);
+    var precheurs = side ? wave - settings_.precheurs_opens + (state_.challenge == 4 ? 1 : 5) : wave - settings_.mondetour_opens + (state_.challenge == 4 ? 1 : 5);
+    if (state_.challenge) {
+        mondetour = Math.ceil(mondetour * 2/3);
+        precheurs = Math.ceil(precheurs * 2/3);
+    }
     if (!refs_.lesenemiesmondetour2.children.length) {
         if (state_.structures.mondetour_open) {
             for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
@@ -2778,6 +2916,9 @@ function saveGame() {
     }
     if (state_.amis.dead) {
         save.x = state_.amis.dead;
+    }
+    if (state_.challenge != null) {
+        save.f = state_.challenge;
     }
     if (state_.killed) {
         save.l = state_.killed;
@@ -3067,6 +3208,9 @@ function enemyFire(i) {
 
 function barricadeFire() {
     for (const ami of getAmisBattle()) {
+        if (state_.challenge == 1) {
+            continue;
+        }
         var enemies = getEnemies(ami.parentElement);
         if (!enemies.length) {
             continue;
@@ -3271,17 +3415,19 @@ function transitionToRecover() {
         $("#trainer").show();
     }
     state_.amis.needs_food = new Set([]);
-    for (const ami of state_.amis.all) {
-        if (getHealth(ami) < 100) {
-            getFeed(ami).style.display = "block";
-            state_.amis.needs_food.add(ami);
+    if (state_.challenge != 0) {
+        for (const ami of state_.amis.all) {
+            if (getHealth(ami) < 100) {
+                getFeed(ami).style.display = "block";
+                state_.amis.needs_food.add(ami);
+            }
         }
+        updateFood();
+        refs_.feed.style.display = "inline";
     }
     for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.display = "block";
     }
-    updateFood();
-    refs_.feed.style.display = "inline";
     $("#lootfood").show();
     $("#lootammo").show();
     if (!state_.structures.precheurs_open) {
@@ -3437,6 +3583,9 @@ function achieve(achievement) {
         return;
     }
     if (achievement != "easy" && state_.difficulty == Difficulty.EASY) {
+        return;
+    }
+    if (state_.challenge != null) {
         return;
     }
     var index = refs_.achievements_ordered.indexOf(achievement)
@@ -3672,7 +3821,7 @@ function upgradeMe(ev) {
     }
 
     if (name.includes("recruit-limit")) {
-        state_.citizens.max += 10;
+        state_.citizens.max += state_.challenge == 3 ? 20 : 10;
     } else if (name.includes("corinthe-limit")) {
         state_.structures.corinthe_max += settings_.starting_building_limit;
     } else if (name == "open-building") {

@@ -242,13 +242,48 @@ h3 {
     vertical-align: top;
 }
 
+.challengessub {
+    font-size: 1vw;
+    padding: 0.5vw 0vw;
+    width: 100%;
+    font-style: italic;
+    text-align: center;
+    display: inline-block;
+    vertical-align: top;
+}
+
 #difficulty-label {
     width: 100%;
     text-align: center;
     font-size: 1.6vw;
     height: 5vw;
     padding-top: 5vw;
-    font-style: italic;
+    font-weight: bold;
+}
+
+#challenges-label {
+    width: 100%;
+    text-align: center;
+    font-size: 1.6vw;
+    padding-top: 5vw;
+    font-weight: bold;
+}
+
+.challenge {
+    width: 33%;
+    text-align: center;
+    font-size: 1.6vw;
+    padding: 2vw 0vw;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.challengeButton {
+    text-align: center;
+    font-size: 1.5vw;
+    padding: 0.5vw 1vw;
+    margin: 1vw 0vw;
+    vertical-align: bottom;
 }
 
 #upgrade-screen {
