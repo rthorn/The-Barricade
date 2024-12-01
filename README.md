@@ -4,7 +4,9 @@ The Barricade is a siege defense game inspired by *Les Miserables*'s depiction o
 
 ## Running the Game
 
-Install python3 if you don't already have it. From the project directory, run:
+The current build can be accessed at https://rthorn.github.io/The-Barricade/.
+
+If you'd like to run the site locally, install python3 if you don't already have it. From the project directory, run:
 
 ```bash
 python3 -m http.server
