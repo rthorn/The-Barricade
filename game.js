@@ -160,10 +160,10 @@ function startNewGame() {
 function initializeChallenges() {
     var i = 0;
     for (const challenge of settings_.challenges) {
+        var achieved = hasAchievedChallenge(i);
         var div = document.createElement("div");
         div.className = "challenge";
         div.id = "challenge" + i++;
-        var achieved = false;
         var html = '<font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>' + challenge.name + '<br/>';
         for (const rule of challenge.rules) {
             html += '&ensp;<i style="font-size: 1vw">'  + rule + "</i></br>"
@@ -3578,6 +3578,10 @@ function hasAchieved(achievement) {
     return getAchievements().includes(":" + refs_.achievements_ordered.indexOf(achievement) + ":");
 }
 
+function hasAchievedChallenge(challenge) {
+    return getAchievements().includes(":" + (-1 * challenge - 1) + ":");
+}
+
 function achieve(achievement) {
     if (hasAchieved(achievement)) {
         return;
@@ -3590,6 +3594,18 @@ function achieve(achievement) {
     }
     var index = refs_.achievements_ordered.indexOf(achievement)
     refs_.achievements.style.backgroundColor = "gold";
+    var now = new Date();
+    var time = now.getTime();
+    var expireTime = time + 86400000*365;
+    now.setTime(expireTime);
+    document.cookie = "achievements=" + getAchievements() + index + ":" + "; expires=" + now.toUTCString() + "; path=/";
+}
+
+function achieveChallenge(challenge) {
+    if (hasAchievedChallenge(challenge)) {
+        return;
+    }
+    var index = -1 * challenge - 1;
     var now = new Date();
     var time = now.getTime();
     var expireTime = time + 86400000*365;
@@ -4341,6 +4357,9 @@ function revolution() {
     }
     if (state_.scouted) {
         achieve("scouting");
+    }
+    if (state_.challenge != null) {
+        achieveChallenge(state_.challenge);
     }
 }
 
