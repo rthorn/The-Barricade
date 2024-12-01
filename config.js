@@ -594,7 +594,7 @@ var settings_ = {
 			"hidden": false
 		},
 		"impenetrable": {
-			"name": "Missed me",
+			"name": "Missed Me",
 			"description": "End Wave 20 or higher with all Amis at full health",
 			"hidden": false
 		},
