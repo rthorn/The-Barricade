@@ -651,10 +651,10 @@ function loadGame() {
         var ev = { target: { id: "normal" } };
         setDifficulty(ev);
     }
-    if (getWave() >= settings_.mondetour_opens) {
+    if (getWave() >= settings_.mondetour_opens && !state_.challenge == 5) {
         enableMondetour();
     }
-    if (getWave() >= settings_.precheurs_opens || (getWave() == settings_.precheurs_opens - 1 && getWaveState() == WaveState.RECOVER)) {
+    if ((getWave() >= settings_.precheurs_opens || (getWave() == settings_.precheurs_opens - 1 && getWaveState() == WaveState.RECOVER)) && !state_.challenge == 5) {
         enablePrecheurs();
     }
     for (const name in settings_.amis) {
@@ -1342,10 +1342,10 @@ function hasSpace(target) {
 
 function barricadeHasSpace() {
     for (const wall of refs_.barricade) {
-        if (wall.id.includes("mondetour") && getWave() < settings_.mondetour_opens) {
+        if (wall.id.includes("mondetour") && (getWave() < settings_.mondetour_opens || state_.challenge == 5)) {
             continue;
         }
-        if (wall.id.includes("mondetour") && getWave() == settings_.mondetour_opens && !state_.foresight) {
+        if (wall.id.includes("mondetour") && ((getWave() == settings_.mondetour_opens && !state_.foresight) || state_.challenge == 5)) {
             continue;
         }
         if (hasSpace(wall)) {
@@ -2042,10 +2042,10 @@ function autoFill() {
         }
         while (high_health.length && barricadeHasSpace()) {
             for (const wall of refs_.barricade) {
-                if (wall.id.includes("mondetour") && getWave() < settings_.mondetour_opens) {
+                if (wall.id.includes("mondetour") && (getWave() < settings_.mondetour_opens || state_.challenge == 5)) {
                     continue;
                 }
-                if (wall.id.includes("mondetour") && getWave() == settings_.mondetour_opens && !state_.foresight) {
+                if (wall.id.includes("mondetour") && ((getWave() == settings_.mondetour_opens && !state_.foresight) || state_.challenge == 5)) {
                     continue;
                 }
                 if (hasSpace(wall) && high_health.length) {
@@ -2086,7 +2086,7 @@ function autoFill() {
                 continue;
             } else if (specialLevel(ami, "Feuilly")) {
                 var walls =
-                    (getWave() < settings_.mondetour_opens ? [...refs_.chanvrerie] : [...refs_.barricade]).sort((a, b) => wall_sort_order(a, b));
+                    ((getWave() < settings_.mondetour_opens || state_.challenge == 5) ? [...refs_.chanvrerie] : [...refs_.barricade]).sort((a, b) => wall_sort_order(a, b));
                 walls[0].appendChild(ami);
                 continue;
             } else if (specialLevel(ami, "Combeferre") && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier"))) {
@@ -2111,7 +2111,7 @@ function autoFill() {
                 continue;
             } else {
                 var walls =
-                    (getWave() < settings_.mondetour_opens ? [...refs_.chanvrerie] : [...refs_.barricade]).sort((a, b) => wall_sort_order(a, b));
+                    ((getWave() < settings_.mondetour_opens || state_.challenge == 5) ? [...refs_.chanvrerie] : [...refs_.barricade]).sort((a, b) => wall_sort_order(a, b));
                 walls[0].appendChild(ami);
             }
         }
@@ -2793,9 +2793,30 @@ function addEnemies(type, wave, foresight = false) {
     var side = wave >= settings_.precheurs_opens + 5 ? getRandomInt(2) : 1;
     var mondetour = side ? wave - settings_.mondetour_opens + (state_.challenge == 4 ? 0 : 5) : wave - settings_.precheurs_opens + (state_.challenge == 4 ? 0 : 5);
     var precheurs = side ? wave - settings_.precheurs_opens + (state_.challenge == 4 ? 1 : 5) : wave - settings_.mondetour_opens + (state_.challenge == 4 ? 1 : 5);
-    if (state_.challenge) {
+    if (state_.challenge == 4) {
         mondetour = Math.ceil(mondetour * 2/3);
         precheurs = Math.ceil(precheurs * 2/3);
+    }
+    if (state_.challenge == 5) {
+        if (wave >= settings_.mondetour_opens) {
+            for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
+                if (type == EnemyType.SOLDIER) {
+                    addNewEnemy(type, refs_.lesenemies2);
+                } else {
+                    addNewEnemy(type, refs_.lesenemies1);
+                }
+            }
+        }
+        if (wave >= settings_.precheurs_opens) {
+            for (let i = 1; i <= enemiesPerWave(type, precheurs); i++) {
+                if (type == EnemyType.SOLDIER) {
+                    addNewEnemy(type, refs_.lesenemies2);
+                } else {
+                    addNewEnemy(type, refs_.lesenemies1);
+                }
+            }
+        }
+        return;
     }
     if (!refs_.lesenemiesmondetour2.children.length) {
         if (state_.structures.mondetour_open) {
@@ -3349,7 +3370,7 @@ function transitionToRecover() {
     }
     state_.dragging.last_mouse = [];
     state_.dragging.last_parent = null;
-    if (getWave() == settings_.precheurs_opens - 1) {
+    if (getWave() == settings_.precheurs_opens - 1 && state_.challenge != 5) {
         enablePrecheurs();
     }
     $("#substate").text("Recover");
@@ -4236,7 +4257,7 @@ async function prepareForNextWave() {
     $("#substate").text("Prepare");
     refs_.lesamis.style.border = "0.08vw dotted lightgray";
     $("#state").text("Wave " + (getWave() + 1));
-    if (getWave() == settings_.mondetour_opens) {
+    if (getWave() == settings_.mondetour_opens && state_.challenge != 5) {
         enableMondetour();
     }
     if (state_.structures.rightside_max > 0) {

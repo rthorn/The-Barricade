@@ -736,8 +736,8 @@ var settings_ = {
 			"rules": ["Start with all barricades active", "Start with rightside building open", "Start with walls at max height", "Start with 10000 ammo", "Start with 1000 food", "No Feuilly"]
 		},
 		{
-			"name": "At Least They're Consistent",
-			"rules": ["Enemies only attack one wall per barricade"]
+			"name": "Radical Centrists",
+			"rules": ["Enemies only attack center wall of center barricade"]
 		}
 	]
 }
