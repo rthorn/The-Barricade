@@ -53,6 +53,14 @@ var state_ = {
         wall_num: {"chanvrerie1": 1, "chanvrerie3": 1, "chanvrerie2": 1, "mondetour1": 1, "mondetour2": 1, "precheurs1": 1, "precheurs2": 1},
         wall_damage: 1
     },
+    achievements: {
+        fast: false,
+        dead: new Set([]),
+        permetstu: null,
+        drunk: null,
+        killed: 0,
+        scouted: true
+    },
     sabotage: 0,
     training: 0,
     trainers: 1,
@@ -67,13 +75,7 @@ var state_ = {
     upgrade_buttons: new Set([]),
     purchased_upgrades: [],
     reloading: false,
-    fast: false,
-    dead: new Set([]),
     difficulty: 2,
-    permetstu: null,
-    drunk: null,
-    killed: 0,
-    scouted: true,
     challenge: null
 };
 
@@ -591,7 +593,7 @@ function loadGame() {
     state_.dragging.draggable = new Set([]);
     state_.dragging.droppable = new Set([]);
     state_.amis.all = new Set([]);
-    state_.dead = new Set([]);
+    state_.achievements.dead = new Set([]);
     state_.amis.needs_food = new Set([]);
     state_.amis.food_buttons = new Set([]);
     state_.amis.upgrader_buttons = new Set([]);
@@ -674,7 +676,7 @@ function loadGame() {
         state_.javert.dismissals = save.q;
     }
     if ("r" in save) {
-        state_.scouted = false;
+        state_.achievements.scouted = false;
     }
     if ("u" in save) {
         state_.marius.uses = save.u;
@@ -686,7 +688,7 @@ function loadGame() {
         state_.amis.dead = save.x;
     }
     if ("l" in save) {
-        state_.killed = save.l;
+        state_.achievements.killed = save.l;
     }
     var i = 0;
     for (const wall of [...refs_.chanvrerie].sort(function(x, y) { return x.id < y.id ? -1 : 1 })) {
@@ -824,7 +826,7 @@ function loadGame() {
         state_.citizens.next_i = save.y;
     }
     if ("t" in save) {
-        state_.drunk = false;
+        state_.achievements.drunk = false;
     }
     if ("o" in save) {
         while (save.o.length) {
@@ -841,7 +843,7 @@ function loadGame() {
     }
     if ("z" in save) {
         for (const ami of save.z) {
-            state_.dead.add(refs_.amis_ordered[ami]);
+            state_.achievements.dead.add(refs_.amis_ordered[ami]);
         }
     }
     if (getWaveState() == WaveState.RECOVER) {
@@ -958,7 +960,7 @@ $(document).on('keydown keyup', function(e) {
     }
     if (e.originalEvent.keyCode == 32) {
         e.preventDefault();
-        state_.fast = e.type == "keydown";
+        state_.achievements.fast = e.type == "keydown";
         return;
     }
     if (e.originalEvent.key != "Shift" || (state_.dragging.shift_key && e.type == "keydown")) {
@@ -1659,7 +1661,7 @@ function newAmi(name) {
         state_.amis.bossuets.add(ami);
     }
     if (name == "Grantaire") {
-        state_.drunk = true;
+        state_.achievements.drunk = true;
     }
     if (name == "Mme Thenardier") {
         ami.children[0].style.fontSize = "0.68vw";
@@ -2530,7 +2532,7 @@ function deleteAmiState(ami) {
     if (isCitizen(ami)) {
         state_.citizens.num--;
     } else if (!state_.reloading) {
-        state_.dead.add(ami.id);
+        state_.achievements.dead.add(ami.id);
     }
     if (state_.amis.eponines.has(ami)) {
         state_.amis.eponines.delete(ami);
@@ -2607,12 +2609,12 @@ function die(person, attacker) {
                 achieve("mabeuf");
             }
             if (person.id == "Enjolras" || person.id == "Grantaire") {
-                if (state_.permetstu) {
-                    if (state_.permetstu == person.parentElement) {
+                if (state_.achievements.permetstu) {
+                    if (state_.achievements.permetstu == person.parentElement) {
                         achieve("permetstu");
                     }
                 } else {
-                    state_.permetstu = person.parentElement;
+                    state_.achievements.permetstu = person.parentElement;
                 }
             }
         }
@@ -2632,7 +2634,7 @@ function die(person, attacker) {
     }
     person.remove();
     if (enemy_parent) {
-        state_.killed += 1;
+        state_.achievements.killed += 1;
         stackEnemies(enemy_parent);
     }
 }
@@ -2929,10 +2931,10 @@ function saveGame() {
     if (state_.sabotage) {
         save.e = state_.sabotage;
     }
-    if (!state_.scouted) {
+    if (!state_.achievements.scouted) {
         save.r = 0;
     }
-    if (state_.drunk != null && !state_.drunk) {
+    if (state_.achievements.drunk != null && !state_.achievements.drunk) {
         save.t = 0;
     }
     if (state_.amis.dead) {
@@ -2941,8 +2943,8 @@ function saveGame() {
     if (state_.challenge != null) {
         save.f = state_.challenge;
     }
-    if (state_.killed) {
-        save.l = state_.killed;
+    if (state_.achievements.killed) {
+        save.l = state_.achievements.killed;
     }
     if (state_.citizens.next_i) {
         save.y = state_.citizens.next_i;
@@ -2956,9 +2958,9 @@ function saveGame() {
             save.o.push(refs_.upgrades_ordered.indexOf(upgrade));
         }
     }
-    if (state_.dead.length) {
+    if (state_.achievements.dead.length) {
         save.z = [];
-        for (const ami of state_.dead) {
+        for (const ami of state_.achievements.dead) {
             save.z.push(refs_.amis_ordered.indexOf(ami));
         }
     }
@@ -3076,7 +3078,7 @@ async function startWave() {
         state_.amis.last_prepare[ami.id] = ami.parentElement;
     }
     if ("Grantaire" in state_.amis.lookup && state_.amis.lookup["Grantaire"].parentElement != refs_.lesamis) {
-        state_.drunk = false;
+        state_.achievements.drunk = false;
     }
     $("#ready").hide();
     $("#reset").hide();
@@ -3111,7 +3113,7 @@ async function startWave() {
         if (state_.marius.active) {
             break;
         }
-        await sleep(settings_.sleep_ms / (state_.fast ? 3 : 1));
+        await sleep(settings_.sleep_ms / (state_.achievements.fast ? 3 : 1));
     }
     refs_.progressbar.style.display = "none";
 
@@ -3353,7 +3355,7 @@ function barricadeFire() {
 
 function transitionToRecover() {
     transitionToNight();
-    state_.permetstu = null;
+    state_.achievements.permetstu = null;
     if (state_.dragging.data_transfer.length) {
         document.removeEventListener('mousemove', mouseMove);
     }
@@ -4285,7 +4287,7 @@ async function prepareForNextWave() {
     if (state_.foresight) {
         initEnemies();
     } else {
-        state_.scouted = false;
+        state_.achievements.scouted = false;
     }
     $("#lootfood").hide();
     $("#lootammo").hide();
@@ -4370,16 +4372,16 @@ function revolution() {
     if (pedantic) {
         achieve("pedantic");
     }
-    if (state_.drunk) {
+    if (state_.achievements.drunk) {
         achieve("grantaire");
     }
     if (!state_.amis.dead) {
         achieve("happyending");
     }
-    if (!state_.killed) {
+    if (!state_.achievements.killed) {
         achieve("pacifist");
     }
-    if (state_.scouted) {
+    if (state_.achievements.scouted) {
         achieve("scouting");
     }
     if (state_.challenge != null) {
