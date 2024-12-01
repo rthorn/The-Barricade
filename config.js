@@ -737,7 +737,7 @@ var settings_ = {
 		},
 		{
 			"name": "Radical Centrists",
-			"rules": ["Enemies only attack center wall of center barricade"]
+			"rules": ["Soldiers and cannons only attack center wall of center barricade"]
 		}
 	]
 }
