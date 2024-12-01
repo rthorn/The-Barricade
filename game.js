@@ -1151,7 +1151,7 @@ function dropAmi(ev) {
     }
     var dragged = null;
     while (dragged_list.length) {
-        if (target == state_.dragging.last_parent) {
+        if (target == state_.dragging.last_parent && index == null) {
             break;
         }
         if (target == refs_.trainer && cit) {
