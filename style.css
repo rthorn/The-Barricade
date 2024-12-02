@@ -45,7 +45,7 @@ body {
   }
 }
 
-h1 {
+#title {
 	font-size: 1.2vw;
     position: absolute;
     left: calc(50% - 48.15%);
@@ -56,7 +56,7 @@ h1 {
     z-index: 500;
 }
 
-h2 {
+#state {
 	font-size: 3.2vw;
     text-align: center;
     margin: 0;
@@ -70,7 +70,7 @@ h2 {
     z-index: 500;
 }
 
-h3 {
+#substate {
     font-size: 1.6vw;
     text-align: center;
     margin: 0;
@@ -196,6 +196,19 @@ h3 {
     background: gray;
     z-index: 999;
     overflow: scroll;
+}
+
+#thebrick-screen {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    background: gray;
+    z-index: 999;
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
 }
 
 #newgame-screen {
@@ -343,6 +356,12 @@ h3 {
 }
 
 #close-achievements {
+    margin: .16vw;
+    display: block;
+    font-size: 1.6vw;
+}
+
+#close-thebrick {
     margin: .16vw;
     display: block;
     font-size: 1.6vw;
@@ -1028,4 +1047,66 @@ button[type=button]:enabled {
     text-align: center;
     position: absolute;
     margin-left: -2.4vw;
+}
+
+#toc {
+    width: 24%;
+    border-right: solid 2px black;
+    height: 100%;
+    padding-left: 1%;
+}
+
+#brick {
+    width: 79%;
+    padding: 5% 1%;
+    overflow: scroll;
+}
+
+#brick a {
+    color: black;
+    text-decoration-line: none;
+}
+
+#brick a:hover {
+    color: silver;
+}
+
+.toc li {
+    margin: 1vw 0;
+}
+
+.toc {
+    list-style-type: "> ";
+}
+
+.tocsmall li {
+    margin: 0.5vw 0;
+}
+
+.tocsmall {
+    list-style-type: "- ";
+}
+
+li a {
+    color: black;
+    font-size: 2vw;
+    text-decoration-line: none;
+}
+
+.tocsmall li a {
+    color: black;
+    font-size: 1.5vw;
+    text-decoration-line: none;
+}
+
+.tocsmall li a:hover {
+    color: silver;
+}
+
+a:hover {
+    color: silver;
+}
+
+p {
+    display: inline;
 }

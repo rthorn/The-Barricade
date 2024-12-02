@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initials_.state = JSON.parse(JSON.stringify(state_));
     startNewGame();
     disableButtons();
+    refs_.thebrick.style.pointerEvents = "auto";
     refs_.achievements.style.pointerEvents = "auto";
     refs_.load.style.pointerEvents = "auto";
     if (hasAchieved("normal")) {
@@ -156,6 +157,7 @@ function startNewGame() {
     closeAchievements();
     closeUpgrade();
     closeUpgrader();
+    closeTheBrick();
     hideHovertext();
 }
 
@@ -166,7 +168,7 @@ function initializeChallenges() {
         var div = document.createElement("div");
         div.className = "challenge";
         div.id = "challenge" + i++;
-        var html = '<font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>' + challenge.name + '<br/>';
+        var html = '<p style="color: ' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </p>' + challenge.name + '<br/>';
         for (const rule of challenge.rules) {
             html += '&ensp;<i style="font-size: 1vw">'  + rule + "</i></br>"
         }
@@ -199,7 +201,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'challengeslabel']) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'challengeslabel', 'thebrick']) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name];
     }
@@ -1005,7 +1007,7 @@ function removeFromDrag(citizen) {
 }
 
 function isScreen(element) {
-    return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen || element == refs_.achievements_screen;
+    return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen || element == refs_.achievements_screen || element == refs_.thebrick_screen;
 }
 
 $(document).on('mousedown', function(e) {
@@ -1035,6 +1037,10 @@ $(document).on('mousedown', function(e) {
         }
         if (refs_.achievements_screen.style.display != "none") {
             closeAchievements();
+            return;
+        }
+        if (refs_.thebrick_screen.style.display != "none") {
+            closeTheBrick();
             return;
         }
     }
@@ -3211,6 +3217,9 @@ function enemyFire(i) {
             }
         } else {
             var options = getName(enemy) == EnemyType.SNIPER ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall);
+            if (state_.javert.ami && getName(enemy) != EnemyType.SNIPER && state_.javert.ami.parentElement == wall) {
+                options.splice(options.indexOf(state_.javert.ami), 1);
+            }
             for (const ami of state_.amis.bossuets) {
                 if (options.includes(ami)) {
                     for (var j = 0; j < refs_.bossuet_extras[specialLevel(ami, "Bossuet") - 1]; j++) {
@@ -3646,7 +3655,7 @@ function achievements() {
         var div = document.createElement("div");
         div.className = "achievement";
         var achieved = hasAchieved(achievement);
-        var name = '<b><font color="' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </font>' + settings_.achievements[achievement].name + '</b><br/>&emsp;';
+        var name = '<b><p style="color: ' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </p>' + settings_.achievements[achievement].name + '</b><br/>&emsp;';
         div.innerHTML = (settings_.achievements[achievement].hidden && !achieved) ? name + "Secret achievement" : name + settings_.achievements[achievement].description;
         refs_.achievements_screen.appendChild(div);
         if (achieved) {
@@ -3660,11 +3669,18 @@ function achievements() {
     refs_.achievements.style.backgroundColor = null;
 }
 
+function theBrick() {
+    $("#thebrick-screen").load("brick.html?v=" + Date.now());
+    refs_.thebrick_screen.style.display = "flex";
+    disableButtons();
+}
+
 function disableButtons() {
     refs_.upgrade.style.pointerEvents = "none";
     refs_.feed.style.pointerEvents = "none";
     refs_.recruit.style.pointerEvents = "none";
     refs_.achievements.style.pointerEvents = "none";
+    refs_.thebrick.style.pointerEvents = "none";
     refs_.autofill.style.pointerEvents = "none";
     refs_.reset.style.pointerEvents = "none";
     refs_.ready.style.pointerEvents = "none";
@@ -3690,6 +3706,7 @@ function reenableButtons() {
     refs_.recruit.style.pointerEvents = "auto";
     refs_.autofill.style.pointerEvents = "auto";
     refs_.achievements.style.pointerEvents = "auto";
+    refs_.thebrick.style.pointerEvents = "auto";
     refs_.reset.style.pointerEvents = "auto";
     refs_.ready.style.pointerEvents = "auto";
     refs_.hovertext.style.visibility = "visible";
@@ -3722,6 +3739,21 @@ function closeAchievements() {
     if (refs_.newgame_screen.style.display == "none") {
         reenableButtons();
     } else {
+        refs_.thebrick.style.pointerEvents = "auto";
+        refs_.achievements.style.pointerEvents = "auto";
+        refs_.load.style.pointerEvents = "auto";
+    }
+}
+
+function closeTheBrick() {
+    refs_.thebrick_screen.style.display = "none";
+    for (const child of getChildren(refs_.thebrick_screen)) {
+        child.remove();
+    }
+    if (refs_.newgame_screen.style.display == "none") {
+        reenableButtons();
+    } else {
+        refs_.thebrick.style.pointerEvents = "auto";
         refs_.achievements.style.pointerEvents = "auto";
         refs_.load.style.pointerEvents = "auto";
     }
@@ -4351,6 +4383,7 @@ function revolution() {
         freezeDragging(loc);
     }
     disableButtons();
+    refs_.thebrick.style.pointerEvents = "auto";
     refs_.load.style.pointerEvents = "auto";
     refs_.achievements.style.pointerEvents = "auto";
     refs_.game.value = "";
@@ -4396,6 +4429,7 @@ function gameOver() {
         freezeDragging(loc);
     }
     disableButtons();
+    refs_.thebrick.style.pointerEvents = "auto";
     refs_.load.style.pointerEvents = "auto";
     refs_.achievements.style.pointerEvents = "auto";
     refs_.game.value = "";
