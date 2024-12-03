@@ -97,12 +97,13 @@
 	<h3 id="recover">Recover</h3>
 	After the battle you have a chance to <p style="color: darkblue">Recover</p>. Amis can get ready for the upcoming Wave in many ways: looting ammo and food, building up the barricade, scouting for information, healing their wounds, or just hanging out and drinking.
 	<ul role="list">
-        <li><b>Drinking</b> gains <p style="color: darkred">Hope</p>.</li>
-        <li><p style="color: darkred">Food</p> can be used to <b>feed</b> Amis once each during recovery, giving them back 25 health. If you are out of <p style="color: darkred">Food</p>, Amis cannot gain <p style="color: darkred">Hope</p> from drinking.</li>
-        <li><b>Building</b> the barricade walls increases their height, staving off their destruction.</li>
-        <li><b>Scouting</b> will give information of the upcoming attack, but has a 20% risk of death. Scouting will give you up to 3 Wave notice of a new barricade being attacked for the first time.</li>
-        <li><b>Resting</b> in the Corinthe building will heal 40% of an Ami's health and give a temporary 20% damage boost for being well-rested.</li>
-    </ul>
+  	<li><b>Drinking</b> gains between 5-10 <p style="color: darkred">Hope</p> per Ami.</li>
+  	<li><b>Looting</b> gains between 5-10 <p style="color: darkred">Food</p> or <p style="color: darkred">Ammo</p> per Ami.</li>
+    <li><p style="color: darkred">Food</p> can be used to <b>feed</b> Amis once each during recovery, giving them back 25 health. If you are out of <p style="color: darkred">Food</p>, Amis cannot gain <p style="color: darkred">Hope</p> from drinking.</li>
+    <li><b>Building</b> the barricade walls increases their height, staving off their destruction.</li>
+    <li><b>Scouting</b> will give information of the upcoming attack, but has a 20% risk of death. Scouting will give you up to 3 Wave notice of a new barricade being attacked for the first time.</li>
+    <li><b>Resting</b> in the Corinthe building will heal 40% of an Ami's health and give a temporary 20% damage boost for being well-rested.</li>
+  </ul>
 	<p style="color: darkred">Ammo</p>, <p style="color: darkred">Food</p>, and <p style="color: darkred">Hope</p> can also be used to purchase upgrades, including damage and health buffs, improvements to the barricade and buildings, and the ability to recruit Citizens and other unique Amis to your cause during the <p style="color: darkblue">Recover</p> phase.<br/>
 	<br/>
 	A small Precheurs barricade will be automatically built immediately before being attacked from the right for the first time. After the Precheurs barricade is built, your Amis are surrounded and all looting will come with a 20% risk of death.
@@ -126,20 +127,82 @@
 	<h2 id="amis">Amis</h2>
 	You start the game with 8 unique, named Amis. As the game continues, you can recruit generic Citizens as well as new unique Amis. Each unique Ami has a special ability that can be upgraded to become more powerful.
 	<h3 id="citizens">Citizens</h3>
-	Citizens start with much lower health and damage than unique Amis, but all Citizens can be made stronger through upgrades. Individual Citizens can be taught the special abilities of one or more unique Amis after the training upgrade has been purchased. Identical citizens will stack in some contexts; see <a href="#controls"><b>Controls</b></a> for some ways to make moving stacks easier.<br/>
+	Citizens start with much lower health and damage than unique Amis, but all Citizens can be made stronger through upgrades. Individual Citizens can be taught the special abilities of one or more unique Amis after the training upgrade has been purchased. Identical Citizens will stack in some contexts; see <a href="#controls"><b>Controls</b></a> for some ways to make moving stacks easier.<br/>
 	<br/>
-	When recruiting new Citizens, watch out for <a href="#javert"><b>Javert</b></a>.
+	There is a limit to the number of Citizens that can be recruited, which you can increase through upgrades. When recruiting new Citizens, watch out for <a href="#javert"><b>Javert</b></a>.
 	<h3 id="uniques">Unique Amis</h3>
-	Each unique Ami can be individually upgraded to improve their health, damage, or special ability.
+	Each unique Ami can be individually upgraded to improve their health, damage, or special ability. Each special ability starts at level 1 and can be upgraded 3 times, up to level 4. Trained citizens will receive the ability at the same level as the unique Ami at the time of training. Citizens cannot train other Citizens, so if a unique Ami dies or is dismissed, it will no longer be possible to train new Citizens in their ability.
 	<h4 id="enjolras">Enjolras</h3>
-	Enjolras is the leader of the revolution.
+	Enjolras regains a certain percentage of lost health at the end of a Wave. This ability cannot increase health above 100%. Amis healed to full health by this ability <b>do</b> count as being at full health at the end of the Wave for the <i>Missed Me</i> achievement.
+	<ol role="list">
+		<li>Regains 25% health at end of wave</li>
+		<li>Regains 50% health at end of wave</li>
+		<li>Regains 75% health at end of wave</li>
+		<li>Regains all health at end of wave</li>
+	</ol>
+	<h4 id="bahorel">Bahorel</h3>
+	Bahorel has a 5% chance of making a critical hit that does extra damage. The extra damage amount is multiplied by the base damage done by the Ami, so higher base damage will increase the power of the critical hit even further.
+	<ol role="list">
+		<li>5% chance to do 1.5x damage</li>
+		<li>5% chance to do 2x damage</li>
+		<li>5% chance to do 3x damage</li>
+		<li>5% chance to do 5x damage</li>
+	</ol>
+	<h4 id="bossuet">Bossuet</h3>
+	Bossuet is terribly unlucky and attracts enemy bullets. Enemies are more likely to target him than any other individual Ami, making him and, if he is on a barricade, the wall he is on take more damage. Other Amis and barricade walls take less damage as a result.
+	<ol role="list">
+		<li>2x as likely to be attacked</li>
+		<li>4x as likely to be attacked</li>
+		<li>10x as likely to be attacked</li>
+		<li>25x as likely to be attacked</li>
+	</ol>
+	<h4 id="combeferre">Combeferre</h3>
+	Combeferre finds extra <p style="color: darkred">Ammo</p> when looting.
+	<ol role="list">
+		<li>Finds 1.5x ammo</li>
+		<li>Finds 2x ammo</li>
+		<li>Finds 3x ammo</li>
+		<li>Finds 5x ammo</li>
+	</ol>
+	<h4 id="courfeyrac">Courfeyrac</h3>
+	When Courfeyrac rests during the <p style="color: darkblue">Recover</p> phase, he improves the healing and temporary damage boost all Amis get from resting. If multiple Amis with this ability rest at the same time, their abilities stack. Amis cannot be healed above 100% health, but can receive a temporary damage boost of any amount.
+	<ol role="list">
+		<li>When resting, all resting gain 5% more health and damage boost</li>
+		<li>When resting, all resting gain 10% more health and damage boost</li>
+		<li>When resting, all resting gain 15% more health and damage boost</li>
+		<li>When resting, all resting gain 20% more health and damage boost</li>
+	</ol>
+	<h4 id="feuilly">Feuilly</h3>
+	Feuilly does extra build on the barricade walls.
+	<ol role="list">
+		<li>Does 1.5x build on barricade</li>
+		<li>Does 2x build on barricade</li>
+		<li>Does 3x build on barricade</li>
+		<li>Does 5x build on barricade</li>
+	</ol>
+	<h4 id="joly">Joly</h3>
+  Joly finds extra <p style="color: darkred">Food</p> when looting.
+	<ol role="list">
+		<li>Finds 1.5x food</li>
+		<li>Finds 2x food</li>
+		<li>Finds 3x food</li>
+		<li>Finds 5x food</li>
+	</ol>
+	<h4 id="joly">Prouvaire</h3>
+  Prouvaire's heroism in the face of death inspires the other Amis. When Prouvaire dies, instead of losing <p style="color: darkred">Hope</p>, <p style="color: darkred">Hope</p> is gained.
+	<ol role="list">
+		<li>Boosts hope by 25 at death</li>
+		<li>Boosts hope by 50 at death</li>
+		<li>Boosts hope by 75 at death</li>
+		<li>Boosts hope by 100 at death</li>
+	</ol>
 	<h2 id="credits">Credits</h2>
 	Character names and other details inspired by the 1862 novel <i>Les Misérables</i> by Victor Hugo.<br/>
 	<br/>
-	Open-sourced source code can be found at <a target="_blank" rel="noopener noreferrer" href="https://github.com/rthorn/The-Barricade"><i>https://github.com/rthorn/The-Barricade</i></a> under the MIT License.<br/>
+	Open-sourced game code can be found at <a target="_blank" rel="noopener noreferrer" href="https://github.com/rthorn/The-Barricade"><i>https://github.com/rthorn/The-Barricade</i></a> under the MIT License.<br/>
 	<br/>
 	Copyright (c) 2024 Rachel Thornton<br/>
-	<br/>
+	<br/><i>
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
@@ -156,7 +219,7 @@
 	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.
+	SOFTWARE.</i>
 	<br/>
 	<br/>
 	<br/>
