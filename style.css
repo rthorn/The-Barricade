@@ -46,6 +46,7 @@ body {
 }
 
 #title {
+    top: 0.7vw;
 	font-size: 1.2vw;
     position: absolute;
     left: calc(50% - 48.15%);
@@ -185,6 +186,17 @@ body {
     background: gray;
     z-index: 999;
     overflow: scroll;
+}
+
+#achievements {
+    position: absolute;
+    top: 0vw;
+}
+
+#thebrick {
+    position: absolute;
+    top: 0vw;
+    left: 11.6vw;
 }
 
 #achievements-screen {
@@ -1060,6 +1072,7 @@ button[type=button]:enabled {
     width: 79%;
     padding: 5% 1%;
     overflow: scroll;
+    font-size: 1.4vw;
 }
 
 #brick a {
@@ -1109,4 +1122,20 @@ a:hover {
 
 p {
     display: inline;
+}
+
+h1 {
+    font-size: 2.7vw;
+}
+
+h2 {
+    font-size: 2vw;
+}
+
+h3 {
+    font-size: 1.8vw;
+}
+
+h4 {
+    font-size: 1.5vw;
 }
