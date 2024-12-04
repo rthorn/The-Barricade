@@ -21,68 +21,41 @@ body {
     transition: background-color 300ms linear;
 }
 
-/*@media only screen and (max-width: 999px) {
-  body {
-    -webkit-transform: rotate(90deg);
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+.backgroundText {
+    cursor: default;
+    -webkit-transition: color 300ms linear;
+    -ms-transition: color 300ms linear;
+    transition: color 300ms linear;
     position: absolute;
-    right: 0;
-    bottom: 0; 
-  }
-}*/
-
-@media only screen and (min-width: 1000px) and (max-width: 1245px) {
-  body {
-    width: 100%;
-  }
-}
-
-@media only screen and (min-width: 1246px) {
-  body {
-    width: 1246px;
-  }
 }
 
 #title {
     top: 0.7vw;
 	font-size: 1.2vw;
-    position: absolute;
     left: calc(50% - 48.15%);
-    cursor: default;
-    -webkit-transition: color 300ms linear;
-    -ms-transition: color 300ms linear;
-    transition: color 300ms linear;
-    z-index: 500;
 }
 
 #state {
 	font-size: 3.2vw;
-    text-align: center;
     margin: 0;
-    position: absolute;
     top: 2.8vw;
     left: calc(50% - 48.15%);
-    cursor: default;
-    -webkit-transition: color 300ms linear;
-    -ms-transition: color 300ms linear;
-    transition: color 300ms linear;
-    z-index: 500;
 }
 
 #substate {
     font-size: 1.6vw;
-    text-align: center;
     margin: 0;
-    position: absolute;
     top: 6.8vw;
     left: calc(50% - 48.15% + 0.16%);
-    cursor: default;
-    -webkit-transition: color 300ms linear;
-    -ms-transition: color 300ms linear;
-    transition: color 300ms linear;
-    z-index: 500;
+}
+
+.metaButton {
+    position: absolute;
+    top: 0vw;
+}
+
+#thebrick {
+    left: 11.6vw;
 }
 
 #load {
@@ -91,19 +64,22 @@ body {
     position: absolute;
     top: 0.8vw;
     left: calc(50% - 37%);
-    cursor: default;
-    z-index: 500;
 }
 
 #game {
-    font-size: 1vw;
     width: 10%;
-    text-align: center;
     position: absolute;
     top: 0.8vw;
     left: calc(50% - 48.15% + 0.16%);
-    cursor: default;
-    z-index: 500;
+}
+
+.controlButton {
+    font-size: 0.88vw;
+    width: calc(6%);
+    margin-left: calc((100% - 6%) / 2);
+    margin-top: 1.6vw;
+    z-index: 10;
+    position: absolute;
 }
 
 #ready {
@@ -118,47 +94,27 @@ body {
 }
 
 #recruit {
-    font-size: 0.88vw;
-    width: 6vw;
-    margin-left: calc((100% - 6%) / 2);
-    margin-top: 1.6vw;
-    z-index: 10;
-    position: absolute;
     left: 12vw;
     top: 48.96vw;
 }
 
 #upgrade {
-    font-size: 0.88vw;
-    width: 6vw;
-    margin-left: calc((100% - 6vw) / 2);
-    margin-top: 1.6vw;
-    z-index: 10;
-    position: absolute;
     left: -12vw;
     top: 48.96vw;
 }
 
+#autofill {
+    left: 4vw;
+    top: 48.15vw;
+}
+
 #reset {
-    font-size: 0.88vw;
     width: 1.6vw;
     margin-left: calc(50% - 1.4vw);
-    z-index: 10;
-    position: absolute;
     top: 51.52vw;
     padding-left: .08vw;
     padding-right: .08vw;
-}
-
-#autofill {
-    font-size: 0.88vw;
-    width: 6vw;
-    margin-left: calc((100% - 6vw) / 2);
-    margin-top: 1.6vw;
-    z-index: 10;
-    position: absolute;
-    left: 4vw;
-    top: 48.15vw;
+    margin-top: 0;
 }
 
 #progressbar {
@@ -177,29 +133,7 @@ body {
     float: right;
 }
 
-#recruit-screen {
-    position: absolute;
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
-    background: gray;
-    z-index: 999;
-    overflow: scroll;
-}
-
-#achievements {
-    position: absolute;
-    top: 0vw;
-}
-
-#thebrick {
-    position: absolute;
-    top: 0vw;
-    left: 11.6vw;
-}
-
-#achievements-screen {
+.screen {
     position: absolute;
     top: 10%;
     left: 10%;
@@ -211,27 +145,9 @@ body {
 }
 
 #thebrick-screen {
-    position: absolute;
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
-    background: gray;
-    z-index: 999;
     display: flex;
     flex-direction: row;
     overflow: auto;
-}
-
-#newgame-screen {
-    position: absolute;
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
-    background: gray;
-    z-index: 999;
-    overflow: scroll;
 }
 
 #recruit-limit {
@@ -267,31 +183,21 @@ body {
     vertical-align: top;
 }
 
-.challengessub {
-    font-size: 1vw;
-    padding: 0.5vw 0vw;
-    width: 100%;
-    font-style: italic;
-    text-align: center;
-    display: inline-block;
-    vertical-align: top;
-}
-
-#difficulty-label {
+.newgameLabel {
     width: 100%;
     text-align: center;
     font-size: 1.6vw;
+    padding-top: 5vw;
+    font-weight: bold;
+}
+
+#difficulty-label {
     height: 5vw;
-    padding-top: 5vw;
-    font-weight: bold;
 }
 
-#challenges-label {
+#challengeslabel {
     width: 100%;
-    text-align: center;
-    font-size: 1.6vw;
-    padding-top: 5vw;
-    font-weight: bold;
+    margin-left: 0;
 }
 
 .challenge {
@@ -311,45 +217,37 @@ body {
     vertical-align: bottom;
 }
 
-#upgrade-screen {
-    position: absolute;
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
-    background: gray;
-    z-index: 999;
-    overflow: scroll;
-}
-
-#upgrader-screen {
-    position: absolute;
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
-    background: gray;
-    z-index: 999;
-    overflow: scroll;
-}
-
 .label {
-    position:absolute;
     right: calc(50% - 48.15vw);
     display:inline-block;
     width: 14.45vw;
-    -webkit-transition: color 300ms linear;
-    -ms-transition: color 300ms linear;
-    transition: color 300ms linear;
+    text-align: right;
+}
+
+#ammolabel {
+    top: 2.4vw;
+}
+
+#foodlabel {
+    top: 4.41vw;
+    width: auto;
+}
+
+#hopelabel {
+    top: 6.42vw;
 }
 
 .number {
-    text-align: right;
+    display: inline;
     width:100%;
     font-weight: bold;
     -webkit-transition: color 300ms linear;
     -ms-transition: color 300ms linear;
     transition: color 300ms linear;
+}
+
+#feed {
+    padding: 0.3vw 0.4vw;
 }
 
 .bar {
@@ -361,31 +259,7 @@ body {
     height: 100%;
 }
 
-#close-upgrade {
-    margin: .16vw;
-    display: block;
-    font-size: 1.6vw;
-}
-
-#close-achievements {
-    margin: .16vw;
-    display: block;
-    font-size: 1.6vw;
-}
-
-#close-thebrick {
-    margin: .16vw;
-    display: block;
-    font-size: 1.6vw;
-}
-
-#close-upgrader {
-    margin: .16vw;
-    display: block;
-    font-size: 1.6vw;
-}
-
-#close-recruit {
+.closeButton {
     margin: .16vw;
     display: block;
     font-size: 1.6vw;
@@ -400,7 +274,6 @@ body {
 
 .ami .bar-fill {
 	position: static;
-	height: 100%;
 }
 
 .enemy .bar {
@@ -412,55 +285,26 @@ body {
 
 .enemy .bar-fill {
 	position: static;
-	height: 100%;
 }
 
-#ammo {
-    display: inline;
-}
-
-#food {
-    display: inline;
-}
-
-#hope {
-    display: inline;
-}
-
-#ammolabel {
-    top: 2.4vw;
-    text-align: right;
-    cursor: default;
-}
-
-#foodlabel {
-    top: 4.41vw;
-    text-align: right;
-    cursor: default;
-    width: auto;
-}
-
-#hopelabel {
-	top: 6.42vw;
-    text-align: right;
-    cursor: default;
-}
-
-.chanvrerie {
+.barricade {
     background-clip: content-box;
     background-color: brown;
     transition: background 0.05s ease-in-out;
     position: absolute;
-    top: 32.1vw;
-    width: calc(32.1vw/3);
     height: 16vw;
-	display: inline-block;
+    display: inline-block;
     text-align: center;
     padding-top: 30px;
     padding-bottom: 30px;
     margin-top: -30px;
     margin-bottom: -30px;
     filter: brightness(110%);
+}
+
+.chanvrerie {
+    width: calc(32.1vw/3);
+    top: 32.1vw;
 }
 
 #chanvrerie1 {
@@ -475,33 +319,9 @@ body {
     left: calc(50% + (32.1vw/3)/2);
 }
 
-#corinthe {
-    background: teal;
-    position: absolute;
-    left: calc(50% - (32.1vw/3)/2*3 - 16vw);
-    top: 9.63vw;
-    width: 16vw;
-    height: 41.73vw;
-	display: inline-block;
-    overflow: scroll;
-    text-align: center;
-}
-
 .mondetour {
-    background-clip: content-box;
-    background-color: brown;
-    transition: background 0.05s ease-in-out;
-    position: absolute;
     width: 9.63vw;
-    height: 16vw;
     transform: skewY(-20deg);
-    display: inline-block;
-    text-align: center;
-    padding-top: 30px;
-    padding-bottom: 30px;
-    margin-top: -30px;
-    margin-bottom: -30px;
-    filter: brightness(110%);
 }
 
 #mondetour1 {
@@ -510,24 +330,14 @@ body {
 }
 
 #mondetour2 {
-    right: calc(50% + (32.1vw/3)/2*3 + 24.40vw);
     top: 42.82vw;
+    right: calc(50% + (32.1vw/3)/2*3 + 24.40vw);
 }
 
 .precheurs {
-    background-clip: content-box;
-    background-color: brown;
-    transition: background 0.1s ease-in-out;
-    position: absolute;
     width: 9.63vw;
     height: 4vw;
     transform: skewY(20deg);
-    text-align: center;
-    padding-top: 30px;
-    padding-bottom: 30px;
-    margin-top: -30px;
-    margin-bottom: -30px;
-    filter: brightness(110%);
 }
 
 #precheurs2 {
@@ -540,39 +350,60 @@ body {
     right: calc(50% - (32.1vw/3)/2*3 - 24.40vw);
 }
 
-#rightside {
-    background: grey;
+.building {
     position: absolute;
-    left: calc(50% + (32.1vw/3)*1.5);
     top: 9.63vw;
     width: 16vw;
     height: 41.73vw;
-    text-align: center;
     display: inline-block;
+    overflow: scroll;
+    text-align: center;
+}
+
+#corinthe {
+    background: teal;
+    left: calc(50% - (32.1vw/3)/2*3 - 16vw);
+}
+
+#rightside {
+    background: grey;
+    left: calc(50% + (32.1vw/3)*1.5);
+}
+
+.recoverBox {
+    background: white;
+    position: absolute;
+    border: solid;
+    overflow: scroll;
+    text-align: center;
 }
 
 #lootammo {
-    background: white;
-    position: absolute;
     right: calc(50% - 46.95vw);
     top: 36.92vw;
     width: 12.84vw;
     height: 14.45vw;
-    border: solid;
-    overflow: scroll;
-    text-align: center;
 }
 
 #scout {
-    background: white;
-    position: absolute;
     left: calc(50% - 10.03vw);
     top: 0.8vw;
     width: 20.06vw;
     height: 8vw;
-    border: solid;
-    overflow: scroll;
-    text-align: center;
+}
+
+#lootfood {
+    right: calc(50% - 46.95vw);
+    top: 20.06vw;
+    width: 12.84vw;
+    height: 14.45vw;
+}
+
+#dismiss {
+    right: calc(50% - 45.35vw);
+    top: 53.77vw;
+    width: 9.63vw;
+    height: 7.22vw;
 }
 
 #trainer {
@@ -587,103 +418,47 @@ body {
     margin-bottom: 0.4vw;
 }
 
-#lootfood {
-    background: white;
+.enemies {
     position: absolute;
-    right: calc(50% - 46.95vw);
-    top: 20.06vw;
-    width: 12.84vw;
-    height: 14.45vw;
-    border: solid;
-    overflow: scroll;
+    display: inline-block;
     text-align: center;
-}
-
-#dismiss {
-    background: white;
-    position: absolute;
-    right: calc(50% - 45.35vw);
-    top: 53.77vw;
-    width: 9.63vw;
-    height: 7.22vw;
-    border: solid;
-    overflow: scroll;
-    text-align: center;
-}
-
-#feed {
-    padding: 0.3vw 0.4vw;
+    height: 3.61vw;
 }
 
 #lesenemies2 {
     left: calc(50% - 32.1vw);
-    position: absolute;
     top: 4.41vw;
     width: 64.21vw;
-    display: inline-block;
-    text-align: center;
 }
 
 #lesenemies1 {
     left: calc(50% - 32.1vw);
-    position: absolute;
     top: 0.8vw;
-    height: 3.61vw;
     width: 64.21vw;
-    display: inline-block;
-    text-align: center;
 }
 
 #lesenemiesmondetour1 {
     left: calc(50% - 47.35vw);
-    position: absolute;
     top: 9.63vw;
     width: 14.45vw;
-    height: 3.61vw;
-    display: inline-block;
-    text-align: center;
-    -webkit-transition: color 300ms linear;
-    -ms-transition: color 300ms linear;
-    transition: color 300ms linear;
 }
 
 #lesenemiesmondetour2 {
     left: calc(50% - 47.35vw);
-    position: absolute;
     top: 13.24vw;
-    height: 3.61vw;
     width: 14.45vw;
-    display: inline-block;
-    text-align: center;
-    -webkit-transition: color 300ms linear;
-    -ms-transition: color 300ms linear;
-    transition: color 300ms linear;
 }
 
 #lesenemiesprecheurs1 {
     left: calc(50% + 32.91vw);
-    position: absolute;
     top: 9.63vw;
     width: 14.45vw;
-    height: 3.61vw;
-    display: inline-block;
-    text-align: center;
-    -webkit-transition: color 300ms linear;
-    -ms-transition: color 300ms linear;
-    transition: color 300ms linear;
 }
 
 #lesenemiesprecheurs2 {
     left: calc(50% + 32.91vw);
-    position: absolute;
     top: 13.24vw;
-    height: 3.61vw;
     width: 14.45vw;
-    display: inline-block;
-    text-align: center;
-    -webkit-transition: color 300ms linear;
-    -ms-transition: color 300ms linear;
-    transition: color 300ms linear;
 }
 
 .enemy {

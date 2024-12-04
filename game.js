@@ -926,7 +926,7 @@ async function showHovertext(e) {
         return;
     }
     var target = e.target;
-    if (e.target.className == "deathrisk") {
+    if (e.target.classList.contains("deathrisk")) {
         refs_.hovertext.innerHTML = deathriskText();
     } else {
         while (!isAmi(target) && target && target.parentElement) {
@@ -1386,7 +1386,7 @@ function getFeed(ami) {
 function getResetButton(loc) {
     for (const child of loc.children) {
         for (const grandchild of child.children) {
-            if (grandchild.className == "resetButton") {
+            if (grandchild.classList.contains("resetButton")) {
                 return grandchild;
             }
         }
@@ -1593,7 +1593,7 @@ function setLabel(loc) {
 function getResetButtons() {
     var reset_buttons = [];
     for (const label of refs_.labels) {
-        if (label.children.length && label.children[0].className == "resetButton") {
+        if (label.children.length && label.children[0].classList.contains("resetButton")) {
             reset_buttons.push(label.children[0]);
         }
     }
@@ -1763,7 +1763,7 @@ function addNewEnemy(name, loc) {
 }
 
 function isAmi(element) {
-    return element.className == "ami" || element.className == "recruit" || element.className == "upgraderami";
+    return element.classList.contains("ami") || element.classList.contains("recruit") || element.classList.contains("upgraderami");
 }
 
 function isCitizen(element) {
@@ -1771,7 +1771,7 @@ function isCitizen(element) {
 }
 
 function isEnemy(element) {
-    return element.className == "enemy";
+    return element.classList.contains("enemy");
 }
 
 function enableMondetour() {

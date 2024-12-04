@@ -11,83 +11,83 @@
   </head>
   <body>
     <main>
-        <h1 id="title">The Barricade&emsp;<button id="achievements" onClick="achievements()">&#x1F3C6</button> <button id="thebrick" onClick="theBrick()">&#x1F4D6</button></h1>
-        <h2 id="state">Wave 1</h2>
-        <h3 id="substate">Prepare</h3>
-        <div id="newgame-screen">
+        <h1 class="backgroundText" id="title">The Barricade&emsp;<button class="metaButton" id="achievements" onClick="achievements()">&#x1F3C6</button> <button class="metaButton" id="thebrick" onClick="theBrick()">&#x1F4D6</button></h1>
+        <h2 class="backgroundText" id="state">Wave 1</h2>
+        <h3 class="backgroundText" id="substate">Prepare</h3>
+        <div class="screen" id="newgame-screen">
           <input type="text" id="game"><button id="load"onClick="loadGame()" disabled>Load</button>
-          <div id="difficulty-label">Select difficulty:</div>
+          <div class="newgameLabel" id="difficulty-label">Select difficulty:</div>
           <button class="difficulty" type="button" id="easy" onClick="setDifficulty(event)">Easy</button>
           <button class="difficulty" type="button" id="normal" onClick="setDifficulty(event)">Normal</button>
           <button class="difficulty" type="button" id="hard" onClick="setDifficulty(event)" disabled>Hard</button>
           <div class="difficultysub">Achievements disabled</div>
           <div class="difficultysub"></div>
           <div class="difficultysub" id="hardlabel">Win a game on Normal difficulty to unlock</div>
-          <div id="challenges-label">Challenges:</div>
-          <div class="challengessub" id="challengeslabel">Win a game on Normal difficulty to unlock</div>
+          <div class="newgameLabel" id="challenges-label">Challenges:</div>
+          <div class="difficultysub" id="challengeslabel">Win a game on Normal difficulty to unlock</div>
         </div>
-        <div id="recruit-screen">
-          <button type="button" id="close-recruit" onClick="closeRecruit()">X</button>
+        <div class="screen" id="recruit-screen">
+          <button class="closeButton" type="button" id="close-recruit" onClick="closeRecruit()">X</button>
           <div id="recruit-limit" hidden>Recruit limit: 8/20</div>
         </div>
-        <div id="achievements-screen">
-          <button type="button" id="close-achievements" onClick="closeAchievements()">X</button>
+        <div class="screen" id="achievements-screen">
+          <button class="closeButton" type="button" id="close-achievements" onClick="closeAchievements()">X</button>
           <div id="achievements-progress"></div>
         </div>
-        <div id="thebrick-screen"></div>
-        <div id="upgrade-screen">
-          <button type="button" id="close-upgrade" onClick="closeUpgrade()">X</button>
+        <div class="screen" id="thebrick-screen"></div>
+        <div class="screen" id="upgrade-screen">
+          <button class="closeButton" type="button" id="close-upgrade" onClick="closeUpgrade()">X</button>
         </div>
-        <div id="upgrader-screen">
-          <button type="button" id="close-upgrader" onClick="closeUpgrader()">X</button>
+        <div class="screen" id="upgrader-screen">
+          <button class="closeButton" type="button" id="close-upgrader" onClick="closeUpgrader()">X</button>
         </div>
         <div class="bar" id="progressbar" hidden>
           <div id="progress" class="bar-fill"></div>
         </div>
         <div id="hovertext" hidden></div>
-        <button type="button" id="ready" onClick="startWave()">Ready!</button>
-        <button type="button" id="recruit" onClick="recruit()" hidden disabled>Recruit</button>
-        <button type="button" id="upgrade" onClick="upgrade()" hidden>Upgrade</button>
-        <button type="button" id="reset" onClick="resetAmis()">&#x21bb;</button>
-        <button type="button" id="autofill" onClick="autoFill()">Auto-fill</button>
-        <div id="lesenemies1"></div>
-        <div id="lesenemies2"></div>
-        <div id="lesenemiesmondetour1"></div>
-        <div id="lesenemiesmondetour2"></div>
-        <div id="lesenemiesprecheurs1"></div>
-        <div id="lesenemiesprecheurs2"></div>
+        <button class="controlButton" type="button" id="ready" onClick="startWave()">Ready!</button>
+        <button class="controlButton" type="button" id="recruit" onClick="recruit()" hidden disabled>Recruit</button>
+        <button class="controlButton" type="button" id="upgrade" onClick="upgrade()" hidden>Upgrade</button>
+        <button class="controlButton" type="button" id="reset" onClick="resetAmis()">&#x21bb;</button>
+        <button class="controlButton" type="button" id="autofill" onClick="autoFill()">Auto-fill</button>
+        <div class="enemies" id="lesenemies1"></div>
+        <div class="enemies" id="lesenemies2"></div>
+        <div class="backgroundText enemies" id="lesenemiesmondetour1"></div>
+        <div class="backgroundText enemies" id="lesenemiesmondetour2"></div>
+        <div class="backgroundText enemies" id="lesenemiesprecheurs1"></div>
+        <div class="backgroundText enemies" id="lesenemiesprecheurs2"></div>
         <div id="chanvrerie">
-          <div class="amiLoc chanvrerie" id="chanvrerie1"><span id="chanvrerie1-label" class="recoverLabel"></span></div>
-          <div class="amiLoc chanvrerie" id="chanvrerie2"><span id="chanvrerie2-label" class="recoverLabel"></span></div>
-          <div class="amiLoc chanvrerie" id="chanvrerie3"><span id="chanvrerie3-label" class="recoverLabel"></span></div>
+          <div class="barricade amiLoc chanvrerie" id="chanvrerie1"><span id="chanvrerie1-label" class="recoverLabel"></span></div>
+          <div class="barricade amiLoc chanvrerie" id="chanvrerie2"><span id="chanvrerie2-label" class="recoverLabel"></span></div>
+          <div class="barricade amiLoc chanvrerie" id="chanvrerie3"><span id="chanvrerie3-label" class="recoverLabel"></span></div>
         </div>
-        <div class="amiLoc" id="corinthe"><span id="corinthe-label" class="recoverLabel"></span></div>
+        <div class="building amiLoc" id="corinthe"><span id="corinthe-label" class="recoverLabel"></span></div>
         <div id="mondetour">
-          <div class="amiLoc mondetour" id="mondetour1"><span id="mondetour1-label" class="recoverLabel"></span></div>
-          <div class="amiLoc mondetour" id="mondetour2"><span id="mondetour2-label" class="recoverLabel"></span></div>
+          <div class="barricade amiLoc mondetour" id="mondetour1"><span id="mondetour1-label" class="recoverLabel"></span></div>
+          <div class="barricade amiLoc mondetour" id="mondetour2"><span id="mondetour2-label" class="recoverLabel"></span></div>
         </div>
-        <div class="amiLoc" id="rightside">
+        <div class="building amiLoc" id="rightside">
           <div class="amiLoc" id="trainer" hidden><span id="trainer-label" class="recoverLabel"></span></div>
           <span id="rightside-label" class="recoverLabel"></span>
         </div>
         <div id="precheurs" hidden>
-          <div class="amiLoc precheurs" id="precheurs1"><span id="precheurs1-label" class="recoverLabel"></span></div>
-          <div class="amiLoc precheurs" id="precheurs2"><span id="precheurs2-label" class="recoverLabel"></span></div>
+          <div class="barricade amiLoc precheurs" id="precheurs1"><span id="precheurs1-label" class="recoverLabel"></span></div>
+          <div class="barricade amiLoc precheurs" id="precheurs2"><span id="precheurs2-label" class="recoverLabel"></span></div>
         </div>
         <div id="lesamis"><span id="lesamis-label" class="recoverLabel"></span></div>
-        <div class="amiLoc" id="scout" hidden><span id="scout-label" class="recoverLabel"></span></div>
-        <div class="amiLoc" id="lootammo" hidden><span id="lootammo-label" class="recoverLabel"></span></div>
-        <div class="amiLoc" id="lootfood" hidden><span id="lootfood-label" class="recoverLabel"></span></div>
-        <div class="amiLoc" id="dismiss" hidden><span id="dismiss-label" class="recoverLabel"></span></div>
-        <div id="ammolabel" class="label">Ammo
+        <div class="recoverBox amiLoc" id="scout" hidden><span id="scout-label" class="recoverLabel"></span></div>
+        <div class="recoverBox amiLoc" id="lootammo" hidden><span id="lootammo-label" class="recoverLabel"></span></div>
+        <div class="recoverBox amiLoc" id="lootfood" hidden><span id="lootfood-label" class="recoverLabel"></span></div>
+        <div class="recoverBox amiLoc" id="dismiss" hidden><span id="dismiss-label" class="recoverLabel"></span></div>
+        <div id="ammolabel" class="backgroundText label">Ammo
           <div id="ammo" class="number">1</div>
         </div>
-        <div id="foodlabel" class="label">
+        <div id="foodlabel" class="backgroundText label">
           <button type="button" id="feed" onClick="feedAll()" hidden disabled>Feed all</button>
           Food
           <div id="food" class="number">1</div>
         </div>
-        <div id="hopelabel" class="label">Hope
+        <div id="hopelabel" class="backgroundText label">Hope
           <div id="hope" class="number">1</div>
         </div>
     </main>
