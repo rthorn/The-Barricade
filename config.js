@@ -431,7 +431,7 @@ var settings_ = {
 				"25% chance to recruit enemies instead of killing them, up to recruit limit",
 				"50% chance to recruit enemies instead of killing them, up to recruit limit",
 				"75% chance to recruit enemies instead of killing them, up to recruit limit",
-				"100% chance to recruit enemies instead of killing them, up to recruit limit",
+				"Recruits enemies instead of killing them, up to recruit limit",
 				"100% chance to recruit enemies instead of killing them, up to 2x recruit limit"
 			],
 			"cost": 100
@@ -531,16 +531,7 @@ var settings_ = {
 				"You win."
 			],
 			"cost": 2000
-			},
-		"Rachel": {
-			"level": 100,
-			"damage": 100,
-			"health": 200,
-			"special": ["", "", "",
-				"You extra win."
-			],
-			"cost": 69696969
-		}
+			}
 	},
 	"enemies": {
 		"Soldier": {

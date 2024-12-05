@@ -35,18 +35,8 @@
           </a>
 		  <ul class="tocsmall" role="list">
 	          <li>
-	            <a href="#soldiers">
-	              <span class="title">Soldiers</span>
-	            </a>
-	          </li>
-	          <li>
-	            <a href="#snipers">
-	              <span class="title">Snipers</span>
-	            </a>
-	          </li>
-	          <li>
-	            <a href="#cannons">
-	              <span class="title">Cannons</span>
+	            <a href="#enemytypes">
+	              <span class="title">Enemy Types</span>
 	            </a>
 	          </li>
 	          <li>
@@ -115,13 +105,18 @@
 	<p style="color: silver">Shift-Ctrl</p>-drag a stack of Citizens on to an active barricade wall to evenly distribute the Citizens across all active barricade walls.<br/>
 	<br/>
 	<h2 id="enemies">Enemies</h2>
+	<h3 id="enemytypes">Enemy Types</h3>
 	New enemy types will appear as you progress through the game.
-	<h3 id="soldiers">Soldiers</h3>
+	<h4 id="soldiers">Soldiers</h4>
 	Simple Soldiers will attack from the very beginning. They do a small amount of damage to the barricades and the Amis on them, but are unable to target Amis in buildings.
-	<h3 id="snipers">Snipers</h3>
+	<div class="hidden15">
+	<h4 id="snipers">Snipers</h4>
 	Snipers can shoot any Ami, including those in adjacent buildings, and do a much larger amount of damage per shot but shoot less frequently. Amis hit by a Sniper will briefly flash yellow as an indicator.
-	<h3 id="cannons">Cannons</h3>
+	</div>
+	<div class="hidden30">
+	<h4 id="cannons">Cannons</h4>
 	Cannons will infrequently knock all Amis off a wall of the barricade, doing significant damage to those Amis and leaving the wall unprotected until you replace them.
+	</div>
 	<h3 id="javert">Javert</h3>
 	Javert is a unique enemy who does not attack during the <p style="color: darkblue">Fight!</p> phase with the other enemies. When recruiting Citizens, it's possible for Javert to sneak in. He will be indistinguishable from other Citizens, but will sabotage any activity he is a part of and will not defend the barricade or be attacked by enemies. He can be dismissed from the barricade, gaining you 500 <p style="color: darkred">Hope</p>, but if dismissed, he may return later.
 	<h2 id="amis">Amis</h2>
@@ -131,16 +126,16 @@
 	<br/>
 	There is a limit to the number of Citizens that can be recruited, which you can increase through upgrades. When recruiting new Citizens, watch out for <a href="#javert"><b>Javert</b></a>.
 	<h3 id="uniques">Unique Amis</h3>
-	Each unique Ami can be individually upgraded to improve their health, damage, or special ability. Each special ability starts at level 1 and can be upgraded 3 times, up to level 4. Trained citizens will receive the ability at the same level as the unique Ami at the time of training. Citizens cannot train other Citizens, so if a unique Ami dies or is dismissed, it will no longer be possible to train new Citizens in their ability.
-	<h4 id="enjolras">Enjolras</h3>
-	Enjolras regains a certain percentage of lost health at the end of a Wave. This ability cannot increase health above 100%. Amis healed to full health by this ability <b>do</b> count as being at full health at the end of the Wave for the <i>Missed Me</i> achievement.
+	Each unique Ami can be individually upgraded to improve their health, damage, or special ability. Each special ability starts at level 1 and can be upgraded 3 times, up to level 4. Trained Citizens will receive the ability at the same level as the unique Ami at the time of training. Citizens cannot train other Citizens, so if a unique Ami dies or is dismissed, it will no longer be possible to train new Citizens in their ability. Unique Amis cannot be trained in the abilities of other Amis.
+	<h4 id="enjolras">Enjolras</h4>
+	Enjolras regains a certain percentage of lost health at the end of a Wave. This ability cannot increase health above 100%, nor can it revive an Ami from death. Amis healed to full health by this ability <b>do</b> count as being at full health at the end of the Wave for the <i>Missed Me</i> achievement.
 	<ol role="list">
 		<li>Regains 25% health at end of wave</li>
 		<li>Regains 50% health at end of wave</li>
 		<li>Regains 75% health at end of wave</li>
 		<li>Regains all health at end of wave</li>
 	</ol>
-	<h4 id="bahorel">Bahorel</h3>
+	<h4 id="bahorel">Bahorel</h4>
 	Bahorel has a 5% chance of making a critical hit that does extra damage. The extra damage amount is multiplied by the base damage done by the Ami, so higher base damage will increase the power of the critical hit even further.
 	<ol role="list">
 		<li>5% chance to do 1.5x damage</li>
@@ -148,7 +143,7 @@
 		<li>5% chance to do 3x damage</li>
 		<li>5% chance to do 5x damage</li>
 	</ol>
-	<h4 id="bossuet">Bossuet</h3>
+	<h4 id="bossuet">Bossuet</h4>
 	Bossuet is terribly unlucky and attracts enemy bullets. Enemies are more likely to target him than any other individual Ami, making him and, if he is on a barricade, the wall he is on take more damage. Other Amis and barricade walls take less damage as a result.
 	<ol role="list">
 		<li>2x as likely to be attacked</li>
@@ -156,7 +151,7 @@
 		<li>10x as likely to be attacked</li>
 		<li>25x as likely to be attacked</li>
 	</ol>
-	<h4 id="combeferre">Combeferre</h3>
+	<h4 id="combeferre">Combeferre</h4>
 	Combeferre finds extra <p style="color: darkred">Ammo</p> when looting.
 	<ol role="list">
 		<li>Finds 1.5x ammo</li>
@@ -164,7 +159,7 @@
 		<li>Finds 3x ammo</li>
 		<li>Finds 5x ammo</li>
 	</ol>
-	<h4 id="courfeyrac">Courfeyrac</h3>
+	<h4 id="courfeyrac">Courfeyrac</h4>
 	When Courfeyrac rests during the <p style="color: darkblue">Recover</p> phase, he improves the healing and temporary damage boost all Amis get from resting. If multiple Amis with this ability rest at the same time, their abilities stack. Amis cannot be healed above 100% health, but can receive a temporary damage boost of any amount.
 	<ol role="list">
 		<li>When resting, all resting gain 5% more health and damage boost</li>
@@ -172,7 +167,7 @@
 		<li>When resting, all resting gain 15% more health and damage boost</li>
 		<li>When resting, all resting gain 20% more health and damage boost</li>
 	</ol>
-	<h4 id="feuilly">Feuilly</h3>
+	<h4 id="feuilly">Feuilly</h4>
 	Feuilly does extra build on the barricade walls.
 	<ol role="list">
 		<li>Does 1.5x build on barricade</li>
@@ -180,7 +175,7 @@
 		<li>Does 3x build on barricade</li>
 		<li>Does 5x build on barricade</li>
 	</ol>
-	<h4 id="joly">Joly</h3>
+	<h4 id="joly">Joly</h4>
   Joly finds extra <p style="color: darkred">Food</p> when looting.
 	<ol role="list">
 		<li>Finds 1.5x food</li>
@@ -188,21 +183,154 @@
 		<li>Finds 3x food</li>
 		<li>Finds 5x food</li>
 	</ol>
-	<h4 id="joly">Prouvaire</h3>
-  Prouvaire's heroism in the face of death inspires the other Amis. When Prouvaire dies, instead of losing <p style="color: darkred">Hope</p>, <p style="color: darkred">Hope</p> is gained.
+	<h4 id="prouvaire">Prouvaire</h4>
+  Prouvaire's heroism in the face of death inspires his fellow Amis. When Prouvaire dies, instead of losing <p style="color: darkred">Hope</p>, <p style="color: darkred">Hope</p> is gained.
 	<ol role="list">
 		<li>Boosts hope by 25 at death</li>
 		<li>Boosts hope by 50 at death</li>
 		<li>Boosts hope by 75 at death</li>
 		<li>Boosts hope by 100 at death</li>
 	</ol>
+	<div class="hidden2">
+	<h4 id="grantaire">Grantaire <i>(Wave 2)</i></h4>
+  Grantaire excels at being drunk.
+	<ol role="list">
+		<li>Gains 1.5x hope from drinking</li>
+		<li>Gains 2x hope from drinking</li>
+		<li>Gains 3x hope from drinking</li>
+		<li>Gains 5x hope from drinking</li>
+	</ol>
+	</div>
+	<div class="hidden6">
+	<h4 id="gavroche">Gavroche <i>(Wave 6)</i></h4>
+  Gavroche has met <a href="#javert"><b>Javert</b></a> before, and can recognize him if he's nearby. When Gavroche is in the same location as Javert at the end of the <p style="color: darkblue">Recover</p> or <p style="color: darkblue">Fight!</p> phase, he has a chance to recognize him. If he does, Javert will be labeled and no longer stack with normal Citizens.
+	<ol role="list">
+		<li>When co-located, has 25% chance of identifying Javert</li>
+		<li>When co-located, has 50% chance of identifying Javert</li>
+		<li>When co-located, has 75% chance of identifying Javert</li>
+		<li>When co-located, identifies Javert</li>
+	</ol>
+	</div>
+	<div class="hidden8">
+	<h4 id="mabeuf">Mabeuf <i>(Wave 8)</i></h4>
+  If Mabeuf is on a barricade wall at the end of a Wave, you gain extra <p style="color: darkred">Hope</p> for beating the Wave. If multiple Amis with this ability are on the barricade at the end of a Wave, their abilities stack.
+	<ol role="list">
+		<li>If on barricade, gain 5% more hope at wave end</li>
+		<li>If on barricade, gain 10% more hope at wave end</li>
+		<li>If on barricade, gain 15% more hope at wave end</li>
+		<li>If on barricade, gain 20% more hope at wave end</li>
+	</ol>
+	</div>
+	<div class="hidden10">
+	<h4 id="marius">Marius <i>(Wave 10)</i></h4>
+  Marius can save the entire barricade even when all seems lost. If he's on the barricade during the <p style="color: darkblue">Fight!</p> phase, he can end the Wave early by scaring off the enemy. A button will appear below Marius when he is able to end the Wave.<br/>
+  <br/>
+  Ending a Wave early starts at a cost of 500 <p style="color: darkred">Ammo</p>, and the cost doubles each time Marius' ability is used, so it must be used sparingly. In addition, no <p style="color: darkred">Hope</p> is received when this ability is used to end the Wave.
+	<ol role="list">
+		<li>If on barricade, can spend ammo to end wave 10% early</li>
+		<li>If on barricade, can spend ammo to end wave 25% early</li>
+		<li>If on barricade, can spend ammo to end wave 50% early</li>
+		<li>If on barricade, can spend ammo to end wave 60% early</li>
+	</ol>
+	</div>
+	<div class="hidden12">
+	<h4 id="eponine">Éponine <i>(Wave 12)</i></h4>
+  When one of your Amis would die, Éponine will throw herself in front of a bullet for them. At level 1, Éponine will die in their stead, but at higher levels she will only lose a flat amount of health. As it is a flat amount and not a percentage, if Éponine's health is upgraded, she will be able to save even more Amis before dying herself.<br/>
+  <br/>
+  Amis saved by Éponine will be automatically moved out of combat and back to the staging area, even if they were in a building.
+	<ol role="list">
+		<li>If another ami would die, dies for them instead</li>
+		<li>If another ami would die, loses 50 health for them instead</li>
+		<li>If another ami would die, loses 25 health for them instead</li>
+		<li>If another ami would die, loses 10 health for them instead</li>
+	</ol>
+	</div>
+	<div class="hidden14">
+	<h4 id="valjean">Valjean <i>(Wave 14)</i></h4>
+  When Valjean makes a shot that would kill an enemy, if you aren't at your max recruit limit, he has a chance of recruiting them instead. Recruited enemies will become Citizens.
+	<ol role="list">
+		<li>25% chance to recruit enemies instead of killing them, up to recruit limit</li>
+		<li>50% chance to recruit enemies instead of killing them, up to recruit limit</li>
+		<li>75% chance to recruit enemies instead of killing them, up to recruit limit</li>
+		<li>Recruits enemies instead of killing them, up to recruit limit</li>
+	</ol>
+	</div>
+	<div class="hidden17">
+	<h4 id="thenardier">Thenardier <i>(Wave 17)</i></h4>
+  Thenardier has a reduced risk of death when scouting or, after the Precheurs barricade is built, looting.
+	<ol role="list">
+		<li>25% reduced risk of death scouting or looting</li>
+		<li>50% reduced risk of death scouting or looting</li>
+		<li>75% reduced risk of death scouting or looting</li>
+		<li>No risk of death scouting or looting</li>
+	</ol>
+	</div>
+	<div class="hidden20">
+	<h4 id="mmethenardier">Mme Thenardier <i>(Wave 20)</i></h4>
+  Madame Thenardier loots a percentage-based amount of <p style="color: darkred">Food</p> or <p style="color: darkred">Ammo</p> in addition to the normal flat amount.
+	<ol role="list">
+		<li>Finds an additional 0.5% of current food or ammo</li>
+		<li>Finds an additional 1% of current food or ammo</li>
+		<li>Finds an additional 2% of current food or ammo</li>
+		<li>Finds an additional 5% of current food or ammo</li>
+	</ol>
+	</div>
+	<div class="hidden24">
+	<h4 id="montparnasse">Montparnasse <i>(Wave 24)</i></h4>
+  Montparnasse is more likely to target Snipers than other enemy types.
+	<ol role="list">
+		<li>2x chance to target snipers</li>
+		<li>4x chance to target snipers</li>
+		<li>10x chance to target snipers</li>
+		<li>Always targets snipers</li>
+	</ol>
+	</div>
+	<div class="hidden28">
+	<h4 id="babet">Babet <i>(Wave 28)</i></h4>
+  Babet is more likely to target the enemy that currently has the lowest health.
+	<ol role="list">
+		<li>2x chance to target enemy with lowest health</li>
+		<li>4x chance to target enemy with lowest health</li>
+		<li>10x chance to target enemy with lowest health</li>
+		<li>Always targets enemy with lowest health</li>
+	</ol>
+	</div>
+	<div class="hidden28">
+	<h4 id="babet">Gueulemer <i>(Wave 28)</i></h4>
+  Gueulemer is more likely to target the enemy that currently has the highest health.
+	<ol role="list">
+		<li>2x chance to target enemy with highest health</li>
+		<li>4x chance to target enemy with highest health</li>
+		<li>10x chance to target enemy with highest health</li>
+		<li>Always targets enemy with highest health</li>
+	</ol>
+	</div>
+	<div class="hidden30">
+	<h4 id="cosette">Cosette <i>(Wave 30)</i></h4>
+  Cosette is a unique Ami with only a single level of special ability. When a Citizen is trained in Cosette's ability, any other special abilities the Citizen is trained in are improved to the next level of the ability. Because unique Amis cannot be trained in other abilities, Cosette herself gets no benefits from this ability.
+	<ol role="list">
+		<li>For amis with multiple specials, levels up all other specials</li>
+	</ol>
+	</div>
+	<div class="hidden32">
+	<h4 id="montparnasse">Claquesous <i>(Wave 32)</i></h4>
+  Claquesous is more likely to target Cannons than other enemy types.
+	<ol role="list">
+		<li>2x chance to target cannons</li>
+		<li>4x chance to target cannons</li>
+		<li>10x chance to target cannons</li>
+		<li>Always targets cannons</li>
+	</ol>
+	</div>
+	<h4 id="victorhugo">Victor Hugo <i>(Wave 40)</i></h4>
+  Recruiting Victor Hugo immediately ends the game.
 	<h2 id="credits">Credits</h2>
 	Character names and other details inspired by the 1862 novel <i>Les Misérables</i> by Victor Hugo.<br/>
 	<br/>
 	Open-sourced game code can be found at <a target="_blank" rel="noopener noreferrer" href="https://github.com/rthorn/The-Barricade"><i>https://github.com/rthorn/The-Barricade</i></a> under the MIT License.<br/>
 	<br/>
 	Copyright (c) 2024 Rachel Thornton<br/>
-	<br/><i>
+	<br/><i><p style="font-size: 1vw">
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
 	in the Software without restriction, including without limitation the rights
@@ -219,7 +347,7 @@
 	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	SOFTWARE.</i>
+	SOFTWARE.</p></i>
 	<br/>
 	<br/>
 	<br/>

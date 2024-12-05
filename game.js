@@ -3363,6 +3363,7 @@ function barricadeFire() {
 }
 
 function transitionToRecover() {
+    reachedWave(getWave());
     transitionToNight();
     state_.achievements.permetstu = null;
     if (state_.dragging.data_transfer.length) {
@@ -3669,9 +3670,50 @@ function achievements() {
     refs_.achievements.style.backgroundColor = null;
 }
 
+function reachedWave(wave) {
+    if (wave <= maxWave()) {
+        return;
+    }
+    var now = new Date();
+    var time = now.getTime();
+    var expireTime = time + 86400000*365;
+    now.setTime(expireTime);
+    document.cookie = "maxwave=" + wave + "; expires=" + now.toUTCString() + "; path=/";
+}
+
+function maxWave() {
+    var name = "maxwave=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return parseInt(c.substring(name.length, c.length));
+        }
+    }
+    return 1;
+}
+
 function theBrick() {
-    $("#thebrick-screen").load("brick.html?v=" + Date.now());
-    refs_.thebrick_screen.style.display = "flex";
+    $("#thebrick-screen").load("brick.html?v=" + Date.now(), function() {
+        for (const child of refs_.thebrick_screen.childNodes[2].childNodes) {
+            if (child.nodeType != Node.ELEMENT_NODE) {
+                continue;
+            }
+            for (var i = 40; i > maxWave(); i--) {
+                if (child.classList.contains("hidden" + i)) {
+                    child.children[0].textContent = "???";
+                    child.childNodes[2].textContent = "Keep playing to unlock this content.";
+                    while (child.childNodes.length > 3) {
+                        child.removeChild(child.childNodes[3]);
+                    }
+                }
+            }
+        }
+        refs_.thebrick_screen.style.display = "flex";
+    });
     disableButtons();
 }
 
