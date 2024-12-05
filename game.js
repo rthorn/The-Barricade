@@ -497,7 +497,7 @@ function startChallenge(ev) {
             for (const upgrade in settings_.upgrades) {
                 settings_.upgrades[upgrade].description = settings_.upgrades[upgrade].description.replace("+10 recruit limit", "+20 recruit limit");
             }
-            state_.citizens.max *= 2;
+            state_.citizens.max = 90;
             break;
         case 4:
             settings_.precheurs_opens = 1;
@@ -1832,6 +1832,9 @@ function newRecruit(name) {
 }
 
 function addNewUpgrade(name) {
+    if (name.includes("recruit-limit") && state_.challenge == 3) {
+        return;
+    }
     refs_.upgrade_screen.appendChild(newUpgrade(name));
 }
 
@@ -3682,6 +3685,9 @@ function reachedWave(wave) {
 }
 
 function maxWave() {
+    if (hasAchieved("normal")) {
+        return 40;
+    }
     var name = "maxwave=";
     var ca = document.cookie.split(';');
     for(var i = 0; i < ca.length; i++) {
@@ -3702,7 +3708,7 @@ function theBrick() {
             if (child.nodeType != Node.ELEMENT_NODE) {
                 continue;
             }
-            for (var i = 40; i > maxWave(); i--) {
+            for (var i = 32; i > maxWave(); i--) {
                 if (child.classList.contains("hidden" + i)) {
                     child.children[0].textContent = "???";
                     child.childNodes[2].textContent = "Keep playing to unlock this content.";
@@ -3937,7 +3943,7 @@ function upgradeMe(ev) {
     }
 
     if (name.includes("recruit-limit")) {
-        state_.citizens.max += state_.challenge == 3 ? 20 : 10;
+        state_.citizens.max += 10;
     } else if (name.includes("corinthe-limit")) {
         state_.structures.corinthe_max += settings_.starting_building_limit;
     } else if (name == "open-building") {
