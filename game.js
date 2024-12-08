@@ -1696,9 +1696,12 @@ function newAmi(name) {
     var bullets = document.createElement("span");
     bullets.id = ami.id + "-bullets";
     bullets.className = "bullets";
-    bullets.innerHTML = "&#8269;";
-    for (var i = 1; i <= getDamage(ami); i += 0.5) {
-        bullets.innerHTML += "&#8269;";
+    var damage = getDamage(ami);
+    var color = damage >= 8.5 ? "gold" : damage >= 4.5 ? "silver" : "black";
+    bullets.innerHTML = '<p style="color: ' + color + '">&#8269;</p>';
+    for (var i = 1; i <= 4; i += 0.5) {
+        color = damage >= 8 + i ? "gold" : damage >= 4 + i ? "silver" : "black";
+        bullets.innerHTML += '<p style="color: ' + color + '">&#8269;</p>';
     }
     ami.appendChild(bullets);
     ami.addEventListener("mouseenter", showHovertext);
@@ -2695,12 +2698,15 @@ function updateStats(ami) {
     health.parentElement.style.marginLeft = "calc((100% - " + health.parentElement.style.width + ") / 2)";
     setHealth(ami, (health.parentElement.getBoundingClientRect().width - currHealth)/health.parentElement.getBoundingClientRect().width * 100);
     var bullets = getChild(ami, "bullets");
-    bullets.innerHTML = "&#8269;";
-    if (getDamage(ami) >= 10) {
+    var damage = getDamage(ami);
+    if (damage >= 10) {
         achieve("thecourfeyrac");
     }
-    for (var i = 1; i <= getDamage(ami); i += 0.5) {
-        bullets.innerHTML += "&#8269;";
+    var color = damage >= 8.5 ? "gold" : damage >= 4.5 ? "silver" : "black";
+    bullets.innerHTML = '<p style="color: ' + color + '">&#8269;</p>';
+    for (var i = 1; i <= 4; i += 0.5) {
+        color = damage >= 8 + i ? "gold" : damage >= 4 + i ? "silver" : "black";
+        bullets.innerHTML += '<p style="color: ' + color + '">&#8269;</p>';
     }
     if (isCitizen(ami)) {
         var to_remove = []
