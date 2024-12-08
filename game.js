@@ -3297,6 +3297,9 @@ function enemyFire(i) {
         }
         var wall = options.random();
         if ((getName(enemy) == EnemyType.SOLDIER && hitWall(wall)) || getName(enemy) == EnemyType.CANNON) {
+            if (getName(enemy) == EnemyType.CANNON && state_.javert.ami && state_.javert.ami.parentElement == wall) {
+                continue;
+            }
             damageWall(wall, enemy);
             if (getName(enemy) == EnemyType.CANNON) {
                 flash(wall);
