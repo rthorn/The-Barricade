@@ -1699,7 +1699,7 @@ function newAmi(name) {
     var damage = getDamage(ami);
     var color = damage >= 8.5 ? "gold" : damage >= 4.5 ? "silver" : "black";
     bullets.innerHTML = '<p style="color: ' + color + '">&#8269;</p>';
-    for (var i = 1; i <= 4; i += 0.5) {
+    for (var i = 1; i <= 4 && i <= damage; i += 0.5) {
         color = damage >= 8 + i ? "gold" : damage >= 4 + i ? "silver" : "black";
         bullets.innerHTML += '<p style="color: ' + color + '">&#8269;</p>';
     }
@@ -2704,7 +2704,7 @@ function updateStats(ami) {
     }
     var color = damage >= 8.5 ? "gold" : damage >= 4.5 ? "silver" : "black";
     bullets.innerHTML = '<p style="color: ' + color + '">&#8269;</p>';
-    for (var i = 1; i <= 4; i += 0.5) {
+    for (var i = 1; i <= 4 && i <= damage; i += 0.5) {
         color = damage >= 8 + i ? "gold" : damage >= 4 + i ? "silver" : "black";
         bullets.innerHTML += '<p style="color: ' + color + '">&#8269;</p>';
     }
