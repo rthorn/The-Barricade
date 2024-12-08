@@ -76,7 +76,8 @@ var state_ = {
     purchased_upgrades: [],
     reloading: false,
     difficulty: 2,
-    challenge: null
+    challenge: null,
+    debug: false
 };
 
 var initials_ = {};
@@ -130,7 +131,34 @@ const Difficulty = Object.freeze({
 
 // Initialization
 
-document.addEventListener('DOMContentLoaded', function() {
+async function logSha1(str) {
+  const buffer = new TextEncoder( 'utf-8' ).encode( str );
+  const digest = await crypto.subtle.digest('SHA-1', buffer);
+  const result = Array.from(new Uint8Array(digest)).map( x => x.toString(16).padStart(2,'0') ).join('');
+  return result;
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const debug = urlParams.get('debug')
+    if (debug) {
+        var pwd = await logSha1(debug);
+        if (pwd == 'e5b954e435bf2b5c381cda5d245e44d958861f35') {
+            state_.debug = true;
+            document.getElementById("title").innerHTML = '[DEBUGGER]&emsp;<button class="metaButton" id="achievements" onClick="achievements()">&#x1F3C6</button> <button class="metaButton" id="thebrick" onClick="theBrick()">&#x1F4D6</button>';
+            settings_.base_upgrade_cost = 0;
+            for (const upgrade in settings_.upgrades) {
+                settings_.upgrades[upgrade].cost_value = 0;
+            }
+            for (const ami in settings_.amis) {
+                if ("level" in settings_.amis[ami]) {
+                    settings_.amis[ami].level = 1;
+                    settings_.amis[ami].cost = 0;
+                }
+            }
+        }
+    }
     initials_.settings = JSON.parse(JSON.stringify(settings_));
     initials_.refs = JSON.parse(JSON.stringify(refs_));
     initials_.state = JSON.parse(JSON.stringify(state_));
@@ -361,6 +389,53 @@ function initializeUpgrades() {
     }
 }
 
+function initializeDebugMode() {
+    if (!state_.debug || state_.reloading) {
+        return;
+    }
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const ammo = urlParams.get('a');
+    if (ammo && !isNaN(parseInt(ammo)) && ammo >= 0) {
+        setAmmo(parseInt(ammo));
+    }
+    const food = urlParams.get('f');
+    if (food && !isNaN(parseInt(food)) && food >= 0) {
+        setFood(parseInt(food));
+    }
+    const hope = urlParams.get('h');
+    if (hope && !isNaN(parseInt(hope)) && hope >= 0) {
+        setHope(parseInt(hope));
+    }
+    const height = urlParams.get('wh');
+    if (height && !isNaN(parseInt(height)) && height >= 0) {
+        for (const wall of refs_.barricade) {
+            setHeight(wall, parseInt(height));
+        }
+    }
+    const wave = urlParams.get('w');
+    if (wave && !isNaN(parseInt(wave)) && wave >= 0) {
+        if (parseInt(wave) >= settings_.mondetour_opens && state_.challenge != 5) {
+            enableMondetour();
+        }
+        if (parseInt(wave) >= settings_.precheurs_opens && state_.challenge != 5) {
+            enablePrecheurs();
+            for (const wall of refs_.precheurs) {
+                setHeight(wall, getHeight(Array.from(refs_.chanvrerie)[0]));
+            }
+        }
+        $("#state").text("Wave " + parseInt(wave));
+        if (getWave() > 1) {
+            for (const name in settings_.amis) {
+                if (settings_.amis[name].level <= getWave()) {
+                    addNewRecruit(name);
+                }
+            }
+            transitionToRecover();
+        }
+    }
+}
+
 
 // Util
 
@@ -426,6 +501,7 @@ function setDifficulty(ev) {
         refs_.game.style.top = "8.8vw";
         refs_.load.style.top = "8.8vw";
     }
+    initializeDebugMode();
 }
 
 function startChallenge(ev) {
@@ -532,6 +608,7 @@ function startChallenge(ev) {
         refs_.game.style.top = "8.8vw";
         refs_.load.style.top = "8.8vw";
     }
+    initializeDebugMode();
 }
 
 function loadGame() {
@@ -655,10 +732,10 @@ function loadGame() {
         var ev = { target: { id: "normal" } };
         setDifficulty(ev);
     }
-    if (getWave() >= settings_.mondetour_opens && !state_.challenge == 5) {
+    if (getWave() >= settings_.mondetour_opens && state_.challenge != 5) {
         enableMondetour();
     }
-    if ((getWave() >= settings_.precheurs_opens || (getWave() == settings_.precheurs_opens - 1 && getWaveState() == WaveState.RECOVER)) && !state_.challenge == 5) {
+    if ((getWave() >= settings_.precheurs_opens || (getWave() == settings_.precheurs_opens - 1 && getWaveState() == WaveState.RECOVER)) && state_.challenge != 5) {
         enablePrecheurs();
     }
     for (const name in settings_.amis) {
