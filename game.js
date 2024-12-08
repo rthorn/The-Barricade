@@ -393,6 +393,7 @@ function initializeDebugMode() {
     if (!state_.debug || state_.reloading) {
         return;
     }
+    state_.reloading = true;
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const ammo = urlParams.get('a');
@@ -434,6 +435,7 @@ function initializeDebugMode() {
             transitionToRecover();
         }
     }
+    state_.reloading = false;
 }
 
 
@@ -669,6 +671,7 @@ function loadGame() {
     refs_ = JSON.parse(JSON.stringify(initials_.refs));
     state_ = JSON.parse(JSON.stringify(initials_.state));
     settings_ = JSON.parse(JSON.stringify(initials_.settings));
+    state_.reloading = true;
     state_.dragging.draggable = new Set([]);
     state_.dragging.droppable = new Set([]);
     state_.amis.all = new Set([]);
@@ -3498,7 +3501,9 @@ function transitionToRecover() {
             }
         }
     }
-    setHope(getHope() + hope_wave + bonus);
+    if (!state_.reloading) {
+        setHope(getHope() + hope_wave + bonus);
+    }
     clearEnemies();
     enemyOpacity(false);
     if (state_.foresight) {
