@@ -649,9 +649,9 @@ var settings_ = {
 			"description": "Dismiss Javert 3 times in a single game",
 			"hidden": false
 		},
-		"thenardier": {
-			"name": "In Sickness and in Health",
-			"description": "Have a citizen with both Thenardiers' fully upgraded abilities",
+		"thecourfeyrac": {
+			"name": "Executioner",
+			"description": "Have an Ami with at least 10x damage",
 			"hidden": false
 		},
 		"cosette": {

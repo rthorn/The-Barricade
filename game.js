@@ -2696,6 +2696,9 @@ function updateStats(ami) {
     setHealth(ami, (health.parentElement.getBoundingClientRect().width - currHealth)/health.parentElement.getBoundingClientRect().width * 100);
     var bullets = getChild(ami, "bullets");
     bullets.innerHTML = "&#8269;";
+    if (getDamage(ami) >= 10) {
+        achieve("thecourfeyrac");
+    }
     for (var i = 1; i <= getDamage(ami); i += 0.5) {
         bullets.innerHTML += "&#8269;";
     }
@@ -4187,11 +4190,6 @@ function resolveTraining(i) {
                 }
                 if (all) {
                     achieve("patronminette");
-                }
-            }
-            if (state_.training > 2 && ["Thenardier", "Mme Thenardier"].includes(trainer.id)) {
-                if (specialLevel(ami, "Thenardier") >= 4 && specialLevel(ami, "Mme Thenardier") >= 4) {
-                    achieve("thenardier");
                 }
             }
             updateStats(ami);
