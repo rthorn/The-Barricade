@@ -290,11 +290,11 @@ var settings_ = {
 			"damage": 1,
 			"health": 1,
 			"special": [
-				"When resting, all resting gain 5% more health and damage boost",
-				"When resting, all resting gain 10% more health and damage boost",
-				"When resting, all resting gain 15% more health and damage boost",
-				"When resting, all resting gain 20% more health and damage boost",
-				"All resting gain 20% more health and damage boost"
+				"When resting, all resting gain 5% boost to health and damage",
+				"When resting, all resting gain 10% boost to health and damage ",
+				"When resting, all resting gain 15% boost to health and damage",
+				"When resting, all resting gain 20% boost to health and damage",
+				"All resting gain 20% boost to health and damage, all else gain 5% boost to health and damage"
 			]
 		},
 		"Feuilly": {

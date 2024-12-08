@@ -1868,7 +1868,7 @@ function newUpgrader(ami, type) {
     var cost_type = CostType.UNKNOWN;
     if (type == UpgraderType.DAMAGE) {
         cost_type = CostType.AMMO;
-        cost *= 5 * 2 ** (getDamage(ami) - 1);
+        cost *= 4 * 2 ** (getDamage(ami) - 1);
         desc = "Damage: " + getDamage(ami) + "x -&gt " + (getDamage(ami) + 1) + "x";
     } else if (type == UpgraderType.HEALTH) {
         cost_type = CostType.FOOD;
@@ -4111,6 +4111,8 @@ function resolveWalls(javert_loc, wall_ran) {
 function resolveRest(i) {
     var heal_amount = settings_.base_rest_heal_amount;
     var temp_damage_amount = settings_.base_rest_boost_amount;
+    var universal_heal_amount = 0;
+    var universal_temp_damage_amount = 0;
     for (const child of state_.amis.all) {
         if (sl = specialLevel(child, "Courfeyrac")) {
             if (sl <= 4 && child.parentElement != refs_.corinthe) {
@@ -4118,12 +4120,26 @@ function resolveRest(i) {
             }
             temp_damage_amount += 5 * sl;
             heal_amount += 5 * sl;
+            if (sl > 4) {
+                universal_heal_amount += 5;
+                universal_temp_damage_amount += 5;
+            }
         }
     }
     for (const ami of getChildren(refs_.corinthe)) {
         heal(ami, heal_amount / settings_.recover_animation_length);
         state_.amis.temp_damage[ami.id] = temp_damage_amount * (i + 1) / settings_.recover_animation_length / 100;
         updateStats(ami);
+    }
+    if (universal_heal_amount) {
+        for (const ami of state_.amis.all) {
+            if (ami.parentElement == refs_.corinthe) {
+                continue;
+            }
+            heal(ami, universal_heal_amount / settings_.recover_animation_length);
+            state_.amis.temp_damage[ami.id] = universal_temp_damage_amount * (i + 1) / settings_.recover_animation_length / 100;
+            updateStats(ami);
+        }
     }
 }
 
