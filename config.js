@@ -786,7 +786,7 @@ var settings_ = {
 				"highlight": ["scout"]
 			},
 			{
-				"text": '<b>Resting</b> in the Corinthe building will heal 40% of an Ami\'s health and give a temporary 20% damage boost for being well-rested.',
+				"text": '<b>Resting</b> in the <i>Corinthe</i> building will heal 40% of an Ami\'s health and give a temporary 20% damage boost for being well-rested.',
 				"highlight": ["corinthe"]
 			},
 			{
