@@ -979,10 +979,11 @@ h4 {
 
 #reset-tutorials {
     height: 2vw;
-    width: 11vw;
+    width: 14vw;
+    font-size: 1.2vw;
     color: red;
     font-style: italic;
-    margin-left: calc((100% - 10vw)/2);
+    margin-left: calc((100% - 14vw)/2);
 }
 
 .streetsign {
