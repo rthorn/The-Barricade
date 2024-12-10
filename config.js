@@ -738,7 +738,7 @@ var settings_ = {
 				"highlight": ["thebrick"]
 			},
 			{
-				"text": '<p style="color: darkblue">Prepare</p> for the upcoming battle by placing characters called <i>Amis</i> on the central <i>Chanvrerie</i> barricade walls or in the Corinthe building on the left. Amis can shoot the enemy from either location, however, a wall without any Amis protecting it will fall much faster.<br/><br/>Amis on the barricades are directly in the line of fire, but the more Amis on a single wall, the less likely any one Ami is to be targeted.',
+				"text": '<p style="color: darkblue">Prepare</p> for the upcoming battle by placing characters called <i>Amis</i> on the central <i>Chanvrerie</i> barricade walls or in the <i>Corinthe</i> building on the left. Amis can shoot the enemy from either location, however, a wall without any Amis protecting it will fall much faster.<br/><br/>Amis on the barricades are directly in the line of fire, but the more Amis on a single wall, the less likely any one Ami is to be targeted.',
 				"highlight": ["lesamis", "chanvrerie1", "chanvrerie2", "chanvrerie3", "corinthe"]
 			},
 			{
