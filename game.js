@@ -636,6 +636,11 @@ function loadGame() {
             return;
         }
     }
+    if ("n" in save) {
+        for (const ami of save.n) {
+            save.a[ami] = {};
+        }
+    }
     if ($("#substate").text().includes("(Wave")) {
         if (document.body.style.backgroundColor == "black") {
             $("#substate").text("Recover");
@@ -3142,6 +3147,7 @@ function saveGame() {
             }
         }
     }
+    var empties = [];
     for (const ami of state_.amis.all) {
         var ami_state = {};
         if (state_.amis.last_recover[ami.id] != refs_.lesamis) {
@@ -3176,11 +3182,22 @@ function saveGame() {
         if (ami.id in state_.amis.temp_damage) {
             ami_state.t = state_.amis.temp_damage[ami.id];
         }
-        if (isCitizen(ami)) {
-            save.a[100 + parseInt(ami.id.match(/\d+/)[0])] = ami_state;
+        if (!Object.keys(ami_state).length) {
+            if (isCitizen(ami)) {
+                empties.push(100 + parseInt(ami.id.match(/\d+/)[0]))
+            } else {
+                empties.push(refs_.amis_ordered.indexOf(ami.id))
+            }
         } else {
-            save.a[refs_.amis_ordered.indexOf(ami.id)] = ami_state;
+            if (isCitizen(ami)) {
+                save.a[100 + parseInt(ami.id.match(/\d+/)[0])] = ami_state;
+            } else {
+                save.a[refs_.amis_ordered.indexOf(ami.id)] = ami_state;
+            }
         }
+    }
+    if (empties.length) {
+        save.n = empties;
     }
     refs_.game.style.color = "black";
     refs_.game.value = btoa(JSON.stringify(save));
