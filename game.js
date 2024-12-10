@@ -3816,8 +3816,11 @@ function achieve(achievement) {
     if (state_.challenge != null) {
         return;
     }
-    var index = refs_.achievements_ordered.indexOf(achievement)
     refs_.achievements.style.backgroundColor = "gold";
+    if (state_.debug) {
+        return;
+    }
+    var index = refs_.achievements_ordered.indexOf(achievement)
     var now = new Date();
     var time = now.getTime();
     var expireTime = time + 86400000*365;
