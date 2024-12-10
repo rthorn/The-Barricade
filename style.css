@@ -154,7 +154,7 @@ body::-webkit-scrollbar {
 }
 
 #recruit-limit {
-    width: 100%;
+    width: calc(50% - 15.4vw - 0.6vw);
     text-align: left;
     font-size: 1.2vw;
     padding-left: 15.4vw;
@@ -298,10 +298,6 @@ body::-webkit-scrollbar {
     height: 16vw;
     display: inline-block;
     text-align: center;
-    padding-top: 30px;
-    padding-bottom: 30px;
-    margin-top: -30px;
-    margin-bottom: -30px;
     filter: brightness(110%);
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -537,7 +533,7 @@ button[type=button]:enabled {
 .recruit {
     font-size: 2.81vw;
     text-align: center;
-    width: 50%;
+    width: calc(50% - 0.6vw);
     display: inline-block;
 }
 
@@ -934,4 +930,84 @@ h3 {
 
 h4 {
     font-size: 1.5vw;
+}
+
+#tutorial {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+}
+
+#tutorial-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(128,128,128,0.8);
+    z-index: 9997;
+}
+
+#tutorial-text {
+    background-color: rgb(255,255,255,1);
+    margin: 1.3vw 35%;
+    font-size: 1.3vw;
+    width: calc(30% - 2vw);
+    z-index: 9999;
+    padding: 1vw;
+}
+
+#ok-tutorial {
+    width: 6vw;
+    margin-left: 3.5vw;
+    font-weight: bold;
+    font-size: 1.2vw;
+    z-index: 9999;
+}
+
+#disable-tutorials {
+    color: red;
+    width: 13vw;
+    font-size: 1.2vw;
+    font-style: italic;
+    margin-left: calc((100% - 26vw) / 2);
+    z-index: 9999;
+}
+
+#reset-tutorials {
+    height: 2vw;
+    width: 10vw;
+    color: red;
+    font-style: italic;
+    margin-left: calc((100% - 10vw)/2);
+}
+
+.streetsign {
+    width: 14vw;
+    text-align: center;
+    font-size: 1vw;
+}
+
+#chanvrerie-street {
+    left: calc(50% - 7vw);
+    top: 48vw;
+}
+
+#precheurs-street {
+    top: 51.5vw;
+    left: calc(50% + 19vw);
+}
+
+#mondetour-street {
+    top: 51.5vw;
+    left: calc(50% - 33vw);
+}
+
+#corinthe-street {
+    writing-mode: vertical-rl;
+    top: 11vw;
+    left: calc(50% - 30vw);
 }

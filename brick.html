@@ -69,42 +69,43 @@
           </a>
         </li>
     </ul>
+    <button type="button" id="reset-tutorials" onClick="resetTutorials(event)">Reset all tutorials</button>
 </div>
 <div id="brick">
 	<b>The Barricade</b>  is a siege defense game inspired by <i>Les Misérables</i>' depiction of the Paris Uprising of 1832. Your goal is to defend the barricade against waves of attacks by the French military until you gain enough <p style="color: darkred">Hope</p> for a full-fledged revolution.
 	<h2 id="gameplay">Gameplay</h2>
 	Waves of French soldiers are attacking your barricade. Your barricade is defended by characters known as Amis and their supplies of <p style="color: darkred">Ammo</p>, <p style="color: darkred">Food</p>, and <p style="color: darkred">Hope</p>. To win, you must either purchase the <i>RÉVOLUTION!</i> upgrade for 10,000 <p style="color: darkred">Hope</p> or survive 40 Waves and recruit Victor Hugo for 2000 <p style="color: darkred">Hope</p>. If any single wall of your barricade falls, it's game over.<br/>
 	<br/>
-	Each Wave is split into three phases: <p style="color: darkblue">Prepare</p>, <p style="color: darkblue">Fight!</p>, and <p style="color: darkblue">Recover</p>. While enemies will only attack the central Chanvrerie barricade at first, they will eventually begin to attack the smaller Mondetour barricade on the left, and, later, a new Precheurs barricade that will need to be built on the right.
+	Each Wave is split into three phases: <p style="color: darkblue">Prepare</p>, <p style="color: darkblue">Fight!</p>, and <p style="color: darkblue">Recover</p>. While enemies will only attack the central Chanvrerie barricade at first, they will eventually begin to attack the smaller Mondétour barricade on the left, and, later, a new Prêcheurs barricade that will need to be built on the right.
 	<h3 id="prepare">Prepare</h3>
 	<p style="color: darkblue">Prepare</p> for the upcoming battle by placing Amis on the central barricade walls or in the Corinthe building on the left. Amis can shoot the enemy from either location, however, a wall without any Amis protecting it will fall much faster. Once enemies begin attacking the side barricades, you will need to place Amis there are well, while Amis in buildings can attack enemies on either side.<br/>
 	<br/>
 	Amis on the barricades are directly in the line of fire, but the more Amis on a single wall, the less likely any one Ami is to be targeted. The higher the wall, the more Amis can fit on it. Higher walls will also better shield Amis from enemy fire.
 	<h3 id="fight">Fight!</h3>
-	The French military appears in the <p style="color: darkblue">Fight!</p> phase to exchange bullets with your Amis. The Wave's battle is over when the military retreats at the end of the day, or they are wiped out first. You earn increasing <p style="color: darkred">Hope</p> every time you survive a Wave, and 2x <p style="color: darkred">Hope</p> if you defeat all enemies before the day's end. You will lose <p style="color: darkred">Hope</p> for any Ami that dies.<br/>
+	The French military appears in the <p style="color: darkblue">Fight!</p> phase to exchange bullets with your Amis. The Wave's battle is won when the military retreats at the end of the day, or they are wiped out first. You earn increasing <p style="color: darkred">Hope</p> every time you survive a battle, and 2x <p style="color: darkred">Hope</p> if you defeated all enemies before the day's end. You will lose <p style="color: darkred">Hope</p> for any Ami that dies.<br/>
 	<br/>
 	Amis in buildings cannot move during the battle, but those on the barricade or not currently fighting will be able to move around freely. Both your Amis and enemies will miss more frequently the lower their health is. In addition, your Amis will not be able to shoot if you run out of <p style="color: darkred">Ammo</p>.
 	<h3 id="recover">Recover</h3>
-	After the battle you have a chance to <p style="color: darkblue">Recover</p>. Amis can get ready for the upcoming Wave in many ways: looting ammo and food, building up the barricade, scouting for information, healing their wounds, or just hanging out and drinking.
+	After each battle you have a chance to <p style="color: darkblue">Recover</p>. Amis can get ready for the next Wave in many ways: looting ammo and food, building up the barricade, scouting for information, healing their wounds, or just hanging out and drinking.
 	<ul role="list">
-  	<li>Each Ami <b>drinking</b> gains between 5-10 <p style="color: darkred">Hope</p>.</li>
   	<li>Each Ami <b>looting</b> gains between 5-10 <p style="color: darkred">Food</p> or 50-100 <p style="color: darkred">Ammo</p>.</li>
-    <li><p style="color: darkred">Food</p> can be used to <b>feed</b> Amis once each during recovery, giving them back 25 health. If you are out of <p style="color: darkred">Food</p>, Amis cannot gain <p style="color: darkred">Hope</p> from drinking.</li>
+    <li><p style="color: darkred">Food</p> can be used to <b>feed</b> wounded Amis once each during recovery, giving them back 25 health.</li>
+  	<li>Each Ami <b>drinking</b> gains between 5-10 <p style="color: darkred">Hope</p>. No one will be able to drink if you run out of <p style="color: darkred">Food</p>.</li>
     <li><b>Building</b> the barricade walls increases their height, staving off their destruction and allowing more Amis to use it as cover.</li>
-    <li><b>Scouting</b> will give information of the upcoming attack during the next <p style="color: darkblue">Prepare</p> phase, but has a 20% risk of death. Scouting will give you up to 3 Wave notice of a new barricade being attacked for the first time during the <p style="color: darkblue">Recover</p> phase.</li>
+    <li><b>Scouting</b> will give information of the upcoming attack during the next <p style="color: darkblue">Prepare</p> phase, but has a 20% risk of death. Scouting will give you up to 3 Wave notice of a new barricade being attacked for the first time during the next <p style="color: darkblue">Recover</p> phase.</li>
     <li><b>Resting</b> in the Corinthe building will heal 40% of an Ami's health and give a temporary 20% damage boost for being well-rested.</li>
   </ul>
-	<p style="color: darkred">Ammo</p>, <p style="color: darkred">Food</p>, and <p style="color: darkred">Hope</p> can also be used to purchase upgrades, including damage and health buffs, improvements to the barricade and buildings, and the ability to recruit Citizens and other unique Amis to your cause during the <p style="color: darkblue">Recover</p> phase.<br/>
+	<p style="color: darkred">Ammo</p>, <p style="color: darkred">Food</p>, and <p style="color: darkred">Hope</p> can be used to purchase upgrades, including damage and health buffs and improvements to the barricade and buildings, and to recruit Citizens and other unique Amis to your cause during the <p style="color: darkblue">Recover</p> phase.<br/>
 	<br/>
-	A small Precheurs barricade will be automatically built in the <p style="color: darkblue">Recover</p> phase immediately before being attacked from the right for the first time. After the Precheurs barricade is built, your Amis are surrounded and all looting will come with a 20% risk of death.
+	A small Precheurs barricade will be automatically built in the <p style="color: darkblue">Recover</p> phase immediately before being attacked from the right for the first time. After the Precheurs barricade is built, your Amis are surrounded and all looting will come with a 20% risk of death, just like scouting.
 	<h2 id="controls">Controls</h2>
-	<p style="color: silver">Click and drag</p> Amis to put them in position.<br/>
+	<p style="color: silver">Drag and drop</p> Amis to put them in position, or use the <p style="color: silver">Auto-fill</p> button to place any Amis not yet in position if you're in a hurry.<br/>
 	<br/>
-	Press the <p style="color: silver">Reset</p> button to bring all Amis back to the staging area. Press an individual location's <p style="color: silver">Reset</p> button to reset just the Amis located there.<br/>
+	Press the <p style="color: silver">Reset</p> button to reset all placed Amis. Press an individual location's <p style="color: silver">Reset</p> button, which appears on hover, to reset just the Amis located there.<br/>
 	<br/>
 	<p style="color: silver">Shift-drag</p> a stack of Citizens to drag the entire stack.<br/>
 	<br/>
-	<p style="color: silver">Shift-Ctrl-drag</p> a stack of Citizens on to an active barricade wall to evenly distribute the Citizens across all active barricade walls.<br/>
+	<p style="color: silver">Ctrl-Shift-drag</p> a stack of Citizens on to an active barricade wall to evenly distribute the Citizens across all active barricade walls.<br/>
 	<br/>
 	Hold <p style="color: silver">Space</p> during the <p style="color: darkblue">Fight!</p> phase to increase the speed by 3x. Release <p style="color: silver">Space</p> to go back to normal speed.
 	<h2 id="enemies">Enemies</h2>
@@ -114,7 +115,7 @@
 	Simple Soldiers will attack from the very beginning. They do a small amount of damage to the barricades and the Amis on them, but are unable to target Amis in buildings.
 	<div class="hidden15">
 	<h4 id="snipers">Snipers</h4>
-	Snipers can shoot any Ami, including those in adjacent buildings, and do a much larger amount of damage per shot but shoot less frequently. Amis hit by a Sniper will briefly flash yellow as an indicator.
+	Snipers can shoot any Ami on the barricade in front of them or in adjacent buildings, and do a much larger amount of damage per shot but shoot less frequently. Amis hit by a Sniper will briefly flash yellow as an indicator.
 	</div>
 	<div class="hidden30">
 	<h4 id="cannons">Cannons</h4>
@@ -125,11 +126,13 @@
 	<h2 id="amis">Amis</h2>
 	You start the game with 8 unique, named Amis. As the game continues, you can recruit generic Citizens as well as new unique Amis. Each unique Ami has a special ability that can be upgraded to become more powerful.
 	<h3 id="citizens">Citizens</h3>
-	Citizens start with much lower health and damage than unique Amis, but all Citizens can be made stronger through upgrades. Individual Citizens can be taught the special abilities of one or more unique Amis after the training upgrade has been purchased. Identical Citizens will stack in some contexts; see <a href="#controls"><b>Controls</b></a> for some ways to make moving stacks easier.<br/>
+	Citizens start with much lower health and damage than unique Amis, but all Citizens can be made stronger through upgrades. Individual Citizens can be taught the special abilities of one or more unique Amis after the training upgrade has been purchased. If you train a Citizen that has already been trained in a different ability and has no room for more, the new ability will replace the old one.<br/>
+	<br/>
+	Identical Citizens will stack in some contexts; see <a href="#controls"><b>Controls</b></a> for some ways to make moving stacks easier.<br/>
 	<br/>
 	There is a limit to the number of Citizens that can be recruited, which you can increase through upgrades. When recruiting new Citizens, watch out for <a href="#javert"><b>Javert</b></a>.
 	<h3 id="uniques">Unique Amis</h3>
-	Each unique Ami can be individually upgraded to improve their health, damage, or special ability. Each special ability starts at level 1 and can be upgraded 3 times, up to level 4. Trained Citizens will receive the ability at the same level as the unique Ami at the time of training. Citizens cannot train other Citizens, so if a unique Ami dies or is dismissed, it will no longer be possible to train new Citizens in their ability. Unique Amis cannot be trained in the abilities of other Amis.
+	Each unique Ami can be individually upgraded to improve their health, damage, or special ability. Each special ability starts at level 1 and can be upgraded 3 times, up to level 4. Trained Citizens will receive the ability at the same level as the unique Ami at the time of training. If you upgrade the unique Ami again later, you will need to retrain Citizens to get them to the higher level. Citizens cannot train other Citizens, so if a unique Ami dies or is dismissed, it will no longer be possible to train new Citizens in their ability. Unique Amis cannot be trained in the abilities of other Amis.
 	<h4 id="enjolras">Enjolras</h4>
 	Enjolras regains a certain percentage of lost health at the end of a Wave. This ability cannot increase health above 100%, nor can it revive an Ami from death. Amis healed to full health by this ability <b>do</b> count as being at full health at the end of the Wave for the <i>Missed Me</i> achievement.
 	<ol role="list">

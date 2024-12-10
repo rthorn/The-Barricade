@@ -77,7 +77,8 @@ var state_ = {
     reloading: false,
     difficulty: 2,
     challenge: null,
-    debug: false
+    debug: false,
+    tutorial_queue: []
 };
 
 var initials_ = {};
@@ -229,9 +230,9 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'challengeslabel', 'thebrick']) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street']) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
-        refs_.lookup[name] = refs_[name];
+        refs_.lookup[name] = refs_[name.replace("-", "_")];
     }
     refs_.game.addEventListener("input", (event) => {
         refs_.game.style.color = "black";
@@ -300,6 +301,11 @@ function initializeVars() {
         refs_.achievements_ordered.push(name);
     }
     refs_.achievements_ordered = refs_.achievements_ordered.sort();
+    refs_.tutorials_ordered = [];
+    for (const name in settings_.tutorials) {
+        refs_.tutorials_ordered.push(name);
+    }
+    refs_.tutorials_ordered = refs_.tutorials_ordered.sort();
     refs_.amis_ordered = refs_.amis_ordered.sort();
     refs_.labels = new Set([]);
     for (const ref in refs_) {
@@ -502,6 +508,7 @@ function setDifficulty(ev) {
         document.body.appendChild(refs_.load);
         refs_.game.style.top = "8.8vw";
         refs_.load.style.top = "8.8vw";
+        tutorial("start");
     }
     initializeDebugMode();
 }
@@ -974,7 +981,7 @@ function loadGame() {
     refs_.autofill.disabled = false;
     if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace()) || (hasChildren(refs_.lesamis) == 1 && state_.javert.ami && state_.javert.ami.parentElement == refs_.lesamis && javertDiscovered())) {
         refs_.autofill.disabled = true;
-    } else if (getWaveState == WaveState.RECOVER) {
+    } else if (getWaveState() == WaveState.RECOVER) {
         var disable = true;
         for (const ami of getChildren(refs_.lesamis)) {
             if (!specialLevel(ami, "Grantaire") && (!state_.javert.ami || state_.javert.ami != ami || !javertDiscovered())) {
@@ -1087,7 +1094,7 @@ function removeFromDrag(citizen) {
 }
 
 function isScreen(element) {
-    return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen || element == refs_.achievements_screen || element == refs_.thebrick_screen;
+    return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen || element == refs_.achievements_screen || element == refs_.thebrick_screen || element == refs_.tutorial || element == refs_.tutorial_screen;
 }
 
 $(document).on('mousedown', function(e) {
@@ -1354,7 +1361,7 @@ function dropAmi(ev) {
         refs_.reset.disabled = false;
         if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace()) || (hasChildren(refs_.lesamis) == 1 && state_.javert.ami && state_.javert.ami.parentElement == refs_.lesamis && javertDiscovered())) {
             refs_.autofill.disabled = true;
-        } else if (getWaveState == WaveState.RECOVER) {
+        } else if (getWaveState() == WaveState.RECOVER) {
             var disable = true;
             for (const ami of getChildren(refs_.lesamis)) {
                 if (!specialLevel(ami, "Grantaire") && (!state_.javert.ami || state_.javert.ami != ami || !javertDiscovered())) {
@@ -1772,6 +1779,9 @@ function newAmi(name) {
         upgrader.style.display = (getWaveState() == WaveState.RECOVER) ? "block" : "none";
         ami.appendChild(upgrader);
         state_.amis.upgrader_buttons.add(upgrader);
+        if (name == "Enjolras") {
+            refs_.lookup[upgrader.id] = upgrader;
+        }
     }
     var bullets = document.createElement("span");
     bullets.id = ami.id + "-bullets";
@@ -1788,6 +1798,25 @@ function newAmi(name) {
     ami.addEventListener("mouseleave", hideHovertext);
     state_.dragging.draggable.add(ami);
     return ami;
+}
+
+function newEnemy(type) {
+    var number = state_.enemies++;
+    if (type != EnemyType.SOLDIER && !(type + 0 in refs_.lookup)) {
+        number = 0;
+    }
+    var name = type + number;
+    var enemy = newPerson(name, "enemy");
+    if (!number) {
+        refs_.lookup[name] = enemy;
+    }
+    var stacker = document.createElement("div");
+    stacker.id = enemy.id + "-stacker";
+    stacker.className = "stacker";
+    stacker.innerHTML = "1";
+    stacker.style.display = "none";
+    enemy.appendChild(stacker);
+    return enemy;
 }
 
 function getStats(ami) {
@@ -1887,11 +1916,15 @@ function enablePrecheurs() {
     refs_.lootfood.style.width = "20.06vw";
     refs_.lootfood.style.right = "calc(50% + 13.80vw)";
     refs_.dismiss.style.visibility = "hidden";
+    tutorial("precheurs");
 }
 
 function newRecruit(name) {
     var cost = settings_.amis[name].cost;
     var ami = newPerson(name, "recruit");
+    if (name == "Citizen") {
+        refs_.lookup[name] = ami;
+    }
     var stats = document.createElement("div");
     stats.id = ami.id + "-stats";
     stats.className = "stats";
@@ -2017,19 +2050,6 @@ function canAffordUpgrader(cost, type) {
     }
     console.error("Unknown cost type: " + type)
     return false;
-}
-
-function newEnemy(type) {
-    var number = state_.enemies++;
-    var name = type + number;
-    var enemy = newPerson(name, "enemy");
-    var stacker = document.createElement("div");
-    stacker.id = enemy.id + "-stacker";
-    stacker.className = "stacker";
-    stacker.innerHTML = "1";
-    stacker.style.display = "none";
-    enemy.appendChild(stacker);
-    return enemy;
 }
 
 function getName(person) {
@@ -2256,6 +2276,9 @@ function transitionToNight() {
     refs_.title.style.color = "white";
     refs_.state.style.color = "white";
     refs_.substate.style.color = "white";
+    refs_.chanvrerie_street.style.color = "white";
+    refs_.mondetour_street.style.color = "white";
+    refs_.precheurs_street.style.color = "white";
 }
 
 function transitionToDay() {
@@ -2273,6 +2296,9 @@ function transitionToDawn() {
     refs_.title.style.color = "black";
     refs_.state.style.color = "black";
     refs_.substate.style.color = "black";
+    refs_.chanvrerie_street.style.color = "black";
+    refs_.mondetour_street.style.color = "black";
+    refs_.precheurs_street.style.color = "black";
     for (const loc of [refs_.lesenemiesmondetour1, refs_.lesenemiesmondetour2, refs_.lesenemiesprecheurs1, refs_.lesenemiesprecheurs2]) {
       loc.style.color = "black";
     }
@@ -2335,7 +2361,10 @@ function enemyOpacity(yes) {
 }
 
 function getHeight(wall) {
-    return 100 * (toVW(wall.clientHeight) - toVW(60)) / settings_.max_height;
+    if (getWaveState() == WaveState.FIGHT) {
+        return 100 * (toVW(wall.clientHeight) - toVW(60)) / settings_.max_height;
+    }
+    return 100 * toVW(wall.offsetHeight) / settings_.max_height;
 }
 
 function setHeight(wall, value) {
@@ -2887,6 +2916,11 @@ function addEnemies(type, wave, foresight = false) {
                 addNewEnemy(type, refs_.lesenemies2);
             } else {
                 addNewEnemy(type, refs_.lesenemies1);
+                if (type == EnemyType.SNIPER) {
+                    tutorial("snipers");
+                } else {
+                    tutorial("cannons");
+                }
             }
         }
     }
@@ -2933,6 +2967,7 @@ function addEnemies(type, wave, foresight = false) {
                     }
                 }
             }
+            tutorial("mondetour");
         } else if (foresight) {
             for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
                 if (type == EnemyType.SOLDIER) {
@@ -3170,7 +3205,7 @@ function feedAll() {
     }
 }
 
-async function startWave() {
+function startWave() {
     clearLabels();
     for (const ami of state_.amis.all) {
         state_.amis.last_prepare[ami.id] = ami.parentElement;
@@ -3189,10 +3224,18 @@ async function startWave() {
     if (!refs_.lesenemies2.children.length) {
         initEnemies();
     }
+    updateProgress(0);
+    refs_.progressbar.style.display = "block"
+    tutorial("fight" + getWave());
+}
 
+async function startFight() {
+    for (const wall of refs_.barricade) {
+        wall.style.padding = "30px 0px";
+        wall.style.margin = "-30px 0px";
+    }
     state_.finished_early = false;
     updateProgress(-1);
-    refs_.progressbar.style.display = "block"
     for (let i = 0; i < settings_.fire_per_wave; i++) {
         enemyFire(i);
         if (barricadeDead()) {
@@ -3253,6 +3296,10 @@ async function startWave() {
     }
     if (full && getWave() >= 20) {
         achieve("impenetrable");
+    }
+    for (const wall of refs_.barricade) {
+        wall.style.padding = null;
+        wall.style.margin = null;
     }
     transitionToRecover();
 }
@@ -3596,6 +3643,7 @@ function transitionToRecover() {
         refs_.autofill.disabled = disable;
     }
     saveGame();
+    tutorial("recover" + getWave());
 }
 
 function recruitMe(ev) {
@@ -3690,6 +3738,24 @@ function recruit() {
     updateRecruit();
     refs_.recruit_screen.style.display = "inline-block";
     disableButtons();
+    if (getWave() >= 4) {
+        tutorial("citizens");
+    }
+}
+
+function getTutorials() {
+    var name = "tutorials=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return ":";
 }
 
 function getAchievements() {
@@ -3713,6 +3779,31 @@ function hasAchieved(achievement) {
 
 function hasAchievedChallenge(challenge) {
     return getAchievements().includes(":" + (-1 * challenge - 1) + ":");
+}
+
+function hasTutorialed(tutorial) {
+    return getTutorials().includes(":" + refs_.tutorials_ordered.indexOf(tutorial) + ":");
+}
+
+function doTutorial(tutorial) {
+    if (hasTutorialed(tutorial)) {
+        return;
+    }
+    var index = refs_.tutorials_ordered.indexOf(tutorial)
+    var now = new Date();
+    var time = now.getTime();
+    var expireTime = time + 86400000*365;
+    now.setTime(expireTime);
+    document.cookie = "tutorials=" + getTutorials() + index + ":" + "; expires=" + now.toUTCString() + "; path=/";
+}
+
+function resetTutorials(ev) {
+    var now = new Date();
+    var time = now.getTime();
+    var expireTime = time - 86400000*365;
+    now.setTime(expireTime);
+    document.cookie = "tutorials=" + getTutorials() + "; expires=" + now.toUTCString() + "; path=/";
+    ev.target.disabled = true;
 }
 
 function achieve(achievement) {
@@ -4121,6 +4212,9 @@ function upgrade() {
 function closeUpgrade() {
     refs_.upgrade_screen.style.display = "none";
     reenableButtons();
+    if (state_.training) {
+        tutorial("training");
+    }
 }
 
 function detectJavert() {
@@ -4513,6 +4607,133 @@ async function prepareForNextWave() {
         unfreezeDragging(loc);
     }
     saveGame();
+    tutorial("prepare" + getWave());
+}
+
+function disableTutorials(name, i, oldZIndexes, oldBorders) {
+    cleanupTutorial(name, i, oldZIndexes, oldBorders);
+    closeTutorial();
+    state_.tutorial_queue = [];
+    for (const name in settings_.tutorials) {
+        doTutorial(name);
+    }
+}
+
+function closeTutorial() {
+    refs_.tutorial.hidden = true;
+    refs_.tutorial_screen.hidden = true;
+    if (refs_.recruit_screen.style.display == "none") {
+        reenableButtons();
+    } else {
+        refs_.recruit_screen.style.pointerEvents = "auto";
+    }
+    document.body.style.overflow = null;
+    if (getWaveState() == WaveState.FIGHT) {
+        startFight();
+    }
+}
+
+function cleanupTutorial(name, i, oldZIndexes, oldBorders) {
+    var j = 0;
+    for (const element of settings_.tutorials[name][i].highlight) {
+        var object = refs_.lookup[element];
+        var style = getComputedStyle(object);
+        object.style.border = oldBorders[j];
+        if (style.position == "static") {
+            while (object.parentElement.parentElement != document.body) {
+                object = object.parentElement;
+            }
+            for (const child of object.children) {
+                child.style.opacity = null;
+            }
+        }
+        object.style.zIndex = oldZIndexes[j++];
+    }
+}
+
+function nextTutorial(name, i, oldZIndexes, oldBorders) {
+    if (i) {
+        cleanupTutorial(name, i - 1, oldZIndexes, oldBorders);
+    }
+    if (i >= settings_.tutorials[name].length && !state_.tutorial_queue.length) {
+        doTutorial(name);
+        closeTutorial();
+        return;
+    } else if (i >= settings_.tutorials[name].length) {
+        doTutorial(name);
+        if (state_.tutorial_queue.includes(name)) {
+            state_.tutorial_queue.splice(state_.tutorial_queue.indexOf(name), 1);
+        }
+        name = state_.tutorial_queue[0];
+        i = 0;
+        state_.tutorial_queue.splice(0, 1);
+    }
+    if (refs_.recruit_screen.style.display != "none") {
+        refs_.recruit_screen.style.pointerEvents = "none";
+    }
+    var tutorial = settings_.tutorials[name][i];
+    var zIndexes = [];
+    var borders = [];
+    var done = [];
+    for (const element of tutorial.highlight) {
+        var object = refs_.lookup[element];
+        var style = getComputedStyle(object);
+        borders.push(style.border);
+        object.style.border = "solid gold 0.3vw";
+        if (style.position == "static") {
+            while (object.parentElement.parentElement != document.body) {
+                object = object.parentElement;
+                style = getComputedStyle(object);
+            }
+            for (const child of object.children) {
+                if (!tutorial.highlight.includes(child.id)) {
+                    child.style.opacity = "52%";
+                }
+            }
+        }
+        if (done.includes(object.id)) {
+            zIndexes.push(zIndexes[done.indexOf(object.id)]);
+        } else {
+            zIndexes.push(style.zIndex);
+        }
+        done.push(object.id);
+        object.style.zIndex = 9998;
+    }
+    refs_.tutorial_text.innerHTML = tutorial.text;
+    refs_.tutorial_text.style.marginTop = "1.3vw";
+    if (tutorial.highlight.includes("Soldier0") || tutorial.highlight.includes("Sniper0") || tutorial.highlight.includes("Cannon0") || tutorial.highlight.includes("scout") || tutorial.highlight.includes("progressbar")) {
+        refs_.tutorial_text.style.marginTop = "11vw";
+    }
+    if (tutorial.highlight.includes("lootammo") && state_.structures.precheurs_open && getWaveState() == WaveState.RECOVER) {
+        refs_.tutorial_text.style.marginTop = "11vw";
+    }
+    if (tutorial.highlight.includes("Citizen")) {
+        refs_.tutorial_text.style.marginTop = "24vw";
+    }
+    refs_.ok_tutorial.onclick = function() { nextTutorial(name, i + 1, zIndexes, borders); };
+    refs_.disable_tutorials.onclick = function() { disableTutorials(name, i, zIndexes, borders); };
+    refs_.ok_tutorial.textContent = ((i + 1 < settings_.tutorials[name].length) || state_.tutorial_queue.length) ? "Next" : getWaveState() == WaveState.FIGHT ? "Ready!" : "OK!";
+    refs_.tutorial.hidden = false;
+    refs_.tutorial_screen.hidden = false;
+    document.body.style.overflow = "hidden";
+    disableButtons();
+}
+
+function tutorial(name) {
+    if (!(name in settings_.tutorials) || hasTutorialed(name) || state_.reloading || state_.debug) {
+        if (getWaveState() == WaveState.FIGHT && refs_.tutorial_screen.hidden) {
+            startFight();
+        }
+        return;
+    }
+    if (!refs_.tutorial_screen.hidden) {
+        if (!state_.tutorial_queue.includes(name)) {
+            state_.tutorial_queue.push(name);
+            refs_.ok_tutorial.textContent = "Next";
+        }
+        return;
+    }
+    return nextTutorial(name, 0, [], []);
 }
 
 function revolution() {
@@ -4549,7 +4770,7 @@ function revolution() {
             achieve("easy");
     }
     var pedantic = true;
-    for (const recruit of ["Montparnasse", "Babet", "Gueulemer", "Claquesous", "Thenardier", "Mme Thenardier", "Cosette"]) {
+    for (const recruit of ["Montparnasse", "Babet", "Gueulemer", "Thenardier", "Mme Thenardier", "Cosette"]) {
         if (recruit in state_.amis.lookup) {
             pedantic = false;
             break;

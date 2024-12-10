@@ -16,4 +16,4 @@ This will start serving the game at http://localhost:8000, which you can access 
 
 ## Gameplay
 
-See in-game instructions.
+See in-game instructions and tutorials.

@@ -33,7 +33,7 @@ var settings_ = {
 	"starting_food": 40,
 	"starting_ammo": 500,
 	"starting_hope": 30,
-	"mondetour_opens": 12,
+	"mondetour_opens": 11,
 	"precheurs_opens": 23,
 	"opening_variance": 3,
 	"base_upgrade_cost": 25,
@@ -178,37 +178,37 @@ var settings_ = {
 			"cost_value": 2000
 		},
 		"barricade-limit-right": {
-			"description": "2x positions on right of barricade",
+			"description": "2x positions on right of <i>Chanvrerie</i> barricade",
 			"cost_type": "AMMO",
 			"cost_value": 1000
 		},
 		"barricade-limit-center": {
-			"description": "2x positions on center of barricade",
+			"description": "2x positions on center of the <i>Chanvrerie</i> barricade",
 			"cost_type": "AMMO",
 			"cost_value": 1000
 		},
 		"barricade-limit-left": {
-			"description": "2x positions on left of barricade",
+			"description": "2x positions on left of the <i>Chanvrerie</i> barricade",
 			"cost_type": "AMMO",
 			"cost_value": 1000
 		},
 		"mondetour-limit-right": {
-			"description": "2x positions on right side of the western barricade",
+			"description": "2x positions on right side of the <i>Mondétour</i> barricade",
 			"cost_type": "AMMO",
 			"cost_value": 1000
 		},
 		"mondetour-limit-left": {
-			"description": "2x positions on left side of the western barricade",
+			"description": "2x positions on left side of the <i>Mondétour</i> barricade",
 			"cost_type": "AMMO",
 			"cost_value": 1000
 		},
 		"precheurs-limit-right": {
-			"description": "2x positions on right side of the eastern barricade",
+			"description": "2x positions on right side of the <i>Prêcheurs</i> barricade",
 			"cost_type": "AMMO",
 			"cost_value": 1000
 		},
 		"precheurs-limit-left": {
-			"description": "2x positions on left side of the eastern barricade",
+			"description": "2x positions on left side of the <i>Prêcheurs</i> barricade",
 			"cost_type": "AMMO",
 			"cost_value": 1000
 		},
@@ -224,19 +224,19 @@ var settings_ = {
 			"cost_value": 2000
 		},
 		"open-building": {
-			"description": "Open the right-side building for use",
+			"description": "Open the Prêcheurs building for use",
 			"cost_type": "HOPE",
 			"cost_value": 300,
 			"unlocks": "rightside-limit1"
 		},
 		"rightside-limit1": {
-			"description": "+6 positions in right-side building",
+			"description": "+6 positions in Prêcheurs building",
 			"cost_type": "AMMO",
 			"cost_value": 1000,
 			"unlocks": "rightside-limit2"
 		},
 		"rightside-limit2": {
-			"description": "+6 positions in right-side building",
+			"description": "+6 positions in Prêcheurs building",
 			"cost_type": "AMMO",
 			"cost_value": 2000
 		},
@@ -730,5 +730,127 @@ var settings_ = {
 			"name": "Radical Centrists",
 			"rules": ["Soldiers and cannons only attack center wall of center barricade"]
 		}
-	]
+	],
+	"tutorials": {
+		"start": [
+			{
+				"text": '<b>The Barricade</b>  is a siege defense game inspired by <i>Les Misérables</i>\' depiction of the Paris Uprising of 1832. Your goal is to defend the barricade against waves of attacks by the French military until you gain enough <p style="color: darkred">Hope</p> for a full-fledged revolution.<br/><br/>If you need a refresher on how to play at any point, click the &#x1F4D6 button.',
+				"highlight": ["thebrick"]
+			},
+			{
+				"text": '<p style="color: darkblue">Prepare</p> for the upcoming battle by placing characters called <i>Amis</i> on the central <i>Chanvrerie</i> barricade walls or in the Corinthe building on the left. Amis can shoot the enemy from either location, however, a wall without any Amis protecting it will fall much faster.<br/><br/>Amis on the barricades are directly in the line of fire, but the more Amis on a single wall, the less likely any one Ami is to be targeted.',
+				"highlight": ["lesamis", "chanvrerie1", "chanvrerie2", "chanvrerie3", "corinthe"]
+			},
+			{
+				"text": '<p style="color: goldenrod">Drag and drop</p> Amis to put them in position, or use the <p style="color: goldenrod">Auto-fill</p> button to place any Amis not yet in position if you\'re in a hurry. Press the <p style="color: goldenrod">Reset</p> button to reset all placed Amis. Press an individual location\'s <p style="color: goldenrod">Reset</p> button, which appears on hover, to reset just the Amis located there.<br/><br/>Press <p style="color: goldenrod">Ready</p> when you\'re prepared to start this Wave\'s battle.',
+				"highlight": ["ready", "autofill", "reset", "lesamis"]
+			}
+		],
+		"fight1": [
+			{
+				"text": 'New enemy types will appear as you progress through the game. Soldiers do a small amount of damage to the barricades and the Amis on them, but are unable to target Amis in buildings.',
+				"highlight": ["Soldier0"]
+			},
+			{
+				"text": 'The Wave\'s battle is won when the military retreats at the end of the day, or they are wiped out first. If any single wall of your barricade falls, it\'s game over.<br/><br/>The <p style="color: goldenrod">progress bar</p> will show time passing. Hold <p style="color: goldenrod">Space</p> to increase the speed by 3x. Release <p style="color: goldenrod">Space</p> to go back to normal speed.',
+				"highlight": ["progressbar"]
+			},
+			{
+				"text": 'Amis in buildings cannot move during the battle, but those on the barricade or not currently fighting will be able to move around freely.<br/><br/>Both your Amis and enemies will miss more frequently the lower their health is. In addition, your Amis will not be able to shoot if you run out of <p style="color: darkred">Ammo</p>.',
+				"highlight": ["lesamis", "chanvrerie1", "chanvrerie2", "chanvrerie3", "ammolabel"]
+			},
+			{
+				"text": 'You earn increasing <p style="color: darkred">Hope</p> every time you survive a battle, and 2x <p style="color: darkred">Hope</p> if you defeated all enemies before the day\'s end.<br/><br/>You will lose <p style="color: darkred">Hope</p> for any Ami that dies.',
+				"highlight": ["hopelabel"]
+			}
+		],
+		"recover1": [
+			{
+				"text": 'After each battle you have a chance to <p style="color: darkblue">Recover</p>. Amis can get ready for the next Wave in many ways: looting ammo and food, building up the barricade, scouting for information, healing their wounds, or just hanging out and drinking.',
+				"highlight": []
+			},
+			{
+				"text": 'Each Ami <b>looting</b> gains between 5-10 <p style="color: darkred">Food</p> or 50-100 <p style="color: darkred">Ammo</p>.<br/><br/><p style="color: darkred">Food</p> can be used to <b>feed</b> wounded Amis once each during recovery, giving them back 25 health.',
+				"highlight": ["lootammo", "lootfood", "ammolabel", "foodlabel"]
+			},
+			{
+				"text": 'Each Ami <b>drinking</b> gains between 5-10 <p style="color: darkred">Hope</p>. No one will be able to drink if you run out of <p style="color: darkred">Food</p>.',
+				"highlight": ["lesamis", "hopelabel"]
+			},
+			{
+				"text": '<b>Building</b> the barricade walls increases their height, staving off their destruction.<br/><br/>The higher the wall, the more Amis can fit on it during battle. Higher walls will also better shield Amis from enemy fire.',
+				"highlight": ["chanvrerie1", "chanvrerie2", "chanvrerie3", "mondetour1", "mondetour2"]
+			},
+			{
+				"text": '<b>Scouting</b> will give information of the upcoming attack during the next <p style="color: darkblue">Prepare</p> phase, but has a 20% risk of death.<br/><br/>In addition to the central <i>Chanvrerie</i> barricade, enemies will eventually begin to attack the smaller <i>Mondétour</i> barricade on the left, and, later, a new <i>Prêcheurs</i> barricade that will need to be built on the right. Scouting will give you up to 3 Wave notice of a new barricade being attacked for the first time during the next <p style="color: darkblue">Recover</p> phase.',
+				"highlight": ["scout"]
+			},
+			{
+				"text": '<b>Resting</b> in the Corinthe building will heal 40% of an Ami\'s health and give a temporary 20% damage boost for being well-rested.',
+				"highlight": ["corinthe"]
+			},
+			{
+				"text": 'During this phase, <p style="color: darkred">Ammo</p>, <p style="color: darkred">Food</p>, and <p style="color: darkred">Hope</p> can also be used to purchase upgrades, such as improvements to the barricade and buildings. Purchase the <i>RÉVOLUTION!</i> upgrade for 10,000 <p style="color: darkred">Hope</p> to win the game.<br/><br/>Each unique Ami has a special ability that can be upgraded to become more powerful, in addition to health and damage upgrades. Each special ability starts at level 1 and can be upgraded 3 times, up to level 4.',
+				"highlight": ["upgrade", "Enjolras-upgrader"]
+			}
+		],
+		"recover2": [
+			{
+				"text": 'During the <p style="color: darkblue">Recover</p> phase, you may also spend <p style="color: darkred">Hope</p> to recruit Amis to your cause.<br/><br/>New Amis will be unlocked as you progress. You can win the game by surviving Wave 40 and recruiting Victor Hugo.',
+				"highlight": ["recruit"]
+			}
+		],
+		"citizens": [
+			{
+				"text": 'In addition to unique Amis, you can recruit generic Citizens. There is a recruit limit for Citizens that can be increased through upgrades.<br/><br/>Citizens start with much lower health and damage than unique Amis, but all Citizens can be made stronger through upgrades. Individual Citizens can also be taught the special abilities of one or more unique Amis after the training upgrade has been purchased.',
+				"highlight": ["Citizen", "recruit-limit"]
+			},
+			{
+				"text": 'Identical Citizens will stack in some contexts.<br/><br/><p style="color: goldenrod">Shift-drag</p> a stack of Citizens to drag the entire stack. <p style="color: goldenrod">Ctrl-Shift-drag</p> a stack of Citizens on to an active barricade wall to evenly distribute the Citizens across all active barricade walls.',
+				"highlight": ["Citizen"]
+			},
+			{
+				"text": 'When recruiting new Citizens, watch out for <b>Javert</b>. Javert is a unique enemy who does not attack during the <p style="color: darkblue">Fight!</p> phase with the other enemies.<br/><br/>Javert will be indistinguishable from other Citizens, but will sabotage any activity he is a part of and will not defend the barricade or be attacked by enemies. He can be dismissed from the barricade, gaining you 500 <p style="color: darkred">Hope</p>, but if dismissed, he may return later.',
+				"highlight": ["Citizen", "dismiss"]
+			}
+		],
+		"training": [
+			{
+				"text": 'You can now train individual citizens in the special abilities of unique Amis. To do so, place a unique Ami in the <p style="color: goldenrod">Trainer</p> box and one or more Citizens in the <p style="color: goldenrod">Train</p> building.<br/><br/>Citizens cannot train other Citizens, so if a unique Ami dies or is dismissed, it will no longer be possible to train new Citizens in their ability. Unique Amis cannot be trained in the abilities of other Amis.',
+				"highlight": ["rightside", "trainer"]
+			},
+			{
+				"text": 'Trained Citizens will receive the ability at the same level as the unique Ami at the time of training. If you upgrade the unique Ami again later, you will need to retrain Citizens to get them to the higher level.<br/><br/>If you train a Citizen that has already been trained in a different ability and has no room for more, the new ability will replace the old one.',
+				"highlight": ["rightside", "trainer"]
+			}
+		],
+		"snipers": [
+			{
+				"text": 'Snipers can shoot any Ami on the barricade in front of them or in adjacent buildings, and do a much larger amount of damage per shot but shoot less frequently.<br/><br/>Amis hit by a Sniper will briefly flash <p style="color: goldenrod">yellow<p/> as an indicator.',
+				"highlight": ["Sniper0"]
+			}
+		],
+		"cannons": [
+			{
+				"text": 'Cannons will infrequently knock all Amis off a wall of the barricade, doing significant damage to those Amis and leaving the wall unprotected until you replace them.<br/><br/>Pay attention, as you\'ll need to act quickly to put Amis back on the walls.',
+				"highlight": ["Cannon0"]
+			}
+		],
+		"mondetour": [
+			{
+				"text": 'Now that enemies are attacking the left <i>Mondétour</i> barricade, you should place Amis on its walls to protect them.<br/><br/>Amis in buildings can attack enemies on either side of them, so Amis in Corinthe will help defeat those enemies as well.',
+				"highlight": ["mondetour1", "mondetour2", "corinthe", "lesenemiesmondetour2"]
+			}
+		],
+		"precheurs": [
+			{
+				"text": 'Enemies are about to attack from the right <i>Prêcheurs</i> side for the first time, so a small barricade has been automatically built. It won\'t survive long at its current height.',
+				"highlight": ["precheurs1", "precheurs2"]
+			},
+			{
+				"text": 'From this point forward, your Amis are surrounded and all looting will come with a 20% risk of death, just like scouting.',
+				"highlight": ["lootammo", "lootfood"]
+			}
+		]
+	}
 }
