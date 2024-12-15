@@ -734,7 +734,7 @@ var settings_ = {
 	"tutorials": {
 		"start": [
 			{
-				"text": '<b>The Barricade</b>  is a siege defense game inspired by <i>Les Misérables</i>\' depiction of the Paris Uprising of 1832. Your goal is to defend the barricade against waves of attacks by the French military until you gain enough <p style="color: darkred">Hope</p> for a full-fledged revolution.<br/><br/>If you need a refresher on how to play at any point, click the &#x1F4D6 button.',
+				"text": '<b>The Barricade</b>  is a siege defense game inspired by <i>Les Misérables</i>\' depiction of the Paris Uprising of 1832. Your goal is to defend the barricade against waves of attacks by the French military until you gain enough <p style="color: darkred">Hope</p> for a full-fledged revolution.<br/><br/>If you need a refresher on how to play at any point, or need some strategy tips, click the &#x1F4D6 button.',
 				"highlight": ["thebrick"]
 			},
 			{
