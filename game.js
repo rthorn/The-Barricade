@@ -3223,6 +3223,7 @@ function feedAll() {
 }
 
 function startWave() {
+    $("#ready").hide();
     clearLabels();
     for (const ami of state_.amis.all) {
         state_.amis.last_prepare[ami.id] = ami.parentElement;
@@ -3230,7 +3231,6 @@ function startWave() {
     if ("Grantaire" in state_.amis.lookup && state_.amis.lookup["Grantaire"].parentElement != refs_.lesamis) {
         state_.achievements.drunk = false;
     }
-    $("#ready").hide();
     $("#reset").hide();
     $("#autofill").hide();
     freezeDragging(refs_.corinthe);
@@ -4538,6 +4538,7 @@ async function resolveRecover() {
 }
 
 async function prepareForNextWave() {
+    $("#ready").hide();
     for (const ami of state_.amis.all) {
         state_.amis.last_recover[ami.id] = ami.parentElement;
     }
@@ -4547,7 +4548,6 @@ async function prepareForNextWave() {
     $("#recruit").hide();
     $("#upgrade").hide();
     $("#autofill").hide();
-    $("#ready").hide();
     $("#reset").hide();
     for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.display = "none";
