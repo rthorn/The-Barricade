@@ -3663,6 +3663,7 @@ function transitionToRecover() {
 }
 
 function recruitMe(ev) {
+    ev.target.disabled = true;
     var id = ev.target.parentElement.id;
     var cost = settings_.amis[id].cost;
     if (cost > getHope() && !state_.reloading) {
@@ -3672,8 +3673,8 @@ function recruitMe(ev) {
     if (isCitizen(ev.target.parentElement)) {
         ami = addNewCitizen();
         state_.citizens.recruit_button = ev.target;
-        if (state_.citizens.num >= state_.citizens.max) {
-            ev.target.disabled = true;
+        if (state_.citizens.num < state_.citizens.max) {
+            ev.target.disabled = false;
         }
         if (!state_.citizens.active) {
             state_.citizens.active = true;
