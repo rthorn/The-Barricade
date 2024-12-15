@@ -78,8 +78,7 @@ var state_ = {
     difficulty: 2,
     challenge: null,
     debug: false,
-    tutorial_queue: [],
-    fighting: false
+    tutorial_queue: []
 };
 
 var initials_ = {};
@@ -3244,11 +3243,12 @@ function startWave() {
     }
     updateProgress(0);
     refs_.progressbar.style.display = "block"
-    tutorial("fight" + getWave());
+    if (!tutorial("fight" + getWave())) {
+        startFight();
+    }
 }
 
 async function startFight() {
-    state_.fighting = true;
     for (const wall of refs_.barricade) {
         wall.style.padding = "30px 0px";
         wall.style.margin = "-30px 0px";
@@ -3547,7 +3547,6 @@ function transitionToRecover() {
         enablePrecheurs();
     }
     $("#substate").text("Recover");
-    state_.fighting = false;
     refs_.lesamis.style.border = "solid";
     var bonus = 0;
     var hope_wave = getWave()*settings_.hope_wave;
@@ -4738,21 +4737,19 @@ function nextTutorial(name, i, oldZIndexes, oldBorders) {
     refs_.tutorial_screen.hidden = false;
     document.body.style.overflow = "hidden";
     disableButtons();
+    return true;
 }
 
 function tutorial(name) {
     if (!(name in settings_.tutorials) || hasTutorialed(name) || state_.reloading || state_.debug) {
-        if (getWaveState() == WaveState.FIGHT && refs_.tutorial_screen.hidden && !state_.fighting) {
-            startFight();
-        }
-        return;
+        return false;
     }
     if (!refs_.tutorial_screen.hidden) {
         if (!state_.tutorial_queue.includes(name)) {
             state_.tutorial_queue.push(name);
             refs_.ok_tutorial.textContent = "Next";
         }
-        return;
+        return true;
     }
     return nextTutorial(name, 0, [], []);
 }
