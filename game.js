@@ -4013,6 +4013,7 @@ function closeTheBrick() {
 }
 
 function upgraderMeMe(ev) {
+    ev.target.disabled = true;
     var cost = ev.target.cost;
     var type = ev.target.cost_type;
     var ami = state_.amis.lookup[ev.target.id.replace("-upgraderButton" + type, "")];
@@ -4116,6 +4117,7 @@ function closeUpgrader() {
 }
 
 function upgradeMe(ev) {
+    ev.target.disabled = true;
     var name = ev.target.parentElement.id;
     state_.purchased_upgrades.push(name);
     state_.upgrade_buttons.delete(ev.target);
