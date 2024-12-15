@@ -86,7 +86,7 @@ var initials_ = {};
 
 var refs_ = {
     special_bonus_levels: [1, 1.5, 2, 3, 5, 5],
-    marius_progress: [0.9, 0.75, 0.5, 0.4, 0.4],
+    marius_hope: [1, 0, 0.1, 0.25, 0.5, 1],
     bossuet_extras: [1, 3, 9, 24, 24],
     targeting_extras: [1, 3, 9, 0, 0],
     mme_amounts: [0, 0.005, 0.01, 0.02, 0.05, 0.05],
@@ -2573,7 +2573,7 @@ function feedAmi(ami, stack) {
 
 function mariusPower(ev) {
     state_.marius.active = true;
-    state_.marius.drain = specialLevel(ev.target.parentElement, "Marius") <= 4;
+    state_.marius.drain = specialLevel(ev.target.parentElement, "Marius");
     setAmmo(getAmmo() - mariusCost());
     state_.marius.uses += 1;
 }
@@ -2860,7 +2860,7 @@ function clearLabels() {
 function updateProgress(i) {
     refs_.progress.style.width = (100 - (i + 1)/settings_.fire_per_wave*100).toString() + "%";
     for (const button of state_.marius.buttons) {
-        if (button.style.display == "none" && refs_.barricade.has(button.parentElement.parentElement) && i >= settings_.fire_per_wave * refs_.marius_progress[specialLevel(button.parentElement, "Marius") - 1]) {
+        if (button.style.display == "none" && refs_.barricade.has(button.parentElement.parentElement) && i >= settings_.fire_per_wave / 2) {
             if (getAmmo() >= mariusCost()) {
                 button.disabled = false;
             }
@@ -3551,25 +3551,22 @@ function transitionToRecover() {
     refs_.lesamis.style.border = "solid";
     var bonus = 0;
     var hope_wave = getWave()*settings_.hope_wave;
+    if (state_.finished_early) {
+            hope_wave *= 2;
+    }
+    for (const ami of state_.amis.all) {
+        if (sl = specialLevel(ami, "Mabeuf")) {
+            if (sl <= 4) {
+                if (!refs_.barricade.has(ami.parentElement)) {
+                    continue;
+                }
+            }
+            bonus += Math.ceil(hope_wave * Math.min(sl, 4) * 0.05);
+        }
+    }
     if (state_.marius.active) {
         state_.marius.active = false;
-        if (state_.marius.drain) {
-            hope_wave = 0;
-        }
-    } else {
-        if (state_.finished_early) {
-            hope_wave *= 2;
-        }
-        for (const ami of state_.amis.all) {
-            if (sl = specialLevel(ami, "Mabeuf")) {
-                if (sl <= 4) {
-                    if (!refs_.barricade.has(ami.parentElement)) {
-                        continue;
-                    }
-                }
-                bonus += Math.ceil(hope_wave * Math.min(sl, 4) * 0.05);
-            }
-        }
+        hope_wave *= refs_.marius_hope[state_.marius.drain];
     }
     if (!state_.reloading) {
         setHope(getHope() + hope_wave + bonus);

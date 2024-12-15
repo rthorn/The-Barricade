@@ -402,11 +402,11 @@ var settings_ = {
 			"damage": 1,
 			"health": 1,
 			"special": [
-				"If on barricade, can spend ammo to end wave 10% early",
-				"If on barricade, can spend ammo to end wave 25% early",
-				"If on barricade, can spend ammo to end wave 50% early",
-				"If on barricade, can spend ammo to end wave 60% early",
-				"If on barricade, can spend ammo to end wave 60% early, still receive hope at wave end"
+				"If on barricade, can spend ammo to end wave 50% early, but receive no Hope at wave end",
+				"If on barricade, can spend ammo to end wave 50% early, but receive only 10% of Hope at wave end",
+				"If on barricade, can spend ammo to end wave 50% early, but receive only 25% of Hope at wave end",
+				"If on barricade, can spend ammo to end wave 50% early, but receive only 50% of Hope at wave end",
+				"If on barricade, can spend ammo to end wave 50% early, still receive hope at wave end"
 			],
 			"cost": 100
 		},
