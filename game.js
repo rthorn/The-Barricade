@@ -78,7 +78,8 @@ var state_ = {
     difficulty: 2,
     challenge: null,
     debug: false,
-    tutorial_queue: []
+    tutorial_queue: [],
+    fighting: false
 };
 
 var initials_ = {};
@@ -1998,9 +1999,9 @@ function newUpgrader(ami, type) {
     } else if (type == UpgraderType.SPECIAL) {
         cost_type = CostType.HOPE;
         if (state_.difficulty == Difficulty.NORMAL) {
-            cost += 25;
+            cost += state_.debug ? 0 : 25;
         } else if (state_.difficulty == Difficulty.HARD) {
-            cost += 75;
+            cost += state_.debug ? 0 : 75;
         }
         cost *= 2 ** (specialLevel(ami, ami.id) - 1);
         desc = refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "<br>-&gt<br>" + refs_.specials[ami.id][specialLevel(ami, ami.id)];
@@ -2578,7 +2579,7 @@ function mariusPower(ev) {
 }
 
 function mariusCost() {
-    return 500 * 2**state_.marius.uses;
+    return 100 * 2**state_.marius.uses;
 }
 
 function getHope() {
@@ -3247,6 +3248,7 @@ function startWave() {
 }
 
 async function startFight() {
+    state_.fighting = true;
     for (const wall of refs_.barricade) {
         wall.style.padding = "30px 0px";
         wall.style.margin = "-30px 0px";
@@ -3545,6 +3547,7 @@ function transitionToRecover() {
         enablePrecheurs();
     }
     $("#substate").text("Recover");
+    state_.fighting = false;
     refs_.lesamis.style.border = "solid";
     var bonus = 0;
     var hope_wave = getWave()*settings_.hope_wave;
@@ -4733,6 +4736,7 @@ function nextTutorial(name, i, oldZIndexes, oldBorders) {
     refs_.ok_tutorial.onclick = function() { nextTutorial(name, i + 1, zIndexes, borders); };
     refs_.disable_tutorials.onclick = function() { disableTutorials(name, i, zIndexes, borders); };
     refs_.ok_tutorial.textContent = ((i + 1 < settings_.tutorials[name].length) || state_.tutorial_queue.length) ? "Next" : getWaveState() == WaveState.FIGHT ? "Ready!" : "OK!";
+    window.scrollTo(0, 0);
     refs_.tutorial.hidden = false;
     refs_.tutorial_screen.hidden = false;
     document.body.style.overflow = "hidden";
@@ -4741,7 +4745,7 @@ function nextTutorial(name, i, oldZIndexes, oldBorders) {
 
 function tutorial(name) {
     if (!(name in settings_.tutorials) || hasTutorialed(name) || state_.reloading || state_.debug) {
-        if (getWaveState() == WaveState.FIGHT && refs_.tutorial_screen.hidden) {
+        if (getWaveState() == WaveState.FIGHT && refs_.tutorial_screen.hidden && !state_.fighting) {
             startFight();
         }
         return;
