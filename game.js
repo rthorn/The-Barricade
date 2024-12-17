@@ -4745,7 +4745,7 @@ function nextTutorial(name, i, oldZIndexes, oldBorders) {
 
 function tutorial(name) {
     if (!(name in settings_.tutorials) || hasTutorialed(name) || state_.reloading || state_.debug) {
-        return false;
+        return !refs_.tutorial_screen.hidden;
     }
     if (!refs_.tutorial_screen.hidden) {
         if (!state_.tutorial_queue.includes(name)) {
