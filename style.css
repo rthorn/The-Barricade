@@ -991,6 +991,7 @@ h4 {
     text-align: center;
     font-size: 1vw;
     font-style: italic;
+    z-index: -1;
 }
 
 #chanvrerie-street {
