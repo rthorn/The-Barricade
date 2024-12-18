@@ -3223,6 +3223,7 @@ function feedAll() {
 }
 
 function startWave() {
+    refs_.load.disabled = true;
     $("#ready").hide();
     clearLabels();
     for (const ami of state_.amis.all) {
@@ -3659,6 +3660,7 @@ function transitionToRecover() {
         refs_.autofill.disabled = disable;
     }
     saveGame();
+    refs_.load.disabled = false;
     tutorial("recover" + getWave());
 }
 
