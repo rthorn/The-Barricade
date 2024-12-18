@@ -625,7 +625,20 @@ function loadGame() {
         return;
     }
     try {
-        var save = JSON.parse(atob(refs_.game.value));
+        var final_save = "";
+        for (const ch of refs_.game.value) {
+            var code = ch.charCodeAt(0);
+            if (code >= 48 && code <= 57) {
+                code = ((code - 48 + 5) % 10) + 48;
+            }
+            if (code >= 65 && code <= 90) {
+                code = ((code - 65 + 9) % 26) + 97;
+            } else if (code >= 97 && code <= 122) {
+                code = ((code - 97 + 9) % 26) + 65;
+            }
+            final_save += String.fromCharCode(code);
+        }
+        var save = JSON.parse(atob(final_save));
     } catch (e) {
         refs_.game.style.color = "red";
         return;
@@ -3225,8 +3238,21 @@ function saveGame() {
     if (empties.length) {
         save.n = empties;
     }
+    var final_save = ""
+    for (const ch of btoa(JSON.stringify(save))) {
+        var code = ch.charCodeAt(0);
+        if (code >= 48 && code <= 57) {
+            code = ((code - 48 + 5) % 10) + 48;
+        }
+        if (code >= 65 && code <= 90) {
+            code = ((code - 65 + 17) % 26) + 97;
+        } else if (code >= 97 && code <= 122) {
+            code = ((code - 97 + 17) % 26) + 65;
+        }
+        final_save += String.fromCharCode(code);
+    }
     refs_.game.style.color = "black";
-    refs_.game.value = btoa(JSON.stringify(save));
+    refs_.game.value = final_save;
     refs_.load.disabled = false;
 }
 
