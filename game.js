@@ -2702,7 +2702,7 @@ function die(person, attacker) {
                     reorderChildren(refs_.lesamis);
                 }
             }
-            var amount = 100;
+            var amount = 101;
             switch (specialLevel(ami, "Eponine")) {
                 case 2:
                     amount = 50;
