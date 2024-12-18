@@ -8,7 +8,7 @@ var state_ = {
         ctrl_key: false,
         data_transfer: [],
         last_parent: null,
-        last_mouse: []
+        mouse_diffs: []
     },
     amis: {
         all: new Set([]),
@@ -246,6 +246,7 @@ function initializeVars() {
         refs_.ami_locations.add(wall);
         state_.dragging.droppable.add(wall);
         refs_.lookup[wall.id] = wall;
+        wall.style.height = "16vw";
     }
     refs_.chanvrerie_ordered = [...refs_.chanvrerie].sort();
     refs_.mondetour = new Set([document.getElementById('mondetour1'), document.getElementById('mondetour2')]);
@@ -255,6 +256,7 @@ function initializeVars() {
         refs_.ami_locations.add(wall);
         state_.dragging.droppable.add(wall);
         refs_.lookup[wall.id] = wall;
+        wall.style.height = "16vw";
     }
     refs_.ami_locations_ordered = [...refs_.ami_locations].sort();
     refs_.barricade = new Set([...refs_.chanvrerie, ...refs_.mondetour]);
@@ -265,6 +267,7 @@ function initializeVars() {
     for (const wall of refs_.precheurs) {
         refs_.precheurs_labels[wall.id] = document.getElementById(wall.id + "-label");
         refs_.lookup[wall.id] = wall;
+        wall.style.height = "4vw";
     }
     refs_.specials = {};
     refs_.special_ups = {};
@@ -1186,7 +1189,7 @@ $(document).on('mouseup', function(e) {
         }
     }
     state_.dragging.data_transfer = [];
-    state_.dragging.last_mouse = [];
+    state_.dragging.mouse_diffs = [];
     state_.dragging.last_parent = null;
 });
 
@@ -1194,12 +1197,11 @@ function mouseMove(e) {
     if (!state_.dragging.data_transfer.length || e.clientY <= 0 || e.clientX <= 0 || (e.clientX >= window.innerWidth || e.clientY >= window.innerHeight)) {
         return;
     }
-    var diffX = e.screenX - state_.dragging.last_mouse[0];
-    var diffY = e.screenY - state_.dragging.last_mouse[1];
-    state_.dragging.last_mouse = [e.screenX, e.screenY];
+    var newX = e.pageX - state_.dragging.mouse_diffs[0];
+    var newY = e.pageY - state_.dragging.mouse_diffs[1];
     var dragging = state_.dragging.data_transfer[0];
-    dragging.style.left = (parseInt(dragging.style.left.match(/\d+/)[0]) + diffX) +'px';
-    dragging.style.top = (parseInt(dragging.style.top.match(/\d+/)[0]) + diffY) +'px';
+    dragging.style.left = newX +'px';
+    dragging.style.top = newY +'px';
 }
 
 function dragstartAmi(ev) {
@@ -1210,7 +1212,6 @@ function dragstartAmi(ev) {
     if (getWaveState() == WaveState.FIGHT && isInBuilding(target)) {
         return;
     }
-    state_.dragging.last_mouse = [ev.originalEvent.screenX, ev.originalEvent.screenY];
     state_.dragging.last_parent = target.parentElement;
     state_.dragging.data_transfer.push(target);
     if (state_.dragging.shift_key && isCitizen(target)) {
@@ -1233,6 +1234,7 @@ function dragstartAmi(ev) {
     target.style.position = "absolute";
     target.style.left = leftPos + scrollLeft() + "px";
     target.style.top = topPos + scrollTop() + "px";
+    state_.dragging.mouse_diffs = [ev.originalEvent.pageX - leftPos - scrollLeft(), ev.originalEvent.pageY - topPos - scrollTop()];
     setWidth(target);
     if (isCitizen(target) && !state_.dragging.shift_key) {
         stackChildren(state_.dragging.last_parent);
@@ -2405,10 +2407,7 @@ function enemyOpacity(yes) {
 }
 
 function getHeight(wall) {
-    if (getWaveState() == WaveState.FIGHT) {
-        return 100 * (toVW(wall.clientHeight) - toVW(60)) / settings_.max_height;
-    }
-    return 100 * toVW(wall.offsetHeight) / settings_.max_height;
+    return 100 * wall.style.height.match(/\d+\.?\d*/)[0] / settings_.max_height;
 }
 
 function setHeight(wall, value) {
@@ -3594,7 +3593,7 @@ function transitionToRecover() {
         dropped.style.pointerEvents = "auto";
         state_.dragging.last_parent.appendChild(dropped);
     }
-    state_.dragging.last_mouse = [];
+    state_.dragging.mouse_diffs = [];
     state_.dragging.last_parent = null;
     if (getWave() == settings_.precheurs_opens - 1 && state_.challenge != 5) {
         enablePrecheurs();
