@@ -733,6 +733,7 @@ button[type=button]:enabled {
 
 .amiLoc:hover .resetButton {
     width: 0.96vw;
+    height: 1.1vw;
     min-height: 0.96vw;
     display: inline;
     float: right;
