@@ -2148,13 +2148,39 @@ function wall_sort_order(wall1, wall2) {
     return getHeight(wall1) > getHeight(wall2) ? 1 : -1
 }
 
+function healthSorterRan(ami1, ami2) {
+    if (getHealth(ami1) * getHealthMax(ami1) < getHealth(ami2) * getHealthMax(ami2)) {
+        return -1;
+    }
+    if (getHealth(ami1) * getHealthMax(ami1) > getHealth(ami2) * getHealthMax(ami2)) {
+        return 1;
+    }
+    return getRandomInt(2) ? -1 : 1;
+}
+
+function damageSorterRan(ami1, ami2) {
+    if (getDamage(ami1) < getDamage(ami2)) {
+        return -1;
+    }
+    if (getDamage(ami1) > getDamage(ami2)) {
+        return 1;
+    }
+    if (getHealth(ami1) * getHealthMax(ami1) < getHealth(ami2) * getHealthMax(ami2)) {
+        return -1;
+    }
+    if (getHealth(ami1) * getHealthMax(ami1) > getHealth(ami2) * getHealthMax(ami2)) {
+        return 1;
+    }
+    return getRandomInt(2) ? -1 : 1;
+}
+
 function autoFill() {
     refs_.autofill.disabled = true;
     if (getWaveState() == WaveState.PREPARE) {
         var high_health = 
-            getChildren(refs_.lesamis).sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b) * getHealthMax(b) ? -1 : 1);
+            getChildren(refs_.lesamis).sort((a, b) => healthSorterRan(a, b));
         var high_dam = 
-            getChildren(refs_.lesamis).sort((a, b) => getDamage(a) < getDamage(b) ? -1 : getDamage(a) == getDamage(b) ? (getHealth(a) * getHealthMax(a) < getHealth(b) * getHealthMax(b) ? -1 : 1) : 1);
+            getChildren(refs_.lesamis).sort((a, b) => damageSorterRan(a, b));
         if (javertDiscovered() && high_health.includes(state_.javert.ami)) {
             high_health.splice(high_health.indexOf(state_.javert.ami), 1);
             high_dam.splice(high_dam.indexOf(state_.javert.ami), 1);
