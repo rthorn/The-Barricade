@@ -1734,7 +1734,7 @@ function newPerson(id, type) {
     var label = document.createElement("div");
     label.id = person.id + "-label";
     label.className = type + "name";
-    label.textContent = getName(person);
+    label.textContent = id == "Eponine" ? "Éponine" : getName(person);
     person.appendChild(label);
     var health = document.createElement("div");
     health.className = "bar";
@@ -3847,6 +3847,37 @@ function hasAchievedChallenge(challenge) {
     return getAchievements().includes(":" + (-1 * challenge - 1) + ":");
 }
 
+function getCosetted() {
+    var name = "cosetted=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return ":";
+}
+
+function hasCosetted(name) {
+    return getCosetted().includes(":" + refs_.amis_ordered.indexOf(name) + ":");
+}
+
+function cosetter(name) {
+    if (hasCosetted(name)) {
+        return;
+    }
+    var index = refs_.amis_ordered.indexOf(name)
+    var now = new Date();
+    var time = now.getTime();
+    var expireTime = time + 86400000*365;
+    now.setTime(expireTime);
+    document.cookie = "cosetted=" + getCosetted() + index + ":" + "; expires=" + now.toUTCString() + "; path=/";
+}
+
 function hasTutorialed(tutorial) {
     return getTutorials().includes(":" + refs_.tutorials_ordered.indexOf(tutorial) + ":");
 }
@@ -3968,6 +3999,41 @@ function theBrick() {
                     child.childNodes[2].textContent = "Keep playing to unlock this content.";
                     while (child.childNodes.length > 3) {
                         child.removeChild(child.childNodes[3]);
+                    }
+                    break;
+                }
+            }
+            for (var grandchild of child.childNodes) {
+                if (grandchild.nodeType != Node.ELEMENT_NODE) {
+                    continue;
+                }
+                for (var name of refs_.amis_ordered) {
+                    if (grandchild.classList.contains("cosette-" + name.replace(" ", ""))) {
+                        if (!hasAchieved("cosette")) {
+                            grandchild.hidden = true;
+                            break;
+                        }
+                        if (!hasCosetted(name)) {
+                            grandchild.textContent = "???";
+                        }
+                        break;
+                    }
+                }
+                for (const greatgrandchild of grandchild.childNodes) {
+                    if (greatgrandchild.nodeType != Node.ELEMENT_NODE) {
+                        continue;
+                    }
+                    for (var name of refs_.amis_ordered) {
+                        if (greatgrandchild.classList.contains("cosette-" + name.replace(" ", ""))) {
+                            if (!hasAchieved("cosette")) {
+                                greatgrandchild.hidden = true;
+                                break;
+                            }
+                            if (!hasCosetted(name)) {
+                                greatgrandchild.textContent = "???";
+                            }
+                            break;
+                        }
                     }
                 }
             }
@@ -4433,6 +4499,7 @@ function resolveTraining(i) {
                     }
                     if (specialLevel(ami, refs_.specials_backwards[special]) > 4) {
                         achieve("cosette");
+                        cosetter(refs_.specials_backwards[special]);
                     }
                 }
             }

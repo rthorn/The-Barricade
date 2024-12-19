@@ -406,7 +406,7 @@ var settings_ = {
 				"If on barricade, can spend ammo to end wave 50% early, but receive only 10% of Hope at wave end",
 				"If on barricade, can spend ammo to end wave 50% early, but receive only 25% of Hope at wave end",
 				"If on barricade, can spend ammo to end wave 50% early, but receive only 50% of Hope at wave end",
-				"If on barricade, can spend ammo to end wave 50% early, still receive hope at wave end"
+				"If on barricade, can spend ammo to end wave 50% early"
 			],
 			"cost": 100
 		},
@@ -432,7 +432,7 @@ var settings_ = {
 				"50% chance to recruit enemies instead of killing them, up to recruit limit",
 				"75% chance to recruit enemies instead of killing them, up to recruit limit",
 				"Recruits enemies instead of killing them, up to recruit limit",
-				"100% chance to recruit enemies instead of killing them, up to 2x recruit limit"
+				"Recruits enemies instead of killing them, up to 2x recruit limit"
 			],
 			"cost": 100
 		},
