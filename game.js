@@ -2939,15 +2939,11 @@ function enemiesPerWave(type, wave) {
     if (state_.difficulty == Difficulty.EASY) {
         adjust = 3/5;
     } else if (state_.difficulty == Difficulty.HARD) {
-        adjust = 6/5;
+        adjust = 5/5;
     }
     var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * adjust)
-    var adjust2 = 5;
-    if (state_.difficulty == Difficulty.HARD) {
-        adjust2 = 3;
-    }
     if (type != EnemyType.SOLDIER) {
-        return Math.ceil(num/adjust2);
+        return Math.ceil(num/5);
     }
     return num;
 }
@@ -2968,8 +2964,8 @@ function addEnemies(type, wave, foresight = false) {
         }
     }
     var side = wave >= settings_.precheurs_opens + 5 ? getRandomInt(2) : 1;
-    var mondetour = side ? wave - settings_.mondetour_opens + (state_.challenge == 4 ? 0 : 5) : wave - settings_.precheurs_opens + (state_.challenge == 4 ? 0 : 5);
-    var precheurs = side ? wave - settings_.precheurs_opens + (state_.challenge == 4 ? 1 : 5) : wave - settings_.mondetour_opens + (state_.challenge == 4 ? 1 : 5);
+    var mondetour = side ? wave - settings_.mondetour_opens + (state_.challenge == 4 ? 0 : state_.difficulty == Difficulty.HARD ? 2 : 5) : wave - settings_.precheurs_opens + (state_.challenge == 4 ? 0 : state_.difficulty == Difficulty.HARD ? 2 : 5);
+    var precheurs = side ? wave - settings_.precheurs_opens + (state_.challenge == 4 ? 1 : state_.difficulty == Difficulty.HARD ? 2 : 5) : wave - settings_.mondetour_opens + (state_.challenge == 4 ? 1 : state_.difficulty == Difficulty.HARD ? 2 : 5);
     if (state_.challenge == 4) {
         mondetour = Math.ceil(mondetour * 2/3);
         precheurs = Math.ceil(precheurs * 2/3);
