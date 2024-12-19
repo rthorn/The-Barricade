@@ -151,6 +151,7 @@ body::-webkit-scrollbar {
     display: flex;
     flex-direction: row;
     overflow: auto;
+    z-index: 1000;
 }
 
 #recruit-limit {
@@ -1014,4 +1015,16 @@ h4 {
     writing-mode: vertical-rl;
     top: 11vw;
     left: calc(50% - 44.7vw);
+}
+
+.infoButton {
+    font-size: 0.7vw;
+    padding: 0;
+    margin-left: 0.5vw;
+    border: none;
+    background-color: gray;
+}
+
+.infoButton:hover {
+    color: silver;
 }

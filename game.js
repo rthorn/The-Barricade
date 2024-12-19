@@ -90,6 +90,7 @@ var refs_ = {
     targeting_extras: [1, 3, 9, 0, 0],
     mme_amounts: [0, 0.005, 0.01, 0.02, 0.05, 0.05],
     reset_button: '<button type="button" class="resetButton" onClick="resetLoc(this)" hidden>&#x21bb;</button>',
+    info_button:  '<button type="button" class="infoButton" onClick="info(this)">&#x24D8</button>',
     deathrisk: '<div class="deathrisk" onmouseenter="showHovertext(event)" onmouseleave="hideHovertext(event)">&#x2620</div> ',
     full_width: 'calc((100% - 4.82vw) / 2)',
     half_width: 'calc((100% - 9.65vw) / 4)'
@@ -371,7 +372,7 @@ function initializeAmisUpgrades() {
         if (specialLevel(ami, ami.id) >= 4) {
             var empty = document.createElement("div");
             empty.className = "upgraderUpgradeEmpty";
-            empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>";
+            empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>" + refs_.info_button;
             container.appendChild(empty);
             updateStats(ami);
         } else {
@@ -1131,6 +1132,10 @@ $(document).on('mousedown', function(e) {
         }
     }
     if (!screen) {
+        if (refs_.thebrick_screen.style.display != "none") {
+            closeTheBrick();
+            return;
+        }
         if (refs_.recruit_screen.style.display != "none") {
             closeRecruit();
             return;
@@ -1145,10 +1150,6 @@ $(document).on('mousedown', function(e) {
         }
         if (refs_.achievements_screen.style.display != "none") {
             closeAchievements();
-            return;
-        }
-        if (refs_.thebrick_screen.style.display != "none") {
-            closeTheBrick();
             return;
         }
     }
@@ -1948,7 +1949,7 @@ function newRecruit(name) {
     var stats = document.createElement("div");
     stats.id = ami.id + "-stats";
     stats.className = "stats";
-    stats.innerHTML = getStats(ami);
+    stats.innerHTML = getStats(ami) + (name == "Citizen" ? "" : refs_.info_button);
     ami.appendChild(stats);
     if (name == "Citizen") {
         state_.citizens.stats = stats;
@@ -2018,7 +2019,7 @@ function newUpgrader(ami, type) {
             cost += state_.debug ? 0 : 75;
         }
         cost *= 2 ** (specialLevel(ami, ami.id) - 1);
-        desc = refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "<br>-&gt<br>" + refs_.specials[ami.id][specialLevel(ami, ami.id)];
+        desc = refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "<br>-&gt<br>" + refs_.specials[ami.id][specialLevel(ami, ami.id)] + refs_.info_button;
     }
     var upgrade = document.createElement("div");
     upgrade.id = ami.id + "-upgrader" + type;
@@ -3778,7 +3779,7 @@ function recruitMe(ev) {
         if (specialLevel(ami, ami.id) >= 4) {
             var empty = document.createElement("div");
             empty.className = "upgraderUpgradeEmpty";
-            empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>";
+            empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>" + refs_.info_button;
             container.appendChild(empty);
             updateStats(ami);
         } else {
@@ -3987,7 +3988,11 @@ function maxWave() {
     return 1;
 }
 
-function theBrick() {
+function info(button) {
+    theBrick(button.parentElement.parentElement.id.split("-")[0]);
+}
+
+function theBrick(ami) {
     $("#thebrick-screen").load("brick.html?v=" + Date.now(), function() {
         for (const child of refs_.thebrick_screen.childNodes[2].childNodes) {
             if (child.nodeType != Node.ELEMENT_NODE) {
@@ -4039,6 +4044,26 @@ function theBrick() {
             }
         }
         refs_.thebrick_screen.style.display = "flex";
+        if (ami) {
+            for (const child of refs_.thebrick_screen.childNodes[2].childNodes) {
+                if (child.nodeType != Node.ELEMENT_NODE) {
+                    continue;
+                }
+                if (child.id == ami.toLowerCase()) {
+                    child.scrollIntoView({behavior: "smooth"});
+                    break;
+                }
+                for (var grandchild of child.childNodes) {
+                    if (grandchild.nodeType != Node.ELEMENT_NODE) {
+                        continue;
+                    }
+                    if (grandchild.id == ami.toLowerCase()) {
+                        grandchild.scrollIntoView({behavior: "smooth"});
+                        return;
+                    }
+                }
+            }
+        }
     });
     disableButtons();
 }
@@ -4189,7 +4214,7 @@ function upgraderMeMe(ev) {
         } else {
             var empty = document.createElement("div");
             empty.className = "upgraderUpgradeEmpty";
-            empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>";
+            empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>" + refs_.info_button;
             container.insertBefore(empty, ev.target.parentElement);
         }
         for (const ctr of refs_.upgrader_screen.children) {
