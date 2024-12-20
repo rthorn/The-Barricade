@@ -3014,7 +3014,7 @@ function addEnemies(type, wave, foresight = false) {
             }
             tutorial("mondetour");
         } else if (foresight) {
-            for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
+            for (let i = 1; i <= enemiesPerWave(type, state_.difficult == Difficult.HARD ? 2 : 5); i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesmondetour2);
                     refs_.lesenemiesmondetour2.style.color = "white";
@@ -3043,7 +3043,7 @@ function addEnemies(type, wave, foresight = false) {
                 }
             }
         } else if (foresight) {
-            for (let i = 1; i <= enemiesPerWave(type, 5); i++) {
+            for (let i = 1; i <= enemiesPerWave(type, state_.difficult == Difficult.HARD ? 2 : 5); i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesprecheurs2);
                     refs_.lesenemiesprecheurs2.style.color = "white";
