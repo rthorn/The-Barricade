@@ -188,6 +188,7 @@ function startNewGame() {
     closeUpgrade();
     closeUpgrader();
     closeTheBrick();
+    closeGameOver();
     hideHovertext();
 }
 
@@ -231,7 +232,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street']) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street', "gameover-screen", "result", "finalwave", "tip"]) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name.replace("-", "_")];
     }
@@ -624,58 +625,52 @@ function startChallenge(ev) {
     initializeDebugMode();
 }
 
-function loadGame() {
-    if (!refs_.game.value) {
-        return;
-    }
-    try {
-        var final_save = "";
-        for (const ch of refs_.game.value) {
-            var code = ch.charCodeAt(0);
-            if (code >= 48 && code <= 57) {
-                code = ((code - 48 + 5) % 10) + 48;
-            }
-            if (code >= 65 && code <= 90) {
-                code = ((code - 65 + 9) % 26) + 97;
-            } else if (code >= 97 && code <= 122) {
-                code = ((code - 97 + 9) % 26) + 65;
-            }
-            final_save += String.fromCharCode(code);
+function loadGame(newgame) {
+    if (!newgame) {
+        if (!refs_.game.value) {
+            return;
         }
-        var save = JSON.parse(atob(final_save));
-    } catch (e) {
-        refs_.game.style.color = "red";
-        return;
-    }
-    for (const v of ["a", "b", "w", "m", "p", "d", "g", "h", "i", "k"]) {
-        if (!(v in save)) {
+        try {
+            var final_save = "";
+            for (const ch of refs_.game.value) {
+                var code = ch.charCodeAt(0);
+                if (code >= 48 && code <= 57) {
+                    code = ((code - 48 + 5) % 10) + 48;
+                }
+                if (code >= 65 && code <= 90) {
+                    code = ((code - 65 + 9) % 26) + 97;
+                } else if (code >= 97 && code <= 122) {
+                    code = ((code - 97 + 9) % 26) + 65;
+                }
+                final_save += String.fromCharCode(code);
+            }
+            var save = JSON.parse(atob(final_save));
+        } catch (e) {
             refs_.game.style.color = "red";
             return;
         }
-    }
-    if ("n" in save) {
-        for (const ami of save.n) {
-            save.a[ami] = {};
+        for (const v of ["a", "b", "w", "m", "p", "d", "g", "h", "i", "k"]) {
+            if (!(v in save)) {
+                refs_.game.style.color = "red";
+                return;
+            }
         }
-    }
-    if ($("#substate").text().includes("(Wave")) {
-        if (document.body.style.backgroundColor == "black") {
-            $("#substate").text("Recover");
-        } else {
-            $("#substate").text("Prepare");
+        if ("n" in save) {
+            for (const ami of save.n) {
+                save.a[ami] = {};
+            }
         }
-        $("#state").text("Wave 1");
-        $("#reset").show();
-        $("#autofill").show();
-        $("#ready").show();
-        $("#progressbar").hide();
-        for (const loc of refs_.ami_locations) {
-            unfreezeDragging(loc);
-        }
-        reenableButtons();
     }
     state_.reloading = true;
-    if ("s" in save) {
+    if (refs_.gameover_screen.style.display != "none") {
+        if (getWaveState() != WaveState.RECOVER) {
+            transitionToRecover();
+        }
+        $("#state").text("Wave 1");
+        $("#progressbar").hide();
+        reenableButtons();
+    }
+    if (!newgame && "s" in save) {
         if (getWaveState() != WaveState.RECOVER) {
             transitionToRecover();
         }
@@ -721,16 +716,18 @@ function loadGame() {
         }
     }
     refs_.amis_ordered = refs_.amis_ordered.sort();
-    for (const ami in save.a) {
-        if (!ami.includes("c")) {
-            if ("h" in save.a[ami]) {
-                settings_.amis[refs_.amis_ordered[ami]].health = save.a[ami].h;
-            }
-            if ("d" in save.a[ami]) {
-                settings_.amis[refs_.amis_ordered[ami]].damage = save.a[ami].d;
-            }
-            if ("s" in save.a[ami]) {
-                settings_.amis[refs_.amis_ordered[ami]].special_level = save.a[ami].s;
+    if (!newgame) {
+        for (const ami in save.a) {
+            if (!ami.includes("c")) {
+                if ("h" in save.a[ami]) {
+                    settings_.amis[refs_.amis_ordered[ami]].health = save.a[ami].h;
+                }
+                if ("d" in save.a[ami]) {
+                    settings_.amis[refs_.amis_ordered[ami]].damage = save.a[ami].d;
+                }
+                if ("s" in save.a[ami]) {
+                    settings_.amis[refs_.amis_ordered[ami]].special_level = save.a[ami].s;
+                }
             }
         }
     }
@@ -749,6 +746,14 @@ function loadGame() {
     refs_.trainer.style.marginLeft = null;
     $("#trainer").hide();
     refs_.dismiss.style.visibility = "visible";
+    if (newgame) {
+        $("#state").text("Wave 1");
+        for (const wall of refs_.barricade) {
+            setHeight(wall, 41.534);
+        }
+        state_.reloading = false;
+        return;
+    }
     $("#state").text("Wave " + save.w);
     settings_.mondetour_opens = save.m;
     settings_.precheurs_opens = save.p;
@@ -3707,8 +3712,10 @@ function transitionToRecover() {
         }
         refs_.autofill.disabled = disable;
     }
-    saveGame();
-    refs_.load.disabled = false;
+    if (!state_.reloading) {
+        saveGame();
+        refs_.load.disabled = false;
+    }
     tutorial("recover" + getWave());
 }
 
@@ -4150,6 +4157,11 @@ function closeTheBrick() {
         refs_.achievements.style.pointerEvents = "auto";
         refs_.load.style.pointerEvents = "auto";
     }
+}
+
+function closeGameOver() {
+    refs_.gameover_screen.style.display = "none";
+    reenableButtons();
 }
 
 function upgraderMeMe(ev) {
@@ -4769,7 +4781,9 @@ async function prepareForNextWave() {
     for (const loc of refs_.ami_locations) {
         unfreezeDragging(loc);
     }
-    saveGame();
+    if (!state_.reloading) {
+        saveGame();
+    }
     tutorial("prepare" + getWave());
 }
 
@@ -4902,27 +4916,21 @@ function revolution() {
     if (getWave() < 30) {
         achieve("speedrun");
     }
-    $("#substate").text("You win! Refresh to play again (Wave " + getWave() + ")");
-    $("#state").text("VIVE LA FRANCE!");
-    $("#reset").hide();
-    $("#autofill").hide();
-    $("#ready").hide();
-    $("#recruit").hide();
-    $("#upgrade").hide();
-    $("#lootammo").hide();
-    $("#lootfood").hide();
-    $("#scout").hide();
     closeRecruit();
     closeUpgrade();
-    $("#feed").hide();
-    for (const loc of refs_.ami_locations) {
-        freezeDragging(loc);
-    }
     disableButtons();
     refs_.thebrick.style.pointerEvents = "auto";
     refs_.load.style.pointerEvents = "auto";
     refs_.achievements.style.pointerEvents = "auto";
     refs_.game.value = "";
+    refs_.finalwave.innerHTML = "<i>Wave " + getWave() + "</i>";
+    refs_.result.innerHTML = "VIVE LA FRANCE!";
+    refs_.tip.textContent = "";
+    refs_.gameover_screen.appendChild(refs_.game);
+    refs_.gameover_screen.appendChild(refs_.load);
+    refs_.game.style.top = null;
+    refs_.load.style.top = null;
+    refs_.gameover_screen.style.display = "block";
     switch (state_.difficulty) {
         case Difficulty.HARD:
             achieve("hard");
@@ -4959,11 +4967,30 @@ function revolution() {
 }
 
 function gameOver() {
-    $("#substate").text("Refresh to try again (Wave " + getWave() + ")");
-    $("#state").text("Game Over");
-    for (const loc of refs_.ami_locations) {
-        freezeDragging(loc);
+    refs_.finalwave.innerHTML = "<i>Wave " + getWave() + "</i>";
+    refs_.result.innerHTML = "Game Over";
+    var tip = "";
+    var tips = ["Keep Bossuet in the Corinthe building if you don’t want him to die.", "Keep Enjolras out of the Corinthe Building. He’s the leader, right?", "For the first few Waves, enemies don’t do much damage to the barricade or to your Amis. Take advantage of this by using the <p style='color: darkblue'>Recover</p> phase to hoard resources. I like to have my Amis drink until the 4th Wave.", "Don’t bother feeding your Amis if they aren’t below or really close to 75% health; you don’t want to waste food, especially on starving Frenchmen.", "<p style='color: darkred'>Ammo</p> is really important in the early game. As soon as you can recruit Citizens, have them scrounge up as much as they can so you can buy upgrades and put more filthy peasants in the line of fire.", "Javert can be isolated without being identified by Gavroche. Just look for the signs.", "If you don’t have a plan for any specific new recruit, it’s probably better to leave them in the shop.", "One ability is sufficient for most citizens until you feel like you have the freedom to train them in whatever you want, or you get trapped like rats. Whichever comes first.", "Seriously, make like 21 fully upgraded Feuillys. Or any number divisible by 7.", "Fully upgrade Amis' abilities before training citizens. It’s usually worth the wait.", "Higher walls fall faster than lower walls, mostly because it’s easier to shoot than the guys behind it after a certain point. This can be used to your advantage."];
+    if (getWave() >= 30) {
+        tips.push("Cannons suck. But only for 2 waves.");
+        tips.push("Cosette is fun; Marius has good taste.");
+        tips.push("Victor Hugo isn’t worth it, just get drunk.");
+        tips.push("Cannons suck. But only for 2 waves.");
+        tips.push("Cosette is fun; Marius has good taste.");
+        tips.push("Victor Hugo isn’t worth it, just get drunk.");
+        tips.push("Cannons suck. But only for 2 waves.");
+        tips.push("Cosette is fun; Marius has good taste.");
+        tips.push("Victor Hugo isn’t worth it, just get drunk.");
+        tips.push("If Thenardier is so good, why isn’t there an Elevenardier?");
+        tips.push("If Thenardier is so good, why isn’t there an Elevenardier?");
+        tips.push("If Thenardier is so good, why isn’t there an Elevenardier?");
     }
+    refs_.tip.innerHTML = tips.random() + "<br>- Jack";
+    refs_.gameover_screen.appendChild(refs_.game);
+    refs_.gameover_screen.appendChild(refs_.load);
+    refs_.game.style.top = null;
+    refs_.load.style.top = null;
+    refs_.gameover_screen.style.display = "block";
     disableButtons();
     refs_.thebrick.style.pointerEvents = "auto";
     refs_.load.style.pointerEvents = "auto";
@@ -4972,4 +4999,14 @@ function gameOver() {
     if (!state_.amis.all.size) {
         achieve("bookaccurate");
     }
+}
+
+function restart() {
+    loadGame(true);
+    refs_.gameover_screen.style.display = "none";
+    refs_.newgame_screen.appendChild(refs_.game);
+    refs_.newgame_screen.appendChild(refs_.load);
+    refs_.game.style.top = null;
+    refs_.load.style.top = null;
+    refs_.newgame_screen.style.display = "block";
 }
