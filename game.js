@@ -912,6 +912,15 @@ function loadGame(newgame) {
                 for (const s in save.a[ami].l) {
                     var special = refs_.amis_ordered[s];
                     state_.citizens.learned_specials[real_ami.id].push(refs_.specials[special][save.a[ami].l[s] - 1]);
+                    if (special == "Marius") {
+                        ami.appendChild(newMariusButton(real_ami));
+                    }
+                    if (special == "Eponine") {
+                        state_.amis.eponines.add(real_ami);
+                    }
+                    if (special == "Bossuet") {
+                        state_.amis.bossuets.add(real_ami);
+                    }
                 }
             }
             if ("j" in save.a[ami]) {
@@ -2726,7 +2735,7 @@ function deleteAmiState(ami) {
 
 function die(person, attacker) {
     if (isAmi(person) && !state_.reloading) {
-        for (const ami of state_.amis.eponines) {
+        for (const ami of [...state_.amis.eponines].sort((a, b) => specialLevel(a, "Eponine") > specialLevel(b, "Eponine") ? -1 : specialLevel(a, "Eponine") < specialLevel(b, "Eponine") ? 1 : getRandomInt(2) ? -1 : 1)) {
             if (ami.id == person.id) {
                 continue;
             }
