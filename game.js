@@ -2963,6 +2963,7 @@ function enemiesPerWave(type, wave) {
     if (wave >= 40) {
         adjusted_wave += (wave - 39) * 5;
     }
+    adjusted_wave += state_.difficulty == Difficulty.HARD ? 2 : 0;
     var adjust = 4/5;
     if (state_.difficulty == Difficulty.EASY) {
         adjust = 3/5;
@@ -3036,7 +3037,7 @@ function addEnemies(type, wave, foresight = false) {
             }
             tutorial("mondetour");
         } else if (foresight) {
-            for (let i = 1; i <= enemiesPerWave(type, state_.difficult == Difficult.HARD ? 2 : 5); i++) {
+            for (let i = 1; i <= enemiesPerWave(type, state_.difficulty == Difficulty.HARD ? 2 : 5); i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesmondetour2);
                     refs_.lesenemiesmondetour2.style.color = "white";
@@ -3065,7 +3066,7 @@ function addEnemies(type, wave, foresight = false) {
                 }
             }
         } else if (foresight) {
-            for (let i = 1; i <= enemiesPerWave(type, state_.difficult == Difficult.HARD ? 2 : 5); i++) {
+            for (let i = 1; i <= enemiesPerWave(type, state_.difficulty == Difficulty.HARD ? 2 : 5); i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesprecheurs2);
                     refs_.lesenemiesprecheurs2.style.color = "white";
