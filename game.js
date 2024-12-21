@@ -180,7 +180,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 function startNewGame() {
     initializeVars();
     initializeAmis();
-    initializeUpgrades();
     setLabels();
     refs_.reset.disabled = true;
     closeRecruit();
@@ -211,6 +210,19 @@ function initializeChallenges() {
         button.textContent = "Start";
         div.appendChild(button);
         refs_.newgame_screen.appendChild(div);
+    }
+}
+
+function updateChallenges() {
+    for (const child of refs_.newgame_screen.children) {
+        if (!child.id.includes("challenge") || child.id.includes("label")) {
+            continue;
+        }
+        var i = child.id.split("challenge")[1];
+        if (hasAchievedChallenge(i)) {
+            child.firstChild.style.color = "gold";
+            child.firstChild.innerHTML = "&#9733";
+        }
     }
 }
 
@@ -506,6 +518,7 @@ function setDifficulty(ev) {
         state_.difficulty = Difficulty.NORMAL;
     }
     initializeAmisUpgrades();
+    initializeUpgrades();
     if (refs_.newgame_screen.style.display != "none") {
         refs_.newgame_screen.style.display = "none";
         reenableButtons();
@@ -579,13 +592,11 @@ function startChallenge(ev) {
                 }
             }
             settings_.amis["Citizen"].level = 1;
+            settings_.upgrades["revolution"].cost_value = 5000;
             for (const ami in settings_.amis) {
                 if (ami != "Citizen" && ami != "Enjolras") {
                     settings_.amis[ami].level = 999999;
                 }
-            }
-            for (const upgrade in settings_.upgrades) {
-                settings_.upgrades[upgrade].description = settings_.upgrades[upgrade].description.replace("+10 recruit limit", "+20 recruit limit");
             }
             state_.citizens.max = 90;
             break;
@@ -614,6 +625,7 @@ function startChallenge(ev) {
     }
     state_.reloading = original;
     initializeAmisUpgrades();
+    initializeUpgrades();
     if (refs_.newgame_screen.style.display != "none") {
         refs_.newgame_screen.style.display = "none";
         reenableButtons();
@@ -4986,6 +4998,7 @@ function revolution() {
     }
     if (state_.challenge != null) {
         achieveChallenge(state_.challenge);
+        updateChallenges();
     }
 }
 
