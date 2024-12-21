@@ -36,7 +36,6 @@ var settings_ = {
 	"mondetour_opens": 11,
 	"precheurs_opens": 23,
 	"opening_variance": 3,
-	"base_upgrade_cost": 25,
 	"ammo_warning_threshold": 200,
 	"food_warning_threshold": 20,
 	"hope_warning_threshold": 20,
@@ -651,7 +650,7 @@ var settings_ = {
 		},
 		"thecourfeyrac": {
 			"name": "Executioner",
-			"description": "Have an Ami with at least 10x damage",
+			"description": "Have an Ami with at least 16x damage",
 			"hidden": false
 		},
 		"cosette": {

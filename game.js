@@ -2015,15 +2015,17 @@ function newUpgrade(name) {
 
 function newUpgrader(ami, type) {
     var desc = "";
-    var cost = settings_.base_upgrade_cost;
+    var cost = state_.debug ? 0 : 25;
     var cost_type = CostType.UNKNOWN;
     if (type == UpgraderType.DAMAGE) {
         cost_type = CostType.AMMO;
-        cost *= 4 * 2 ** (getDamage(ami) - 1);
+        cost *= 2**(getDamage(ami) - 1);
         desc = "Damage: " + getDamage(ami) + "x -&gt " + (getDamage(ami) + 1) + "x";
     } else if (type == UpgraderType.HEALTH) {
+        cost = state_.debug ? 0 : 2.5;
         cost_type = CostType.FOOD;
         cost *= 2 ** ((getHealthMax(ami) - 0.75) / 0.25 - 1);
+        cost = Math.floor(cost);
         desc = "Health: " + getHealthMax(ami) + "x -&gt " + (getHealthMax(ami) + 0.25) + "x";
     } else if (type == UpgraderType.SPECIAL) {
         cost_type = CostType.HOPE;
@@ -2484,7 +2486,11 @@ function getDamage(person) {
         if (person.id in state_.amis.temp_damage) {
             temp_damage = state_.amis.temp_damage[person.id];
         }
-        return settings_.amis[getName(person)].damage + temp_damage;
+        var damage = settings_.amis[getName(person)].damage * (1 + temp_damage);
+        if (damage.toFixed(1) != Math.floor(damage)) {
+            damage = damage.toFixed(1);
+        }
+        return damage;
     }
     if (!isEnemy(person)) {
         console.error("Person is neither Ami nor Enemy: " + person.id);
@@ -2866,13 +2872,20 @@ function updateStats(ami) {
     setHealth(ami, (health.parentElement.getBoundingClientRect().width - currHealth)/health.parentElement.getBoundingClientRect().width * 100);
     var bullets = getChild(ami, "bullets");
     var damage = getDamage(ami);
-    if (damage >= 10) {
+    if (damage >= 16) {
         achieve("thecourfeyrac");
     }
-    var color = damage >= 8.5 ? "gold" : damage >= 4.5 ? "silver" : "black";
+    var color = damage >= 12.5 ? "purple" : damage >= 8.5 ? "gold" : damage >= 4.5 ? "silver" : "black";
     bullets.innerHTML = '<p style="color: ' + color + '">&#8269;</p>';
-    for (var i = 1; i <= 4 && i <= damage; i += 0.5) {
-        color = damage >= 8 + i ? "gold" : damage >= 4 + i ? "silver" : "black";
+    for (var i = 1; i < 8 && i < damage * 2; i += 1) {
+        var color = "black";
+        if (damage > 12 && damage >= 12 + i / 2) {
+            color = "purple";
+        } else if (damage > 8 && damage >= 8 + i / 2) {
+            color = "gold";
+        } else if (damage > 4 && damage >= 4 + i / 2) {
+            color = "silver";
+        }
         bullets.innerHTML += '<p style="color: ' + color + '">&#8269;</p>';
     }
     if (isCitizen(ami)) {
