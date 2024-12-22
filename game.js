@@ -570,7 +570,7 @@ function startChallenge(ev) {
             });
             var i = 0;
             for (const ami of ["Bossuet", "Prouvaire", "Courfeyrac", "Bahorel", "Enjolras", "Feuilly", "Joly", "Combeferre"]) {
-                settings_.amis[ami].level = levels[i++];
+                settings_.amis[ami].level = levels[i];
                 settings_.amis[ami].cost = costs[i++];
             }
             initializeAmis();
