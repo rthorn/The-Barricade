@@ -2564,7 +2564,6 @@ function getAmmo() {
 
 function setAmmo(value) {
     refs_.ammo.textContent = Math.max(value, 0).toString();
-    state_.max_ammo = Math.max(state_.max_ammo, value);
     if (value <= settings_.ammo_warning_threshold) {
         refs_.ammo.style.color = "red";
     } else {
@@ -2595,7 +2594,6 @@ function getFood() {
 
 function setFood(value) {
     refs_.food.textContent = Math.max(value, 0).toString();
-    state_.max_food = Math.max(state_.max_food, value);
     if (value <= settings_.food_warning_threshold) {
         refs_.food.style.color = "red";
     } else {
@@ -4723,6 +4721,8 @@ async function resolveRecover() {
         }
         await sleep(settings_.recover_sleep_ms);
     }
+    state_.max_ammo = Math.max(state_.max_ammo, getAmmo());
+    state_.max_food = Math.max(state_.max_food, getFood());
 }
 
 async function prepareForNextWave() {
