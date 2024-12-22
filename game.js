@@ -4389,6 +4389,11 @@ function upgradeMe(ev) {
         if (getWaveState() == WaveState.RECOVER) {
             $("#trainer").show();
             refs_.rightside.style.background = "teal";
+            var children = [...getChildren(refs_.trainer)];
+            for (const child of children) {
+                refs_.trainer.appendChild(child);
+                setWidth(child);
+            }
         }
     } else if (name.includes("damage")) {
         settings_.amis["Citizen"].damage += 0.5;
