@@ -707,11 +707,11 @@ var settings_ = {
 	"challenges": [
 		{
 			"name": "Rest Up",
-			"rules": ["No food", "Food-based upgrades cost Ammo instead"]
+			"rules": ["No food", "No Joly", "Food-based upgrades cost Ammo instead"]
 		},
 		{
 			"name": "Unarmed",
-			"rules": ["Amis no longer shoot enemies", "No Bahorel"]
+			"rules": ["No ammo", "No Combeferre", "No Bahorel", "Ammo-based upgrades cost Food instead"]
 		},
 		{
 			"name": "Opposite Day",

@@ -545,10 +545,22 @@ function startChallenge(ev) {
                     settings_.upgrades[upgrade].cost_value = settings_.upgrades[upgrade].cost_value * 10;
                 }
             }
+            var joly = state_.amis.lookup["Joly"];
+            die(joly);
+            setFood(0);
             break;
         case 1:
+            for (const upgrade in settings_.upgrades) {
+                if (settings_.upgrades[upgrade].cost_type == CostType.AMMO) {
+                    settings_.upgrades[upgrade].cost_type = CostType.FOOD;
+                    settings_.upgrades[upgrade].cost_value = settings_.upgrades[upgrade].cost_value / 10;
+                }
+            }
+            var combeferre = state_.amis.lookup["Combeferre"];
+            die(combeferre);
             var bahorel = state_.amis.lookup["Bahorel"];
             die(bahorel);
+            setAmmo(0);
             break;
         case 2:
             for (const ami of state_.amis.all) {
@@ -2043,8 +2055,12 @@ function newUpgrader(ami, type) {
     var cost = state_.debug ? 0 : 25;
     var cost_type = CostType.UNKNOWN;
     if (type == UpgraderType.DAMAGE) {
-        cost_type = CostType.AMMO;
+        if (state_.challenge == 1) {
+            cost = 2.5;
+        }
+        cost_type = state_.challenge == 1 ? CostType.FOOD : CostType.AMMO;
         cost *= 2**(getDamage(ami) - 1);
+        cost = Math.floor(cost);
         desc = "Damage: " + getDamage(ami) + "x -&gt " + (getDamage(ami) + 1) + "x";
     } else if (type == UpgraderType.HEALTH) {
         cost = state_.debug ? 0 : state_.challenge == 0 ? 25 : 2.5;
@@ -3727,7 +3743,9 @@ function transitionToRecover() {
     if (state_.challenge != 0) {
         $("#lootfood").show();
     }
-    $("#lootammo").show();
+    if (state_.challenge != 1) {
+        $("#lootammo").show();
+    }
     if (!state_.structures.precheurs_open) {
         $("#dismiss").show();
     }
@@ -4216,13 +4234,48 @@ function upgraderMeMe(ev) {
     ev.target.disabled = true;
     var cost = ev.target.cost;
     var type = ev.target.cost_type;
+    var cost_type = ev.target.parentElement.cost_type;
     var ami = state_.amis.lookup[ev.target.id.replace("-upgraderButton" + type, "")];
     var container = ev.target.parentElement.parentElement;
-    if (type == UpgraderType.DAMAGE) {
+    if (cost_type == CostType.AMMO) {
         if (getAmmo() < cost) {
             return;
         }
         setAmmo(getAmmo() - cost);
+        for (const ctr of refs_.upgrader_screen.children) {
+            for (const child of ctr.children) {
+                if (child.cost_type == CostType.AMMO && child.cost > getAmmo()) {
+                    child.children[child.children.length - 1].disabled = true;
+                }
+            }
+        }
+    } else if (cost_type == CostType.FOOD) {
+        if (getFood() < cost) {
+            return;
+        }
+        setFood(getFood() - cost);
+        updateFood();
+        for (const ctr of refs_.upgrader_screen.children) {
+            for (const child of ctr.children) {
+                if (child.cost_type == CostType.FOOD && child.cost > getFood()) {
+                    child.children[child.children.length - 1].disabled = true;
+                }
+            }
+        }
+    } else {
+        if (getHope() < cost) {
+            return;
+        }
+        setHope(getHope() - cost);
+        for (const ctr of refs_.upgrader_screen.children) {
+            for (const child of ctr.children) {
+                if (child.cost_type == CostType.HOPE && child.cost > getHope()) {
+                    child.children[child.children.length - 1].disabled = true;
+                }
+            }
+        }
+    }
+    if (type == UpgraderType.DAMAGE) {
         settings_.amis[ami.id].damage += 1;
         if (getDamage(ami) < 4) {
             container.insertBefore(newUpgrader(ami, UpgraderType.DAMAGE), ev.target.parentElement);
@@ -4232,19 +4285,8 @@ function upgraderMeMe(ev) {
             empty.innerHTML = "<i>Damage: " + getDamage(ami) + "x</i>";
             container.insertBefore(empty, ev.target.parentElement);
         }
-        for (const ctr of refs_.upgrader_screen.children) {
-            for (const child of ctr.children) {
-                if (child.cost_type == CostType.AMMO && child.cost > getAmmo()) {
-                    child.children[child.children.length - 1].disabled = true;
-                }
-            }
-        }
     }
     if (type == UpgraderType.HEALTH) {
-        if (getFood() < cost) {
-            return;
-        }
-        setFood(getFood() - cost);
         settings_.amis[ami.id].health += 0.25;
         if (getHealthMax(ami) < 2) {
             container.insertBefore(newUpgrader(ami, UpgraderType.HEALTH), ev.target.parentElement);
@@ -4254,20 +4296,8 @@ function upgraderMeMe(ev) {
             empty.innerHTML = "<i>Health: " + getHealthMax(ami) + "x</i>";
             container.insertBefore(empty, ev.target.parentElement);
         }
-        updateFood();
-        for (const ctr of refs_.upgrader_screen.children) {
-            for (const child of ctr.children) {
-                if (child.cost_type == CostType.FOOD && child.cost > getFood()) {
-                    child.children[child.children.length - 1].disabled = true;
-                }
-            }
-        }
     }
     if (type == UpgraderType.SPECIAL) {
-        if (getHope() < cost) {
-            return;
-        }
-        setHope(getHope() - cost);
         settings_.amis[ami.id].special_level += 1;
         if (specialLevel(ami, ami.id) < 4) {
             container.insertBefore(newUpgrader(ami, UpgraderType.SPECIAL), ev.target.parentElement);
@@ -4276,13 +4306,6 @@ function upgraderMeMe(ev) {
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>" + refs_.info_button;
             container.insertBefore(empty, ev.target.parentElement);
-        }
-        for (const ctr of refs_.upgrader_screen.children) {
-            for (const child of ctr.children) {
-                if (child.cost_type == CostType.HOPE && child.cost > getHope()) {
-                    child.children[child.children.length - 1].disabled = true;
-                }
-            }
         }
     }
     ev.target.parentElement.remove();
