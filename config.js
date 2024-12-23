@@ -707,7 +707,7 @@ var settings_ = {
 	"challenges": [
 		{
 			"name": "Rest Up",
-			"rules": ["Food no longer heals Amis"]
+			"rules": ["No food", "Food-based upgrades cost Ammo instead"]
 		},
 		{
 			"name": "Unarmed",
@@ -719,7 +719,7 @@ var settings_ = {
 		},
 		{
 			"name": "One-Man Revolution",
-			"rules": ["Start with only Enjolras", "No named Ami recruits", "Citizens available at Wave 1", "Start with max recruit limit", "RÉVOLUTION! upgrade costs 5000 Hope"]
+			"rules": ["Start with only Enjolras", "Grantaire available at Wave 20", "No other unique Ami recruits", "Citizens available at Wave 1", "Start with max recruit limit"]
 		},
 		{
 			"name": "Siege Warfare",

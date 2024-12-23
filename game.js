@@ -538,6 +538,14 @@ function startChallenge(ev) {
     var original = state_.reloading;
     state_.reloading = true;
     switch (challenge_index) {
+        case 0:
+            for (const upgrade in settings_.upgrades) {
+                if (settings_.upgrades[upgrade].cost_type == CostType.FOOD) {
+                    settings_.upgrades[upgrade].cost_type = CostType.AMMO;
+                    settings_.upgrades[upgrade].cost_value = settings_.upgrades[upgrade].cost_value * 10;
+                }
+            }
+            break;
         case 1:
             var bahorel = state_.amis.lookup["Bahorel"];
             die(bahorel);
@@ -592,8 +600,11 @@ function startChallenge(ev) {
                 }
             }
             settings_.amis["Citizen"].level = 1;
-            settings_.upgrades["revolution"].cost_value = 5000;
             for (const ami in settings_.amis) {
+                if (ami == "Grantaire") {
+                    settings_.amis[ami].level = 20;
+                    continue;
+                }
                 if (ami != "Citizen" && ami != "Enjolras") {
                     settings_.amis[ami].level = 999999;
                 }
@@ -605,14 +616,6 @@ function startChallenge(ev) {
             settings_.mondetour_opens = 0;
             enableMondetour();
             enablePrecheurs();
-            for (const upgrade of getChildren(refs_.upgrade_screen)) {
-                if (upgrade.id == "open-building") {
-                    var ev = {};
-                    ev.target = upgrade.children[1];
-                    upgradeMe(ev);
-                    break;
-                }
-            }
             for (const wall of refs_.barricade) {
                 setHeight(wall, 9999999);
                 setAmmo(10000);
@@ -626,6 +629,16 @@ function startChallenge(ev) {
     state_.reloading = original;
     initializeAmisUpgrades();
     initializeUpgrades();
+    if (challenge_index == 4) {
+        for (const upgrade of getChildren(refs_.upgrade_screen)) {
+            if (upgrade.id == "open-building") {
+                var ev = {};
+                ev.target = upgrade.children[1];
+                upgradeMe(ev);
+                break;
+            }
+        }
+    }
     if (refs_.newgame_screen.style.display != "none") {
         refs_.newgame_screen.style.display = "none";
         reenableButtons();
@@ -2034,8 +2047,8 @@ function newUpgrader(ami, type) {
         cost *= 2**(getDamage(ami) - 1);
         desc = "Damage: " + getDamage(ami) + "x -&gt " + (getDamage(ami) + 1) + "x";
     } else if (type == UpgraderType.HEALTH) {
-        cost = state_.debug ? 0 : 2.5;
-        cost_type = CostType.FOOD;
+        cost = state_.debug ? 0 : state_.challenge == 0 ? 25 : 2.5;
+        cost_type = state_.challenge == 0 ? CostType.AMMO : CostType.FOOD;
         cost *= 2 ** ((getHealthMax(ami) - 0.75) / 0.25 - 1);
         cost = Math.floor(cost);
         desc = "Health: " + getHealthMax(ami) + "x -&gt " + (getHealthMax(ami) + 0.25) + "x";
@@ -2281,7 +2294,7 @@ function autoFill() {
             } else if (specialLevel(ami, "Combeferre") && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier"))) {
                 refs_.lootammo.appendChild(ami);
                 continue;
-            } else if (specialLevel(ami, "Joly") && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier"))) {
+            } else if (specialLevel(ami, "Joly") && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier")) && state_.challenge != 0) {
                 refs_.lootfood.appendChild(ami);
                 continue;
             } else if (specialLevel(ami, "Grantaire") && getFood() > 0) {
@@ -2294,7 +2307,7 @@ function autoFill() {
             var ran = getRandomInt(ammo_threshold + food_threshold + hope_threshold + wall_threshold);
             if (ran < ammo_threshold && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier"))) {
                 refs_.lootammo.appendChild(ami);
-            } else if (ran < ammo_threshold + food_threshold && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier"))) {
+            } else if (ran < ammo_threshold + food_threshold && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier")) && state_.challenge != 0) {
                 refs_.lootfood.appendChild(ami);
             } else if (ran < ammo_threshold + food_threshold + hope_threshold) {
                 continue;
@@ -3711,7 +3724,9 @@ function transitionToRecover() {
     for (const upgrader of state_.amis.upgrader_buttons) {
         upgrader.style.display = "block";
     }
-    $("#lootfood").show();
+    if (state_.challenge != 0) {
+        $("#lootfood").show();
+    }
     $("#lootammo").show();
     if (!state_.structures.precheurs_open) {
         $("#dismiss").show();
