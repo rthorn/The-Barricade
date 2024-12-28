@@ -87,7 +87,7 @@ var refs_ = {
     special_bonus_levels: [1, 1.5, 2, 3, 5, 5],
     marius_hope: [1, 0, 0.1, 0.25, 0.5, 1],
     bossuet_extras: [1, 3, 9, 24, 24],
-    targeting_extras: [1, 3, 9, 0, 0],
+    targeting_extras: [1, 3, 9, 1, 1],
     mme_amounts: [0, 0.005, 0.01, 0.02, 0.05, 0.05],
     reset_button: '<button type="button" class="resetButton" onClick="resetLoc(this)" hidden>&#x21bb;</button>',
     info_button:  '<button type="button" class="infoButton" onClick="info(this)">&#x24D8</button>',
@@ -663,6 +663,7 @@ function startChallenge(ev) {
 }
 
 function loadGame(newgame) {
+    refs_.load.disabled = true;
     if (!newgame) {
         if (!refs_.game.value) {
             return;
@@ -788,7 +789,9 @@ function loadGame(newgame) {
         for (const wall of refs_.barricade) {
             setHeight(wall, 41.534);
         }
+        setLabels();
         state_.reloading = false;
+        refs_.load.disabled = false;
         return;
     }
     $("#state").text("Wave " + save.w);
@@ -1069,6 +1072,7 @@ function loadGame(newgame) {
     }
     setLabels();
     state_.reloading = false;
+    refs_.load.disabled = false;
 }
 
 document.addEventListener('contextmenu', event => {
@@ -3371,19 +3375,52 @@ async function startFight() {
     }
     state_.finished_early = false;
     updateProgress(-1);
+    var enemy_refs = {};
+    for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
+        var enemies = getEnemies(loc);
+        if (!enemies.length || loc.id.includes("2") || loc.id.includes("3")) {
+            continue;
+        }
+        enemy_refs[loc.id] = [enemies.random(), enemies.random(), new Set([]), new Set([]), null, null, null, null, new Set([...enemies]), new Set([]), new Set([])];
+        for (const enemy of getSpecialEnemies(loc)) {
+            if (getName(enemy) == EnemyType.SNIPER) {
+                enemy_refs[loc.id][2].add(enemy);
+                enemy_refs[loc.id][4] = enemy;
+                enemy_refs[loc.id][5] = enemy;
+                enemy_refs[loc.id][9].add(enemy);
+            } else {
+                enemy_refs[loc.id][3].add(enemy);
+                enemy_refs[loc.id][6] = enemy;
+                enemy_refs[loc.id][7] = enemy;
+                enemy_refs[loc.id][10].add(enemy);
+            }
+        }
+    }
     for (let i = 0; i < settings_.fire_per_wave; i++) {
+        if (state_.foresight) {
+            barricadeFire(enemy_refs);
+            if (enemiesDead()) {
+                state_.finished_early = true;
+                if (i <= settings_.fire_per_wave * 1 / 10) {
+                    achieve("exceedsexpectations");
+                }
+                break;
+            }
+        }
         enemyFire(i);
+        if (!state_.foresight) {
+            barricadeFire(enemy_refs);
+            if (enemiesDead()) {
+                state_.finished_early = true;
+                if (i <= settings_.fire_per_wave * 1 / 10) {
+                    achieve("exceedsexpectations");
+                }
+                break;
+            }
+        }
         if (barricadeDead()) {
             gameOver();
             return;
-        }
-        barricadeFire();
-        if (enemiesDead()) {
-            state_.finished_early = true;
-            if (i <= settings_.fire_per_wave * 1 / 10) {
-                achieve("exceedsexpectations");
-            }
-            break;
         }
         updateProgress(i);
         if (state_.marius.active) {
@@ -3518,8 +3555,37 @@ function enemyFire(i) {
     }
 }
 
-function barricadeFire() {
+function getHighestHealth(loc, type = null) {
+    var highest = null;
+    var enemies = type ? getSpecialEnemies(loc) : getEnemies(loc);
+    for (const enemy of enemies) {
+        if (type && getName(enemy) != type) {
+            continue;
+        }
+        if (!highest || (getHealth(enemy) > getHealth(highest))) {
+            highest = enemy;
+        }
+    }
+    return highest;
+}
+
+function getLowestHealth(loc, type = null) {
+    var lowest = null;
+    var enemies = type ? getSpecialEnemies(loc) : getEnemies(loc);
+    for (const enemy of enemies) {
+        if (type && getName(enemy) != type) {
+            continue;
+        }
+        if (!lowest || (getHealth(enemy) < getHealth(lowest))) {
+            lowest = enemy;
+        }
+    }
+    return lowest;
+}
+
+function barricadeFire(enemy_refs) {
     for (const ami of getAmisBattle()) {
+        var loc_key = ami.parentElement.id.replace("2", "1").replace("3", "1");
         if (state_.challenge == 1) {
             continue;
         }
@@ -3540,12 +3606,9 @@ function barricadeFire() {
         var sniped = false;
         var lowed = false;
         if (sl = specialLevel(ami, "Montparnasse")) {
-            for (const enemy of getSpecialEnemies(ami.parentElement)) {
-                if (getName(enemy) == EnemyType.SNIPER) {
+            for (const enemy of enemy_refs[loc_key][2]) {
+                for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
                     extras.push(enemy);
-                    for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
-                        extras.push(enemy);
-                    }
                 }
             }
             if (extras.length) {
@@ -3559,12 +3622,9 @@ function barricadeFire() {
         }
         extras = [];
         if (sl = specialLevel(ami, "Claquesous")) {
-            for (const enemy of getSpecialEnemies(ami.parentElement)) {
-                if (getName(enemy) == EnemyType.CANNON) {
+            for (const enemy of enemy_refs[loc_key][3]) {
+                for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
                     extras.push(enemy);
-                    for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
-                        extras.push(enemy);
-                    }
                 }
             }
             if (extras.length) {
@@ -3577,13 +3637,20 @@ function barricadeFire() {
         }
         extras = [];
         if (sl = specialLevel(ami, "Gueulemer")) {
-            var high_health = [...enemies].sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b)* getHealthMax(b) ? -1 : 1);
-            extras.push(high_health[0]);
-            if (sl > 4 && high_health.length > 1) {
-                extras.push(high_health[1]);
+            var high_health = enemy_refs[loc_key][0];
+            if (specialLevel(ami, "Montparnasse") >= 4 && specialLevel(ami, "Claquesous") >= 4 && enemy_refs[loc_key][4] && enemy_refs[loc_key][6]) {
+                if (getHealth(enemy_refs[loc_key][4]) > getHealth(enemy_refs[loc_key][6])) {
+                    high_health = enemy_refs[loc_key][4];
+                } else {
+                    high_health = enemy_refs[loc_key][6];
+                }
+            } else if (specialLevel(ami, "Montparnasse") >= 4 && enemy_refs[loc_key][4]) {
+                high_health = enemy_refs[loc_key][4];
+            } else if (specialLevel(ami, "Claquesous") >= 4 && enemy_refs[loc_key][6]) {
+                high_health = enemy_refs[loc_key][6];
             }
             for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
-                extras.push(high_health[0]);
+                extras.push(high_health);
             }
             if (sl >= 4) {
                 lowed = true;
@@ -3594,13 +3661,20 @@ function barricadeFire() {
         }
         extras = [];
         if (sl = specialLevel(ami, "Babet")) {
-            var low_health = [...enemies].sort((a, b) => getHealth(a) * getHealthMax(a) < getHealth(b)* getHealthMax(b) ? 1 : -1);
-            extras.push(low_health[0]);
-            if (sl > 4 && low_health.length > 1) {
-                extras.push(low_health[1]);
+            var low_health = enemy_refs[loc_key][1];
+            if (specialLevel(ami, "Montparnasse") >= 4 && specialLevel(ami, "Claquesous") >= 4 && enemy_refs[loc_key][5] && enemy_refs[loc_key][7]) {
+                if (getHealth(enemy_refs[loc_key][5]) > getHealth(enemy_refs[loc_key][7])) {
+                    high_health = enemy_refs[loc_key][7];
+                } else {
+                    high_health = enemy_refs[loc_key][5];
+                }
+            } else if (specialLevel(ami, "Montparnasse") >= 4 && enemy_refs[loc_key][5]) {
+                high_health = enemy_refs[loc_key][5];
+            } else if (specialLevel(ami, "Claquesous") >= 4 && enemy_refs[loc_key][7]) {
+                high_health = enemy_refs[loc_key][7];
             }
             for (var i = 0; i < refs_.targeting_extras[sl - 1]; i++) {
-                extras.push(low_health[0]);
+                extras.push(low_health);
             }
             if (sl >= 4 && !lowed) {
                 enemies = [...extras];
@@ -3609,6 +3683,35 @@ function barricadeFire() {
             }
         }
         var enemy = enemies.random();
+        for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
+            if (!(loc.id in enemy_refs)) {
+                continue;
+            }
+            enemy_refs[loc.id][8].delete(enemy);
+            enemy_refs[loc.id][9].delete(enemy);
+            enemy_refs[loc.id][10].delete(enemy);
+            if (enemy_refs[loc.id][0] && enemy_refs[loc.id][0].id == enemy.id) {
+                if (enemy_refs[loc.id][8].size) {
+                    enemy_refs[loc.id][0] = Array.from(enemy_refs[loc.id][8]).random();
+                } else {
+                    enemy_refs[loc.id][0] = getHighestHealth(loc);
+                }
+            }
+            if (enemy_refs[loc.id][4] && enemy_refs[loc.id][4].id == enemy.id) {
+                if (enemy_refs[loc.id][9].size) {
+                    enemy_refs[loc.id][4] = Array.from(enemy_refs[loc.id][9]).random();
+                } else {
+                    enemy_refs[loc.id][4] = getHighestHealth(loc, EnemyType.SNIPER);
+                }
+            }
+            if (enemy_refs[loc.id][6] && enemy_refs[loc.id][6].id == enemy.id) {
+                if (enemy_refs[loc.id][10].size) {
+                    enemy_refs[loc.id][6] = Array.from(enemy_refs[loc.id][10]).random();
+                } else {
+                    enemy_refs[loc.id][6] = getHighestHealth(loc, EnemyType.CANNON);
+                }
+            }
+        }
         if (damage(enemy, ami)) {
             if (getRandomInt(100) < 25 * specialLevel(ami, "Valjean")) {
                 if (state_.citizens.num < state_.citizens.max || (specialLevel(ami, "Valjean") > 4 && state_.citizens.num < (state_.citizens.max*2))) {
@@ -3618,23 +3721,41 @@ function barricadeFire() {
             if (enemiesDead()) {
                 return;
             }
-        }
-        if (specialLevel(ami, "Babet") > 4 || specialLevel(ami, "Gueulemer") > 4) {
-            while (enemies.length > 1) {
-                enemies.splice(enemies.indexOf(enemy), 1);
-                enemy = enemies.random();
-                if (damage(enemy, ami)) {
-                    if (getRandomInt(100) < 25 * specialLevel(ami, "Valjean")) {
-                        if (state_.citizens.num < state_.citizens.max || (specialLevel(ami, "Valjean") > 4 && state_.citizens.num < (state_.citizens.max*2))) {
-                            addNewCitizen();
-                        }
+            for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
+                if (!(loc.id in enemy_refs)) {
+                    continue;
+                }
+                if (enemy_refs[loc.id][1] && enemy_refs[loc.id][1].id == enemy.id) {
+                    enemy_refs[loc.id][1] = getLowestHealth(loc);
+                }
+                if (enemy_refs[loc.id][5] && enemy_refs[loc.id][5].id == enemy.id) {
+                    enemy_refs[loc.id][5] = getLowestHealth(loc, EnemyType.SNIPER);
+                }
+                if (enemy_refs[loc.id][7] && enemy_refs[loc.id][7].id == enemy.id) {
+                    enemy_refs[loc.id][7] = getLowestHealth(loc, EnemyType.CANNON);
+                }
+                enemy_refs[loc.id][2].delete(enemy);
+                enemy_refs[loc.id][3].delete(enemy);
+            }
+        } else {
+            for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
+                if (!(loc.id in enemy_refs)) {
+                    continue;
+                }
+                if (enemy_refs[loc.id][1] && enemy_refs[loc.id][1].id != enemy.id && getHealth(enemy) < getHealth(enemy_refs[loc.id][1]) && getEnemies(loc).includes(enemy)) {
+                    enemy_refs[loc.id][1] = enemy;
+                }
+                if (getName(enemy) == EnemyType.SNIPER && enemy_refs[loc.id][5] && getEnemies(loc).includes(enemy)) {
+                    if (enemy_refs[loc.id][5].id != enemy.id && getHealth(enemy) < getHealth(enemy_refs[loc.id][5])) {
+                        enemy_refs[loc.id][5] = enemy;
                     }
-                    if (enemiesDead()) {
-                        return;
+                }
+                if (getName(enemy) == EnemyType.CANNON && enemy_refs[loc.id][7] && getEnemies(loc).includes(enemy)) {
+                    if (enemy_refs[loc.id][7].id != enemy.id && getHealth(enemy) < getHealth(enemy_refs[loc.id][7])) {
+                        enemy_refs[loc.id][7] = enemy;
                     }
                 }
             }
-
         }
     }
 }

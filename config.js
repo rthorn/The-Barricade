@@ -483,7 +483,7 @@ var settings_ = {
 				"4x chance to target enemy with lowest health",
 				"10x chance to target enemy with lowest health",
 				"Always targets enemy with lowest health",
-				"Always targets the two enemies with lowest health"
+				"Always targets enemy with lowest health, 2x damage if enemy below 25% health"
 			],
 			"cost": 200
 		},
@@ -496,7 +496,7 @@ var settings_ = {
 				"4x chance to target enemy with highest health",
 				"10x chance to target enemy with highest health",
 				"Always targets enemy with highest health",
-				"Always targets the two enemies with highest health"
+				"Always targets enemy with highest health, 2x damage if enemy above 75% health"
 			],
 			"cost": 200
 		},
