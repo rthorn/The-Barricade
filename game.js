@@ -54,13 +54,13 @@ var state_ = {
         wall_damage: 1
     },
     achievements: {
-        fast: false,
         dead: new Set([]),
         permetstu: null,
         drunk: null,
         killed: 0,
         scouted: true
     },
+    fast: false,
     sabotage: 0,
     training: 0,
     trainers: 1,
@@ -78,7 +78,10 @@ var state_ = {
     difficulty: 2,
     challenge: null,
     debug: false,
-    tutorial_queue: []
+    tutorial_queue: [],
+    timers: {},
+    health: {},
+    healthmax: {}
 };
 
 var initials_ = {};
@@ -141,6 +144,7 @@ async function logSha1(str) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
+    startTimer("initialization");
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const debug = urlParams.get('debug')
@@ -164,6 +168,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     initials_.settings = JSON.parse(JSON.stringify(settings_));
     initials_.refs = JSON.parse(JSON.stringify(refs_));
     initials_.state = JSON.parse(JSON.stringify(state_));
+    initials_.state.timers = {};
     startNewGame();
     disableButtons();
     refs_.thebrick.style.pointerEvents = "auto";
@@ -175,6 +180,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         refs_.challengeslabel.textContent = "Achievements disabled";
         initializeChallenges();
     }
+    endTimer("initialization");
 });
 
 function startNewGame() {
@@ -241,6 +247,8 @@ function initializeVars() {
         refs_[name] = document.getElementById(name);
         refs_[name + "_label"] = document.getElementById(name + "-label");
         refs_.ami_locations.add(refs_[name]);
+        state_.amis.last_recover[name] = [];
+        state_.amis.last_prepare[name] = [];
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
@@ -258,9 +266,12 @@ function initializeVars() {
     for (const wall of refs_.chanvrerie) {
         refs_.chanvrerie_labels[wall.id] = document.getElementById(wall.id + "-label");
         refs_.ami_locations.add(wall);
+        state_.amis.last_recover[wall.id] = [];
+        state_.amis.last_prepare[wall.id] = [];
         state_.dragging.droppable.add(wall);
         refs_.lookup[wall.id] = wall;
         wall.style.height = "16vw";
+        state_.health[wall.id] = 41.5;
     }
     refs_.chanvrerie_ordered = [...refs_.chanvrerie].sort();
     refs_.mondetour = new Set([document.getElementById('mondetour1'), document.getElementById('mondetour2')]);
@@ -268,9 +279,12 @@ function initializeVars() {
     for (const wall of refs_.mondetour) {
         refs_.mondetour_labels[wall.id] = document.getElementById(wall.id + "-label");
         refs_.ami_locations.add(wall);
+        state_.amis.last_recover[wall.id] = [];
+        state_.amis.last_prepare[wall.id] = [];
         state_.dragging.droppable.add(wall);
         refs_.lookup[wall.id] = wall;
         wall.style.height = "16vw";
+        state_.health[wall.id] = 41.5;
     }
     refs_.ami_locations_ordered = [...refs_.ami_locations].sort();
     refs_.barricade = new Set([...refs_.chanvrerie, ...refs_.mondetour]);
@@ -282,6 +296,7 @@ function initializeVars() {
         refs_.precheurs_labels[wall.id] = document.getElementById(wall.id + "-label");
         refs_.lookup[wall.id] = wall;
         wall.style.height = "4vw";
+        state_.health[wall.id] = 10.4;
     }
     refs_.specials = {};
     refs_.special_ups = {};
@@ -468,8 +483,29 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-function sleep(ms) {
+function sleep(ms, timers = true) {
+    if (timers) {
+        for (const timer in state_.timers) {
+            state_.timers[timer] = new Date(Number(state_.timers[timer]) + Number(ms));
+        }
+    }
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function startTimer(name) {
+    state_.timers[name] = new Date();
+    return state_.timers[name];
+}
+
+function endTimer(name) {
+    if (!(name in state_.timers)) {
+        return;
+    }
+    var elapsed = new Date() - state_.timers[name];
+    delete state_.timers[name];
+    if (state_.debug) {
+        console.log("Finished " + name + ": " + elapsed + "ms");
+    }
 }
 
 Array.prototype.random = function () {
@@ -510,6 +546,7 @@ function toVW(px) {
 // Event handlers
 
 function setDifficulty(ev) {
+    startTimer("starting difficulty " + ev.target.id);
     if (ev.target.id == "easy") {
         state_.difficulty = Difficulty.EASY;
     } else if (ev.target.id == "hard") {
@@ -529,9 +566,11 @@ function setDifficulty(ev) {
         tutorial("start");
     }
     initializeDebugMode();
+    endTimer("starting difficulty " + ev.target.id);
 }
 
 function startChallenge(ev) {
+    startTimer("starting challenge " + ev.target.parentElement.id.slice(ev.target.parentElement.id.length - 1));
     var challenge_index = parseInt(ev.target.parentElement.id.slice(ev.target.parentElement.id.length - 1));
     state_.difficulty = Difficulty.NORMAL;
     state_.challenge = challenge_index;
@@ -593,7 +632,6 @@ function startChallenge(ev) {
                 settings_.amis[ami].level = levels[i];
                 settings_.amis[ami].cost = costs[i++];
             }
-            initializeAmis();
             state_.order = {};
             for (const name in settings_.amis) {
                 if (!settings_.amis[name].level) {
@@ -603,7 +641,7 @@ function startChallenge(ev) {
             state_.order["Enjolras"] = "AAAAAAA";
             state_.order["Citizen"] = "zzzzzz";
             state_.order["Javert"] = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz";
-            reorderChildren(refs_.lesamis);
+            initializeAmis();
             break;
         case 3:
             for (const ami of state_.amis.all) {
@@ -660,12 +698,15 @@ function startChallenge(ev) {
         refs_.load.style.top = "8.8vw";
     }
     initializeDebugMode();
+    endTimer("starting challenge " + ev.target.parentElement.id.slice(ev.target.parentElement.id.length - 1));
 }
 
 function loadGame(newgame) {
+    var time = startTimer("load");
     refs_.load.disabled = true;
     if (!newgame) {
         if (!refs_.game.value) {
+            endTimer("load");
             return;
         }
         try {
@@ -685,11 +726,13 @@ function loadGame(newgame) {
             var save = JSON.parse(atob(final_save));
         } catch (e) {
             refs_.game.style.color = "red";
+            endTimer("load");
             return;
         }
         for (const v of ["a", "b", "w", "m", "p", "d", "g", "h", "i", "k"]) {
             if (!(v in save)) {
                 refs_.game.style.color = "red";
+                endTimer("load");
                 return;
             }
         }
@@ -698,6 +741,7 @@ function loadGame(newgame) {
                 save.a[ami] = {};
             }
         }
+        refs_.tutorial_screen.hidden = false;
     }
     state_.reloading = true;
     if (refs_.gameover_screen.style.display != "none") {
@@ -733,6 +777,7 @@ function loadGame(newgame) {
     refs_ = JSON.parse(JSON.stringify(initials_.refs));
     state_ = JSON.parse(JSON.stringify(initials_.state));
     settings_ = JSON.parse(JSON.stringify(initials_.settings));
+    state_.timers["load"] = time;
     state_.reloading = true;
     state_.dragging.draggable = new Set([]);
     state_.dragging.droppable = new Set([]);
@@ -792,6 +837,11 @@ function loadGame(newgame) {
         setLabels();
         state_.reloading = false;
         refs_.load.disabled = false;
+        document.body.appendChild(refs_.game);
+        document.body.appendChild(refs_.load);
+        refs_.game.style.top = "8.8vw";
+        refs_.load.style.top = "8.8vw";
+        endTimer("load");
         return;
     }
     $("#state").text("Wave " + save.w);
@@ -941,12 +991,29 @@ function loadGame(newgame) {
             citizen_recruit = recruit.children[recruit.children.length - 1];
         }
     }
+    var upgraded = false;
     for (const ami in save.a) {
         var real_ami = null;
         if (ami >= 100) {
             var ev = {};
             ev.target = citizen_recruit;
             real_ami = recruitMe(ev);
+            if (!upgraded) {
+                upgraded = true;
+                if ("o" in save) {
+                    while (save.o.length) {
+                        for (const upgrade of getChildren(refs_.upgrade_screen)) {
+                            if (refs_.upgrades_ordered[save.o[0]] == upgrade.id) {
+                                var ev = {};
+                                ev.target = upgrade.children[1];
+                                upgradeMe(ev);
+                                save.o = save.o.slice(1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
             if ("l" in save.a[ami]) {
                 state_.citizens.learned_specials[real_ami.id] = [];
                 for (const s in save.a[ami].l) {
@@ -977,34 +1044,36 @@ function loadGame(newgame) {
             setHealth(real_ami, save.a[ami].c);
         }
         if ("r" in save.a[ami]) {
-            state_.amis.last_recover[real_ami.id] = refs_.ami_locations_ordered[save.a[ami].r];
+            state_.amis.last_recover[refs_.ami_locations_ordered[save.a[ami].r].id].push(real_ami);
         }
         if ("p" in save.a[ami]) {
-            state_.amis.last_prepare[real_ami.id] = refs_.ami_locations_ordered[save.a[ami].p];
+            state_.amis.last_prepare[refs_.ami_locations_ordered[save.a[ami].p].id].push(real_ami);
         }
         if ("t" in save.a[ami]) {
             state_.amis.temp_damage[real_ami.id] = save.a[ami].t;
         }
         updateStats(real_ami);
     }
+    if (!upgraded) {
+        if ("o" in save) {
+            while (save.o.length) {
+                for (const upgrade of getChildren(refs_.upgrade_screen)) {
+                    if (refs_.upgrades_ordered[save.o[0]] == upgrade.id) {
+                        var ev = {};
+                        ev.target = upgrade.children[1];
+                        upgradeMe(ev);
+                        save.o = save.o.slice(1);
+                        break;
+                    }
+                }
+            }
+        }
+    }
     if ("y" in save && state_.citizens.next_i < save.y) {
         state_.citizens.next_i = save.y;
     }
     if ("t" in save) {
         state_.achievements.drunk = false;
-    }
-    if ("o" in save) {
-        while (save.o.length) {
-            for (const upgrade of getChildren(refs_.upgrade_screen)) {
-                if (refs_.upgrades_ordered[save.o[0]] == upgrade.id) {
-                    var ev = {};
-                    ev.target = upgrade.children[1];
-                    upgradeMe(ev);
-                    save.o = save.o.slice(1);
-                    break;
-                }
-            }
-        }
     }
     if ("z" in save) {
         for (const ami of save.z) {
@@ -1033,27 +1102,38 @@ function loadGame(newgame) {
     if (getWaveState() != WaveState.RECOVER && state_.rightside_max) {
         refs_.rightside.style.background = "teal";
     }
-    for (const ami of state_.amis.all) {
+    startTimer("load locations");
+    for (const loc of refs_.ami_locations) {
+        var frag = null;
         if (getWaveState() == WaveState.RECOVER) {
-            if (state_.amis.last_recover[ami.id] == refs_.rightside || state_.amis.last_recover[ami.id] == refs_.trainer) {
-                continue;
+            if (!state_.amis.last_recover[loc.id]) {
+                continue
             }
-            state_.amis.last_recover[ami.id].appendChild(ami);
-            if (state_.amis.last_recover[ami.id] != refs_.lesamis) {
-                refs_.reset.disabled = false;
-            }
+            frag = document.createDocumentFragment();
+            frag.append(...state_.amis.last_recover[loc.id]);
         } else {
-            var loc = state_.amis.last_prepare[ami.id];
-            if (!hasSpace(loc)) {
-                continue;
+            if (!state_.amis.last_prepare[loc.id]) {
+                continue
             }
-            if (loc != refs_.lesamis) {
-                refs_.reset.disabled = false;
+            while (space(loc) < state_.amis.last_prepare[loc.id].length) {
+                state_.amis.last_prepare[loc.id].pop();
             }
-            loc.appendChild(ami);
-            setWidth(ami);
+            frag = document.createDocumentFragment();
+            frag.append(...state_.amis.last_prepare[loc.id]);
         }
+        loc.appendChild(frag);
+        reorderChildren(loc);
+        stackChildren(loc);
+        if (getWaveState() == WaveState.PREPARE) {
+            for (const ami of state_.amis.last_prepare[loc.id]) {
+                setWidth(ami);
+            }
+        }
+        refs_.reset.disabled = false;
     }
+    reorderChildren(refs_.lesamis);
+    stackChildren(refs_.lesamis);
+    endTimer("load locations");
     refs_.autofill.disabled = false;
     if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace()) || (hasChildren(refs_.lesamis) == 1 && state_.javert.ami && state_.javert.ami.parentElement == refs_.lesamis && javertDiscovered())) {
         refs_.autofill.disabled = true;
@@ -1067,12 +1147,11 @@ function loadGame(newgame) {
         }
         refs_.autofill.disabled = disable;
     }
-    for (const loc of refs_.ami_locations) {
-        stackChildren(loc);
-    }
     setLabels();
     state_.reloading = false;
     refs_.load.disabled = false;
+    refs_.tutorial_screen.hidden = true;
+    endTimer("load");
 }
 
 document.addEventListener('contextmenu', event => {
@@ -1126,7 +1205,7 @@ $(document).on('keydown keyup', function(e) {
     }
     if (e.originalEvent.keyCode == 32) {
         e.preventDefault();
-        state_.achievements.fast = e.type == "keydown";
+        state_.fast = e.type == "keydown";
         return;
     }
     if (e.originalEvent.key != "Shift" || (state_.dragging.shift_key && e.type == "keydown")) {
@@ -1140,6 +1219,7 @@ $(document).on('keydown keyup', function(e) {
     if (!isCitizen(existing)) {
         return;
     }
+    startTimer("stacking " + e.type);
     var stacker = getStacker(existing);
     if (e.type == "keydown") {
         for (const citizen of state_.citizens.stacks[existing.id]) {
@@ -1158,6 +1238,7 @@ $(document).on('keydown keyup', function(e) {
         stackChildren(state_.dragging.last_parent);
     }
     setLabel(state_.dragging.last_parent);
+    endTimer("stacking " + e.type);
 });
 
 function addToDrag(citizen) {
@@ -1167,7 +1248,7 @@ function addToDrag(citizen) {
 }
 
 function removeFromDrag(citizen) {
-    state_.dragging.last_parent.appendChild(citizen);
+    insertChild(citizen, state_.dragging.last_parent);
 }
 
 function isScreen(element) {
@@ -1209,8 +1290,10 @@ $(document).on('mousedown', function(e) {
         }
     }
     if (state_.dragging.draggable.has(target)) {
+        startTimer("dragstart");
         dragstartAmi(e);
         document.addEventListener('mousemove', mouseMove);
+        endTimer("dragstart")
     }
 });
 
@@ -1219,9 +1302,11 @@ $(document).on('mouseup', function(e) {
     while (target.parentElement && !state_.dragging.droppable.has(target)) {
         target = target.parentElement;
     }
-    if (state_.dragging.data_transfer.length) {
-        document.removeEventListener('mousemove', mouseMove);
+    if (!state_.dragging.data_transfer.length) {
+        return;
     }
+    startTimer("drop");
+    document.removeEventListener('mousemove', mouseMove);
     if (state_.dragging.droppable.has(target)) {
         dropAmi(e);
     }
@@ -1233,20 +1318,19 @@ $(document).on('mouseup', function(e) {
         cit = isCitizen(dropped);
         dropped.style.position = "static";
         dropped.style.pointerEvents = "auto";
-        state_.dragging.last_parent.appendChild(dropped);
+        insertChild(dropped, state_.dragging.last_parent);
         setWidth(dropped);
     }
     if (tr) {
         setLabel(state_.dragging.last_parent);
         if (cit) {
             stackChildren(state_.dragging.last_parent);
-        } else {
-            reorderChildren(state_.dragging.last_parent);
         }
     }
     state_.dragging.data_transfer = [];
     state_.dragging.mouse_diffs = [];
     state_.dragging.last_parent = null;
+    endTimer("drop");
 });
 
 function mouseMove(e) {
@@ -1308,14 +1392,14 @@ function dropAmi(ev) {
         const dragged = state_.dragging.data_transfer.pop();
         dragged.style.pointerEvents = 'auto';
         dragged.style.position = "static";
-        state_.dragging.last_parent.appendChild(dragged);
-        setWidth(dragged);
         dragged_list.push(dragged);
     }
     if (!dragged_list.length) {
         return;
     }
     var cit = isCitizen(dragged_list[0]);
+    var lastParent = false;
+    var lesamis = false;
     var index = null;
     if (dragged_list.length > 1 && state_.dragging.ctrl_key && (refs_.chanvrerie.has(target) || (refs_.barricade.has(target) && state_.structures.mondetour_open))) {
         index = state_.structures.mondetour_open ? refs_.barricade_ordered.indexOf(target) : refs_.chanvrerie_ordered.indexOf(target);
@@ -1333,14 +1417,6 @@ function dropAmi(ev) {
         }
         if (!hasSpace(target)) {
             if (!hasChildren(target) || state_.dragging.shift_key) {
-                if (hasChildren(target)) {
-                    setLabel(target);
-                    if (cit) {
-                        stackChildren(target);
-                    } else {
-                        reorderChildren(target);
-                    }
-                }
                 if (index == null) {
                     break;
                 } else {
@@ -1365,53 +1441,50 @@ function dropAmi(ev) {
             }
             if (isAmi(ami)) {
                 target.insertBefore(dragged, ami);
-                state_.dragging.last_parent.appendChild(ami);
+                insertChild(ami, state_.dragging.last_parent);
+                if (isCitizen(ami)) {
+                    lastParent = true;
+                }
                 setWidth(dragged);
                 setWidth(ami);
-                setLabel(target);
-                setLabel(state_.dragging.last_parent);
-                if (cit || isCitizen(ami)) {
-                    stackChildren(state_.dragging.last_parent);
-                    stackChildren(target);
-                } else {
-                    reorderChildren(target);
-                    reorderChildren(state_.dragging.last_parent);
-                }
-                return;
+                break;
             }
             var swap = getChildren(target)[0];
-            refs_.lesamis.appendChild(swap);
+            insertChild(swap, refs_.lesamis);
+            lesamis = true;
             setWidth(swap);
         }
-        target.appendChild(dragged);
+        insertChild(dragged, target);
         setWidth(dragged);
         if (index != null) {
             index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
             target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
         }
     }
+    while (dragged_list.length) {
+        dragged = dragged_list.pop();
+        insertChild(dragged, state_.dragging.last_parent);
+        if (isCitizen(dragged)) {
+            lastParent = true;
+        }
+        setWidth(dragged);
+    }
     if (index != null) {
         for (const wall of (state_.structures.mondetour_open ? refs_.barricade : refs_.chanvrerie)) {
             setLabel(wall);
             stackChildren(wall);
         }
-        if (cit) {
-            stackChildren(state_.dragging.last_parent);
-        } else {
-            reorderChildren(state_.dragging.last_parent);
-        }
     } else {
         setLabel(target);
         if (cit) {
             stackChildren(target);
-        } else {
-            reorderChildren(target);
         }
-        if (cit) {
-            stackChildren(state_.dragging.last_parent);
-        } else {
-            reorderChildren(state_.dragging.last_parent);
-        }
+    }
+    if (lastParent) {
+        stackChildren(state_.dragging.last_parent);
+    }
+    if (lesamis && !(state_.dragging.last_parent == refs_.lesamis && lastParent)) {
+        stackChildren(refs_.lesamis);
     }
     setLabel(state_.dragging.last_parent);
     if (getWaveState() == WaveState.RECOVER) {
@@ -1492,23 +1565,27 @@ function isEquivalent(ami1, ami2) {
     return getName(ami1) == getName(ami2) && arraysEqual(state_.citizens.learned_specials[ami1.id], state_.citizens.learned_specials[ami2.id]);
 }
 
-function hasSpace(target) {
+function space(target) {
     if (getWaveState() == WaveState.RECOVER) {
         if (target == refs_.trainer) {
-            return hasChildren(refs_.trainer) < state_.trainers;
+            return state_.trainers - hasChildren(refs_.trainer);
         }
-        return state_.training || target != refs_.rightside;
+        return null;
     }
     if (refs_.barricade.has(target)) {
-        return hasChildren(target) < wallMax(target);
+        return wallMax(target) - hasChildren(target);
     }
     if (target == refs_.corinthe) {
-        return hasChildren(target) < state_.structures.corinthe_max;
+        return state_.structures.corinthe_max - hasChildren(target);
     }
     if (target == refs_.rightside) {
-        return hasChildren(target) < state_.structures.rightside_max;
+        return state_.structures.rightside_max - hasChildren(target);
     }
-    return true;
+    return null;
+}
+
+function hasSpace(target) {
+    return space(target) == null || space(target) > 0;
 }
 
 function barricadeHasSpace() {
@@ -1575,15 +1652,37 @@ function sort_order(ami1, ami2) {
         name2 = state_.order["Javert"];
     }
     if (name1 == name2) {
-        if (arraysEqual(state_.citizens.learned_specials[ami1.id], state_.citizens.learned_specials[ami2.id])) {
-            if (getWaveState() == WaveState.RECOVER || !isAmi(ami1)) {
-                return getHealth(ami1) > getHealth(ami2) ? 1 : -1;
-            }
-            return getHealth(ami1) < getHealth(ami2) ? 1 : -1;
-        }
-        return arrayGreaterThan(state_.citizens.learned_specials[ami1.id], state_.citizens.learned_specials[ami2.id]) ? 1 : -1;
+        return arrayGreaterThan(state_.citizens.learned_specials[ami1.id], state_.citizens.learned_specials[ami2.id]) ? 1 : arraysEqual(state_.citizens.learned_specials[ami1.id], state_.citizens.learned_specials[ami2.id]) ? 0 : -1;
     }
-    return name1 > name2 ? 1 : -1;
+    return name1 > name2 ? 1 : name1 < name2 ? -1 : 0;
+}
+
+function insertChild(child, loc) {
+    if ((getWaveState() != WaveState.RECOVER && loc != refs_.lesamis) || !hasChildren(loc)) {
+        loc.appendChild(child);
+        endTimer("insert child");
+        return;
+    }
+    var others = getChildren(loc);
+    var min = 0;
+    var max = hasChildren(loc);
+    var val = Math.floor((max - min) / 2) + min
+    while (min < max) {
+        var sort = sort_order(others[val], child);
+        if (sort < 0) {
+            min = val + 1;
+        } else if (sort > 0) {
+            max = val;
+        } else {
+            break;
+        }
+        val = Math.floor((max - min) / 2) + min;
+    }
+    if (val >= hasChildren(loc)) {
+        loc.appendChild(child);
+    } else {
+        loc.insertBefore(child, others[val]);
+    }
 }
 
 function reorderChildren(loc) {
@@ -1596,8 +1695,29 @@ function reorderChildren(loc) {
 }
 
 function stackChildren(loc) {
-    reorderChildren(loc);
     var children = getChildren(loc);
+    var firstActualCitizen = null;
+    var firstOrderCitizen = null;
+    for (var i = 0; i < children.length; i++) {
+        if (!isCitizen(children[i])) {
+            continue;
+        }
+        if (!firstActualCitizen) {
+            firstActualCitizen = children[i];
+            firstOrderCitizen = children[i];
+            continue;
+        }
+        if (getWaveState() != WaveState.RECOVER && getHealth(children[i]) > getHealth(firstOrderCitizen)) {
+            firstOrderCitizen = children[i];
+        }
+        if (getWaveState() == WaveState.RECOVER && getHealth(children[i]) < getHealth(firstOrderCitizen)) {
+            firstOrderCitizen = children[i];
+        }
+    }
+    if (firstOrderCitizen != firstActualCitizen) {
+        loc.insertBefore(firstOrderCitizen, firstActualCitizen);
+        children = getChildren(loc);
+    }
     for (var i = 0; i < children.length; i++) {
         if (!isCitizen(children[i])) {
             continue;
@@ -1675,6 +1795,71 @@ function stackEnemies(loc) {
                     break;
                 }
             }
+        }
+    }
+}
+
+function updateStackEnemies(loc) {
+    var stacked = 0;
+    var stacker = null;
+    var found = 0;
+    for (var i = 0; i < loc.children.length; i++) {
+        var myStacker = getStacker(loc.children[i]);
+        if (loc.children[i].style.display == "inline-block") {
+            if (stacked > found) {
+                stacker.textContent = found;
+                if (found == 1) {
+                    stacker.style.display = "none";
+                }
+            }
+            stacked = parseInt(myStacker.textContent);
+            stacker = myStacker;
+            found = 1;
+        } else {
+            if (!stacked || found == stacked || getName(stacker.parentElement) != getName(loc.children[i])) {
+                if (stacked > 0 && stacked > found) {
+                    stacker.textContent = found;
+                }
+                found = 0;
+                stacked = -1;
+                stacker = myStacker;
+                myStacker.textContent = "1";
+                myStacker.style.display = "none";
+                loc.children[i].style.display = "inline-block";
+            } else if (stacked < 0) {
+                stacker.textContent = (parseInt(stacker.textContent) + 1).toString();
+                stacker.style.display = "block";
+            } else {
+                found++;
+            }
+        }
+    }
+    if (stacked > found) {
+        stacker.textContent = found;
+    }
+}
+
+function reorderEnemyStack(enemy) {
+    if (enemy.style.display == "inline-block") {
+        return;
+    }
+    var loc = enemy.parentElement;
+    var index = [...loc.children].indexOf(enemy);
+    for (var i = 0; i < loc.children.length; i++) {
+        var myStacker = getStacker(loc.children[i]);
+        if (loc.children[i].style.display == "inline-block" && i + parseInt(myStacker.textContent) > index) {
+            if (getHealth(loc.children[i]) < getHealth(enemy)) {
+                return;
+            }
+            loc.children[i].style.display = "none";
+            loc.insertBefore(enemy, loc.children[i]);
+            var enemyStacker = getStacker(enemy);
+            enemyStacker.textContent = myStacker.textContent;
+            myStacker.textContent = "1";
+            myStacker.style.display = "none";
+            enemyStacker.style.display = "block";
+            enemy.style.display = "inline-block";
+            return;
         }
     }
 }
@@ -1802,13 +1987,13 @@ function newPerson(id, type) {
     healthfill.id = id + "-health"
     health.appendChild(healthfill);
     person.appendChild(health);
+    state_.health[person.id] = 100;
+    state_.healthmax[person.id] = getHealthMax(person);
     return person;
 }
 
 function newAmi(name) {
     var ami = newPerson(name, "ami");
-    state_.amis.last_prepare[ami.id] = refs_.lesamis;
-    state_.amis.last_recover[ami.id] = refs_.lesamis;
     var button = document.createElement("button");
     button.type = "button";
     button.className = "foodButton";
@@ -1883,9 +2068,7 @@ function newEnemy(type) {
     }
     var name = type + number;
     var enemy = newPerson(name, "enemy");
-    if (!number) {
-        refs_.lookup[name] = enemy;
-    }
+    refs_.lookup[name] = enemy;
     var stacker = document.createElement("div");
     stacker.id = enemy.id + "-stacker";
     stacker.className = "stacker";
@@ -1910,11 +2093,14 @@ function getStats(ami) {
 
 function addNewAmi(name) {
     var ami = newAmi(name);
-    refs_.lesamis.appendChild(ami);
+    if (!state_.reloading) {
+        insertChild(ami, refs_.lesamis);
+    } else {
+        refs_.lesamis.appendChild(ami);
+    }
     if (name != "Grantaire") {
         refs_.autofill.disabled = false;
     }
-    reorderChildren(refs_.lesamis);
     return ami;
 }
 
@@ -1923,7 +2109,9 @@ function addNewCitizen() {
     state_.citizens.num++;
     id = "Citizen" + i.toString();
     var ami = addNewAmi(id);
-    stackChildren(refs_.lesamis);
+    if (!state_.reloading) {
+        stackChildren(refs_.lesamis);
+    }
     if (!state_.javert.ami && !state_.javert.dead && !state_.reloading) {
         var chance = i <= settings_.initial_javert_threshold ? settings_.initial_javert_chance : settings_.javert_chance;
         if (getRandomInt(100) < chance) {
@@ -1972,6 +2160,8 @@ function enablePrecheurs() {
     for (const wall of refs_.precheurs) {
         refs_.barricade.add(wall);
         refs_.ami_locations.add(wall);
+        state_.amis.last_recover[wall.id] = [];
+        state_.amis.last_prepare[wall.id] = [];
         refs_.ami_locations_ordered.push(wall);
         state_.dragging.droppable.add(wall);
         setLabel(wall);
@@ -2199,23 +2389,24 @@ function getAllCitizens() {
     return citizens;
 }
 
-function resetAmis() {
+function resetAmis(finish) {
+    startTimer("reset all");
     refs_.autofill.disabled = false;
-    for (const location of refs_.ami_locations) {
-        if (location == refs_.lesamis) {
-            continue;
-        }
-        while (hasChildren(location)) {
-            var ami = location.children[location.children.length - 1];
-            refs_.lesamis.appendChild(ami);
-            setWidth(ami);
-        }
+    var frag = document.createDocumentFragment();
+    frag.append(...state_.amis.all);
+    refs_.lesamis.appendChild(frag);
+    for (const ami of state_.amis.all) {
+        setWidth(ami);
     }
     refs_.reset.disabled = true;
     refs_.trainer_label.style.color = "black";
     refs_.rightside_label.style.color = "black";
-    stackChildren(refs_.lesamis);
+    if (finish) {
+        reorderChildren(refs_.lesamis);
+        stackChildren(refs_.lesamis);
+    }
     setLabels();
+    endTimer("reset all");
 }
 
 function wall_sort_order(wall1, wall2) {
@@ -2252,6 +2443,7 @@ function damageSorterRan(ami1, ami2) {
 }
 
 function autoFill() {
+    startTimer("autofill " + getWaveState());
     refs_.autofill.disabled = true;
     if (getWaveState() == WaveState.PREPARE) {
         var high_health = 
@@ -2273,7 +2465,7 @@ function autoFill() {
                 if (hasSpace(wall) && high_health.length) {
                     var ami = high_health.pop();
                     high_dam.splice(high_dam.indexOf(ami), 1);
-                    wall.appendChild(ami);
+                    insertChild(ami, wall);
                     setWidth(ami);
                 }
             }
@@ -2282,13 +2474,13 @@ function autoFill() {
             if (hasSpace(refs_.corinthe) && high_dam.length) {
                 var ami = high_dam.pop();
                 high_health.splice(high_health.indexOf(ami), 1);
-                refs_.corinthe.appendChild(ami);
+                insertChild(ami, refs_.corinthe);
                 setWidth(ami);
             }
             if (hasSpace(refs_.rightside) && high_dam.length) {
                 var ami = high_dam.pop();
                 high_health.splice(high_health.indexOf(ami), 1);
-                refs_.rightside.appendChild(ami);
+                insertChild(ami, refs_.rightside);
                 setWidth(ami);
             }
         }
@@ -2297,25 +2489,28 @@ function autoFill() {
             stackChildren(loc);
         }
         refs_.reset.disabled = false;
+        endTimer("autofill " + getWaveState());
         return;
     } else if (getWaveState() == WaveState.RECOVER) {
         for (const ami of getChildren(refs_.lesamis)) {
-            if (ami == state_.javert.ami && !state_.structures.precheurs_open && javertDiscovered()) {
-                refs_.dismiss.appendChild(ami);
+            if (ami == state_.javert.ami && javertDiscovered()) {
+                if (!state_.structures.precheurs_open) {
+                    insertChild(ami, refs_.dismiss);
+                }
                 continue;
             } else if (getHealth(ami) <= 55 || specialLevel(ami, "Courfeyrac")) {
-                refs_.corinthe.appendChild(ami);
+                insertChild(ami, refs_.corinthe);
                 continue;
             } else if (specialLevel(ami, "Feuilly")) {
                 var walls =
                     ((getWave() < settings_.mondetour_opens || state_.challenge == 5) ? [...refs_.chanvrerie] : [...refs_.barricade]).sort((a, b) => wall_sort_order(a, b));
-                walls[0].appendChild(ami);
+                insertChild(ami, walls[0]);
                 continue;
-            } else if (specialLevel(ami, "Combeferre") && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier"))) {
-                refs_.lootammo.appendChild(ami);
+            } else if (specialLevel(ami, "Combeferre") && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier")) && state_.challenge != 1) {
+                insertChild(ami, refs_.lootammo);
                 continue;
             } else if (specialLevel(ami, "Joly") && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier")) && state_.challenge != 0) {
-                refs_.lootfood.appendChild(ami);
+                insertChild(ami, refs_.lootfood);
                 continue;
             } else if (specialLevel(ami, "Grantaire") && getFood() > 0) {
                 continue;
@@ -2325,16 +2520,16 @@ function autoFill() {
             var hope_threshold = getFood() > 0 ? Math.max(4000 - getHope() * 22, 1) : 0;
             var wall_threshold = Math.max(4000 - getBarricadeHeight(), 1);
             var ran = getRandomInt(ammo_threshold + food_threshold + hope_threshold + wall_threshold);
-            if (ran < ammo_threshold && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier"))) {
-                refs_.lootammo.appendChild(ami);
+            if (ran < ammo_threshold && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier")) && state_.challenge != 1) {
+                insertChild(ami, refs_.lootammo);
             } else if (ran < ammo_threshold + food_threshold && (!state_.structures.precheurs_open || specialLevel(ami, "Thenardier")) && state_.challenge != 0) {
-                refs_.lootfood.appendChild(ami);
+                insertChild(ami, refs_.lootfood);
             } else if (ran < ammo_threshold + food_threshold + hope_threshold) {
                 continue;
             } else {
                 var walls =
                     ((getWave() < settings_.mondetour_opens || state_.challenge == 5) ? [...refs_.chanvrerie] : [...refs_.barricade]).sort((a, b) => wall_sort_order(a, b));
-                walls[0].appendChild(ami);
+                insertChild(ami, walls[0]);
             }
         }
         for (const loc of refs_.ami_locations) {
@@ -2342,6 +2537,7 @@ function autoFill() {
         }
         refs_.reset.disabled = false;
         setLabels();
+        endTimer("autofill " + getWaveState());
         return;
     }
     console.error("Cannot auto-fill for wave state: " + getWaveState());
@@ -2361,7 +2557,7 @@ async function flash(element) {
     } else {
         element.style.backgroundColor = "gold";
     }
-    await sleep(200);
+    await sleep(200, false);
     if (isAmi(element)) {
         if (getHealth(element) > 33) {
             element.style.color = "black";
@@ -2415,7 +2611,7 @@ function transitionToDawn() {
 function resetLoc(button) {
     refs_.autofill.disabled = false;
     for (const child of getChildren(button.parentElement.parentElement)) {
-        refs_.lesamis.appendChild(child);
+        insertChild(child, refs_.lesamis);
         setWidth(child);
     }
     setLabel(button.parentElement.parentElement);
@@ -2457,7 +2653,9 @@ function getSpecialEnemies(ami_loc) {
 
 function clearEnemies() {
     for (const enemy of getEnemies()) {
-      enemy.remove();
+        delete state_.health[enemy.id];
+        delete state_.healthmax[enemy.id];
+        enemy.remove();
     }
     state_.enemies = 0;
 }
@@ -2469,11 +2667,12 @@ function enemyOpacity(yes) {
 }
 
 function getHeight(wall) {
-    return 100 * wall.style.height.match(/\d+\.?\d*/)[0] / settings_.max_height;
+    return state_.health[wall.id];
 }
 
 function setHeight(wall, value) {
-    var vw = Math.min(Math.max(value * settings_.max_height / 100, 0), settings_.max_height);
+    state_.health[wall.id] = Math.min(Math.max(value, 0), 100);
+    var vw = Math.min(Math.max(state_.health[wall.id] * settings_.max_height / 100, 0), settings_.max_height);
     wall.style.height = vw + "vw";
     if (refs_.mondetour.has(wall) || refs_.precheurs.has(wall)) {
         wall.style.top = ((wall.id.includes("1") ? 16.85 : 20.35) + settings_.max_height - vw) + "vw";
@@ -2517,12 +2716,7 @@ function getHealthDiv(person) {
 }
 
 function getHealth(person) {
-    var health = getHealthDiv(person);
-    var shown = person.style.display;
-    person.style.display = 'block';
-    var h = 100 * health.getBoundingClientRect().width / health.parentElement.getBoundingClientRect().width;
-    person.style.display = shown;
-    return h;
+    return state_.health[person.id];
 }
 
 function getDamage(person) {
@@ -2564,8 +2758,9 @@ function getHealthMax(person) {
 }
 
 function setHealth(person, value) {
+    state_.health[person.id] = Math.min(Math.max(value, 0), 100);
     var health = getHealthDiv(person);
-    health.style.width = Math.min(Math.max(value, 0), 100) + "%";
+    health.style.width = state_.health[person.id] + "%";
     if (isAmi(person) && person.style.color != "gold") {
         if (getHealth(person) > 33) {
             person.style.color = "black";
@@ -2645,8 +2840,10 @@ function setFood(value) {
 }
 
 function feed(event) {
+    startTimer("feed " + event.target.parentElement.id);
     var ami = event.target.parentElement;
     feedAmi(ami, true);
+    endTimer("feed " + event.target.parentElement.id);
 }
 
 function updateFood() {
@@ -2715,6 +2912,12 @@ function damage(person, attacker) {
     if (specialLevel(attacker, "Claquesous") > 4 && getName(person) == EnemyType.CANNON) {
         bonus *= 2;
     }
+    if (specialLevel(attacker, "Babet") > 4 && getHealth(person) < 25) {
+        bonus *= 2;
+    }
+    if (specialLevel(attacker, "Gueulemer") > 4 && getHealth(person) > 75) {
+        bonus *= 2;
+    }
     setHealth(person, getHealth(person) - getDamage(attacker) * bonus/getHealthMax(person)*(isAmi(attacker) ? settings_.ami_damage : settings_.enemy_damage));
     if (specialLevel(person, "Prouvaire") > 4) {
         setHope(getHope() + getDamage(attacker) * settings_.enemy_damage);
@@ -2754,6 +2957,18 @@ function deleteAmiState(ami) {
         }
     }
     state_.amis.all.delete(ami);
+    delete state_.health[ami.id];
+    delete state_.healthmax[ami.id];
+    for (const locid in state_.amis.last_recover) {
+        if (state_.amis.last_recover[locid].includes(ami)) {
+            state_.amis.last_recover[locid].splice(state_.amis.last_recover[locid].indexOf(ami), 1);
+        }
+    }
+    for (const locid in state_.amis.last_prepare) {
+        if (state_.amis.last_prepare[locid].includes(ami)) {
+            state_.amis.last_prepare[locid].splice(state_.amis.last_prepare[locid].indexOf(ami), 1);
+        }
+    }
     if (ami.id in state_.citizens.learned_specials) {
         delete state_.citizens.learned_specials[ami.id];
     }
@@ -2796,12 +3011,10 @@ function die(person, attacker) {
                 setHealth(person, 100);
             } else {
                 setHealth(person, 1);
-                refs_.lesamis.appendChild(person);
+                insertChild(person, refs_.lesamis);
                 setWidth(person);
                 if (isCitizen(person)) {
                     stackChildren(refs_.lesamis);
-                } else {
-                    reorderChildren(refs_.lesamis);
                 }
             }
             var amount = 101;
@@ -2863,7 +3076,9 @@ function die(person, attacker) {
     person.remove();
     if (enemy_parent) {
         state_.achievements.killed += 1;
-        stackEnemies(enemy_parent);
+        updateStackEnemies(enemy_parent);
+        delete state_.health[person.id];
+        delete state_.healthmax[person.id];
     }
 }
 
@@ -2909,10 +3124,15 @@ function dotStyle(sl) {
 
 function updateStats(ami) {
     var health = getHealthDiv(ami);
-    var currHealth = health.parentElement.getBoundingClientRect().width - health.getBoundingClientRect().width;
-    health.parentElement.style.width = (2.4 * getHealthMax(ami)) + "vw";
-    health.parentElement.style.marginLeft = "calc((100% - " + health.parentElement.style.width + ") / 2)";
-    setHealth(ami, (health.parentElement.getBoundingClientRect().width - currHealth)/health.parentElement.getBoundingClientRect().width * 100);
+    var healthMax = getHealthMax(ami);
+    var oldHealthMax = state_.healthmax[ami.id];
+    if (healthMax - oldHealthMax > 0.1) {
+        var currHealth = getHealth(ami);
+        health.parentElement.style.width = (2.4 * getHealthMax(ami)) + "vw";
+        health.parentElement.style.marginLeft = "calc((100% - " + health.parentElement.style.width + ") / 2)";
+        setHealth(ami, (currHealth * oldHealthMax / 100 + (healthMax - oldHealthMax)) * 100 / healthMax);
+        state_.healthmax[ami.id] = getHealthMax(ami);
+    }
     var bullets = getChild(ami, "bullets");
     var damage = getDamage(ami);
     if (damage >= 16) {
@@ -3125,6 +3345,7 @@ function addEnemies(type, wave, foresight = false) {
 }
 
 function initEnemies(foresight = false) {
+    startTimer("initializing enemies");
     var wave = getWave() + (foresight ? 1 : 0)
     for (const enemy in settings_.enemies) {
         if (settings_.enemies[enemy].level <= wave) {
@@ -3142,12 +3363,14 @@ function initEnemies(foresight = false) {
         }
     }
     stackAllEnemies();
+    endTimer("initializing enemies");
 }
 
 
 // Functionality
 
 function saveGame() {
+    startTimer("save");
     var save = {
         a: {},
         b: [],
@@ -3256,11 +3479,17 @@ function saveGame() {
     var empties = [];
     for (const ami of state_.amis.all) {
         var ami_state = {};
-        if (state_.amis.last_recover[ami.id] != refs_.lesamis) {
-            ami_state.r = refs_.ami_locations_ordered.indexOf(state_.amis.last_recover[ami.id]);
+        for (const locid in state_.amis.last_recover) {
+            if (state_.amis.last_recover[locid].includes(ami)) {
+                ami_state.r = refs_.ami_locations_ordered.indexOf(refs_.lookup[locid]);
+                break;
+            }
         }
-        if (state_.amis.last_prepare[ami.id] != refs_.lesamis) {
-            ami_state.p = refs_.ami_locations_ordered.indexOf(state_.amis.last_prepare[ami.id]);
+        for (const locid in state_.amis.last_prepare) {
+            if (state_.amis.last_prepare[locid].includes(ami)) {
+                ami_state.p = refs_.ami_locations_ordered.indexOf(refs_.lookup[locid]);
+                break;
+            }
         }
         if (getHealth(ami) != 100) {
             ami_state.c = Math.floor(getHealth(ami));
@@ -3321,9 +3550,11 @@ function saveGame() {
     refs_.game.style.color = "black";
     refs_.game.value = final_save;
     refs_.load.disabled = false;
+    endTimer("save");
 }
 
 function feedAll() {
+    startTimer("feed all");
     var locations = new Set([]);
     while (state_.amis.needs_food.size && getFood()) {
         for (const ami of state_.amis.needs_food) {
@@ -3339,14 +3570,19 @@ function feedAll() {
     for (const loc of locations) {
         stackChildren(loc);
     }
+    endTimer("feed all");
 }
 
 function startWave() {
+    startTimer("prep prep fight");
     refs_.load.disabled = true;
     $("#ready").hide();
     clearLabels();
-    for (const ami of state_.amis.all) {
-        state_.amis.last_prepare[ami.id] = ami.parentElement;
+    for (const loc of refs_.ami_locations) {
+        if (loc == refs_.lesamis) {
+            continue;
+        }
+        state_.amis.last_prepare[loc.id] = getChildren(loc);
     }
     if ("Grantaire" in state_.amis.lookup && state_.amis.lookup["Grantaire"].parentElement != refs_.lesamis) {
         state_.achievements.drunk = false;
@@ -3363,12 +3599,14 @@ function startWave() {
     }
     updateProgress(0);
     refs_.progressbar.style.display = "block"
+    endTimer("prep prep fight");
     if (!tutorial("fight" + getWave())) {
         startFight();
     }
 }
 
 async function startFight() {
+    startTimer("prep fight");
     for (const wall of refs_.barricade) {
         wall.style.padding = "30px 0px";
         wall.style.margin = "-30px 0px";
@@ -3381,21 +3619,25 @@ async function startFight() {
         if (!enemies.length || loc.id.includes("2") || loc.id.includes("3")) {
             continue;
         }
-        enemy_refs[loc.id] = [enemies.random(), enemies.random(), new Set([]), new Set([]), null, null, null, null, new Set([...enemies]), new Set([]), new Set([])];
+        enemy_refs[loc.id] = [enemies.random().id, enemies.random().id, new Set([]), new Set([]), null, null, null, null, new Set(), new Set([]), new Set([])];
+        for (const enemy of enemies) {
+            enemy_refs[loc.id][8].add(enemy.id);
+        }
         for (const enemy of getSpecialEnemies(loc)) {
             if (getName(enemy) == EnemyType.SNIPER) {
-                enemy_refs[loc.id][2].add(enemy);
-                enemy_refs[loc.id][4] = enemy;
-                enemy_refs[loc.id][5] = enemy;
-                enemy_refs[loc.id][9].add(enemy);
+                enemy_refs[loc.id][2].add(enemy.id);
+                enemy_refs[loc.id][4] = enemy.id;
+                enemy_refs[loc.id][5] = enemy.id;
+                enemy_refs[loc.id][9].add(enemy.id);
             } else {
-                enemy_refs[loc.id][3].add(enemy);
-                enemy_refs[loc.id][6] = enemy;
-                enemy_refs[loc.id][7] = enemy;
-                enemy_refs[loc.id][10].add(enemy);
+                enemy_refs[loc.id][3].add(enemy.id);
+                enemy_refs[loc.id][6] = enemy.id;
+                enemy_refs[loc.id][7] = enemy.id;
+                enemy_refs[loc.id][10].add(enemy.id);
             }
         }
     }
+    endTimer("prep fight");
     for (let i = 0; i < settings_.fire_per_wave; i++) {
         if (state_.foresight) {
             barricadeFire(enemy_refs);
@@ -3426,8 +3668,9 @@ async function startFight() {
         if (state_.marius.active) {
             break;
         }
-        await sleep(settings_.sleep_ms / (state_.achievements.fast ? 3 : 1));
+        await sleep(settings_.sleep_ms / (state_.fast ? 3 : 1));
     }
+    startTimer("end fight");
     refs_.progressbar.style.display = "none";
 
     for (const name in settings_.amis) {
@@ -3473,6 +3716,7 @@ async function startFight() {
         wall.style.padding = null;
         wall.style.margin = null;
     }
+    endTimer("end fight");
     transitionToRecover();
 }
 
@@ -3493,6 +3737,7 @@ function barricadeFor(enemy_loc) {
 }
 
 function enemyFire(i) {
+    startTimer("enemy fire");
     for (const enemy of getEnemies()) {
         if (getName(enemy) == EnemyType.CANNON && i < 5) {
           continue;
@@ -3522,12 +3767,18 @@ function enemyFire(i) {
             damageWall(wall, enemy);
             if (getName(enemy) == EnemyType.CANNON) {
                 flash(wall);
+                var cit = false;
                 for (const ami of getChildren(wall)) {
+                    if (isCitizen(ami)) {
+                        cit = true;
+                    }
                     damage(ami, enemy);
-                    refs_.lesamis.appendChild(ami);
+                    insertChild(ami, refs_.lesamis);
                     setWidth(ami);
                 }
-                stackChildren(refs_.lesamis);
+                if (cit) {
+                    stackChildren(refs_.lesamis);
+                }
             }
         } else {
             var options = getName(enemy) == EnemyType.SNIPER ? [...getAmisBattle(enemy.parentElement)] : getChildren(wall);
@@ -3550,9 +3801,10 @@ function enemyFire(i) {
             }
         }
         if (barricadeDead()) {
-            return;
+            break;
         }
     }
+    endTimer("enemy fire");
 }
 
 function getHighestHealth(loc, type = null) {
@@ -3566,7 +3818,7 @@ function getHighestHealth(loc, type = null) {
             highest = enemy;
         }
     }
-    return highest;
+    return !highest ? highest : highest.id;
 }
 
 function getLowestHealth(loc, type = null) {
@@ -3580,16 +3832,23 @@ function getLowestHealth(loc, type = null) {
             lowest = enemy;
         }
     }
-    return lowest;
+    return !lowest ? lowest : lowest.id;
 }
 
 function barricadeFire(enemy_refs) {
+    startTimer("barricade fire");
     for (const ami of getAmisBattle()) {
+        if (enemiesDead()) {
+            break;
+        }
         var loc_key = ami.parentElement.id.replace("2", "1").replace("3", "1");
         if (state_.challenge == 1) {
             continue;
         }
-        var enemies = getEnemies(ami.parentElement);
+        var enemies = [];
+        for (const enemy of getEnemies(ami.parentElement)) {
+            enemies.push(enemy.id);
+        }
         if (!enemies.length) {
             continue;
         }
@@ -3682,29 +3941,75 @@ function barricadeFire(enemy_refs) {
                 enemies = [...enemies, ...extras];
             }
         }
-        var enemy = enemies.random();
+        var enemy = refs_.lookup[enemies.random()];
+        if (damage(enemy, ami)) {
+            if (getRandomInt(100) < 25 * specialLevel(ami, "Valjean")) {
+                if (state_.citizens.num < state_.citizens.max || (specialLevel(ami, "Valjean") > 4 && state_.citizens.num < (state_.citizens.max*2))) {
+                    addNewCitizen();
+                }
+            }
+            for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
+                if (!(loc.id in enemy_refs)) {
+                    continue;
+                }
+                if (enemy_refs[loc.id][1] && enemy_refs[loc.id][1] == enemy.id) {
+                    enemy_refs[loc.id][1] = getLowestHealth(loc);
+                }
+                if (enemy_refs[loc.id][5] && enemy_refs[loc.id][5] == enemy.id) {
+                    enemy_refs[loc.id][5] = getLowestHealth(loc, EnemyType.SNIPER);
+                }
+                if (enemy_refs[loc.id][7] && enemy_refs[loc.id][7] == enemy.id) {
+                    enemy_refs[loc.id][7] = getLowestHealth(loc, EnemyType.CANNON);
+                }
+                enemy_refs[loc.id][2].delete(enemy.id);
+                enemy_refs[loc.id][3].delete(enemy.id);
+            }
+            if (enemiesDead()) {
+                return;
+            }
+        } else {
+            reorderEnemyStack(enemy);
+            for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
+                if (!(loc.id in enemy_refs)) {
+                    continue;
+                }
+                if (enemy_refs[loc.id][1] && enemy_refs[loc.id][1] != enemy.id && getHealth(enemy) < getHealth(refs_.lookup[enemy_refs[loc.id][1]]) && getEnemies(loc).includes(enemy)) {
+                    enemy_refs[loc.id][1] = enemy.id;
+                }
+                if (getName(enemy) == EnemyType.SNIPER && enemy_refs[loc.id][5] && getEnemies(loc).includes(enemy)) {
+                    if (enemy_refs[loc.id][5] != enemy.id && getHealth(enemy) < getHealth(refs_.lookup[enemy_refs[loc.id][5]])) {
+                        enemy_refs[loc.id][5] = enemy.id;
+                    }
+                }
+                if (getName(enemy) == EnemyType.CANNON && enemy_refs[loc.id][7] && getEnemies(loc).includes(enemy)) {
+                    if (enemy_refs[loc.id][7] != enemy.id && getHealth(enemy) < getHealth(refs_.lookup[enemy_refs[loc.id][7]])) {
+                        enemy_refs[loc.id][7] = enemy.id;
+                    }
+                }
+            }
+        }
         for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
             if (!(loc.id in enemy_refs)) {
                 continue;
             }
-            enemy_refs[loc.id][8].delete(enemy);
-            enemy_refs[loc.id][9].delete(enemy);
-            enemy_refs[loc.id][10].delete(enemy);
-            if (enemy_refs[loc.id][0] && enemy_refs[loc.id][0].id == enemy.id) {
+            enemy_refs[loc.id][8].delete(enemy.id);
+            enemy_refs[loc.id][9].delete(enemy.id);
+            enemy_refs[loc.id][10].delete(enemy.id);
+            if (enemy_refs[loc.id][0] && enemy_refs[loc.id][0] == enemy.id) {
                 if (enemy_refs[loc.id][8].size) {
                     enemy_refs[loc.id][0] = Array.from(enemy_refs[loc.id][8]).random();
                 } else {
                     enemy_refs[loc.id][0] = getHighestHealth(loc);
                 }
             }
-            if (enemy_refs[loc.id][4] && enemy_refs[loc.id][4].id == enemy.id) {
+            if (enemy_refs[loc.id][4] && enemy_refs[loc.id][4] == enemy.id) {
                 if (enemy_refs[loc.id][9].size) {
                     enemy_refs[loc.id][4] = Array.from(enemy_refs[loc.id][9]).random();
                 } else {
                     enemy_refs[loc.id][4] = getHighestHealth(loc, EnemyType.SNIPER);
                 }
             }
-            if (enemy_refs[loc.id][6] && enemy_refs[loc.id][6].id == enemy.id) {
+            if (enemy_refs[loc.id][6] && enemy_refs[loc.id][6] == enemy.id) {
                 if (enemy_refs[loc.id][10].size) {
                     enemy_refs[loc.id][6] = Array.from(enemy_refs[loc.id][10]).random();
                 } else {
@@ -3712,55 +4017,12 @@ function barricadeFire(enemy_refs) {
                 }
             }
         }
-        if (damage(enemy, ami)) {
-            if (getRandomInt(100) < 25 * specialLevel(ami, "Valjean")) {
-                if (state_.citizens.num < state_.citizens.max || (specialLevel(ami, "Valjean") > 4 && state_.citizens.num < (state_.citizens.max*2))) {
-                    addNewCitizen();
-                }
-            }
-            if (enemiesDead()) {
-                return;
-            }
-            for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
-                if (!(loc.id in enemy_refs)) {
-                    continue;
-                }
-                if (enemy_refs[loc.id][1] && enemy_refs[loc.id][1].id == enemy.id) {
-                    enemy_refs[loc.id][1] = getLowestHealth(loc);
-                }
-                if (enemy_refs[loc.id][5] && enemy_refs[loc.id][5].id == enemy.id) {
-                    enemy_refs[loc.id][5] = getLowestHealth(loc, EnemyType.SNIPER);
-                }
-                if (enemy_refs[loc.id][7] && enemy_refs[loc.id][7].id == enemy.id) {
-                    enemy_refs[loc.id][7] = getLowestHealth(loc, EnemyType.CANNON);
-                }
-                enemy_refs[loc.id][2].delete(enemy);
-                enemy_refs[loc.id][3].delete(enemy);
-            }
-        } else {
-            for (const loc of [...refs_.barricade, refs_.rightside, refs_.corinthe]) {
-                if (!(loc.id in enemy_refs)) {
-                    continue;
-                }
-                if (enemy_refs[loc.id][1] && enemy_refs[loc.id][1].id != enemy.id && getHealth(enemy) < getHealth(enemy_refs[loc.id][1]) && getEnemies(loc).includes(enemy)) {
-                    enemy_refs[loc.id][1] = enemy;
-                }
-                if (getName(enemy) == EnemyType.SNIPER && enemy_refs[loc.id][5] && getEnemies(loc).includes(enemy)) {
-                    if (enemy_refs[loc.id][5].id != enemy.id && getHealth(enemy) < getHealth(enemy_refs[loc.id][5])) {
-                        enemy_refs[loc.id][5] = enemy;
-                    }
-                }
-                if (getName(enemy) == EnemyType.CANNON && enemy_refs[loc.id][7] && getEnemies(loc).includes(enemy)) {
-                    if (enemy_refs[loc.id][7].id != enemy.id && getHealth(enemy) < getHealth(enemy_refs[loc.id][7])) {
-                        enemy_refs[loc.id][7] = enemy;
-                    }
-                }
-            }
-        }
     }
+    endTimer("barricade fire");
 }
 
 function transitionToRecover() {
+    startTimer("prep recover");
     reachedWave(getWave());
     transitionToNight();
     state_.achievements.permetstu = null;
@@ -3776,7 +4038,7 @@ function transitionToRecover() {
         var dropped = state_.dragging.data_transfer.pop();
         dropped.style.position = "static";
         dropped.style.pointerEvents = "auto";
-        state_.dragging.last_parent.appendChild(dropped);
+        insertChild(dropped, state_.dragging.last_parent);
     }
     state_.dragging.mouse_diffs = [];
     state_.dragging.last_parent = null;
@@ -3830,7 +4092,7 @@ function transitionToRecover() {
             }
         }
     }
-    resetAmis();
+    resetAmis(false);
     $("#ready").text("Ready")
     refs_.ready.onclick = function(){
         disableButtons();
@@ -3874,19 +4136,20 @@ function transitionToRecover() {
     for (const wall of refs_.barricade) {
         wall.style.overflow = "scroll";
     }
-    for (const ami of state_.amis.all) {
-        if (state_.amis.last_recover[ami.id] == refs_.rightside || state_.amis.last_recover[ami.id] == refs_.trainer) {
-            continue;
-        }
-        state_.amis.last_recover[ami.id].appendChild(ami);
-        if (state_.amis.last_recover[ami.id] != refs_.lesamis) {
-            refs_.reset.disabled = false;
-        }
-    }
-    setLabels();
     for (const loc of refs_.ami_locations) {
+        if (!state_.amis.last_recover[loc.id]) {
+            continue
+        }
+        var frag = document.createDocumentFragment();
+        frag.append(...state_.amis.last_recover[loc.id]);
+        loc.appendChild(frag);
+        reorderChildren(loc);
         stackChildren(loc);
+        refs_.reset.disabled = false;
     }
+    reorderChildren(refs_.lesamis);
+    stackChildren(refs_.lesamis);
+    setLabels();
     if (!hasChildren(refs_.lesamis)) {
         refs_.autofill.disabled = true;
     } else {
@@ -3903,6 +4166,7 @@ function transitionToRecover() {
         saveGame();
         refs_.load.disabled = false;
     }
+    endTimer("prep recover");
     tutorial("recover" + getWave());
 }
 
@@ -3911,6 +4175,7 @@ function recruitMe(ev) {
     var id = ev.target.parentElement.id;
     var cost = settings_.amis[id].cost;
     if (cost > getHope() && !state_.reloading) {
+        endTimer("recruit " + ev.target.parentElement.id);
         return;
     }
     var ami = null;
@@ -4187,6 +4452,7 @@ function info(button) {
 }
 
 function theBrick(ami) {
+    startTimer("initialize the brick");
     $("#thebrick-screen").load("brick.html?v=" + Date.now(), function() {
         for (const child of refs_.thebrick_screen.childNodes[2].childNodes) {
             if (child.nodeType != Node.ELEMENT_NODE) {
@@ -4258,6 +4524,7 @@ function theBrick(ami) {
                 }
             }
         }
+        endTimer("initialize the brick");
     });
     disableButtons();
 }
@@ -4550,7 +4817,7 @@ function upgradeMe(ev) {
             refs_.rightside.style.background = "teal";
             var children = [...getChildren(refs_.trainer)];
             for (const child of children) {
-                refs_.trainer.appendChild(child);
+                insertChild(child, refs_.trainer);
                 setWidth(child);
             }
         }
@@ -4572,6 +4839,7 @@ function upgradeMe(ev) {
         revolution();
     }
     updateFood();
+    endTimer("upgrade " + ev.target.parentElement.id);
 }
 
 function upgrade() {
@@ -4826,6 +5094,7 @@ function resolveScouting(i, ran, deaths) {
 }
 
 async function resolveRecover() {
+    startTimer("resolve recover");
     var ran = getRandomInt(settings_.recover_animation_length);
     state_.foresight = false;
     var deaths = [[], [], []];
@@ -4883,16 +5152,21 @@ async function resolveRecover() {
                 ami.remove();
             }
         }
-        await sleep(settings_.recover_sleep_ms);
+        await sleep(settings_.recover_sleep_ms / (state_.fast ? 3 : 1));
     }
     state_.max_ammo = Math.max(state_.max_ammo, getAmmo());
     state_.max_food = Math.max(state_.max_food, getFood());
+    endTimer("resolve recover");
 }
 
 async function prepareForNextWave() {
+    startTimer("prepare");
     $("#ready").hide();
-    for (const ami of state_.amis.all) {
-        state_.amis.last_recover[ami.id] = ami.parentElement;
+    for (const loc of refs_.ami_locations) {
+        if (loc == refs_.rightside || loc == refs_.trainer || loc == refs_.lesamis || loc == refs_.dismiss) {
+            continue;
+        }
+        state_.amis.last_recover[loc.id] = getChildren(loc);
     }
     for (const button of state_.amis.food_buttons) {
         button.style.display = "none";
@@ -4949,7 +5223,7 @@ async function prepareForNextWave() {
     }
     $("#scout").hide();
     $("#trainer").hide();
-    resetAmis();
+    resetAmis(false);
     $("#ready").text("Ready!")
     refs_.ready.onclick = function(){startWave()};
     $("#ready").show();
@@ -4958,21 +5232,26 @@ async function prepareForNextWave() {
     for (const wall of refs_.barricade) {
         wall.style.overflow = "";
     }
-    for (const ami of state_.amis.all) {
-        var loc = state_.amis.last_prepare[ami.id];
-        if (!hasSpace(loc)) {
-            continue;
-        }
-        if (loc != refs_.lesamis) {
-            refs_.reset.disabled = false;
-        }
-        loc.appendChild(ami);
-        setWidth(ami);
-    }
-    setLabels();
     for (const loc of refs_.ami_locations) {
+        if (!state_.amis.last_prepare[loc.id]) {
+            continue
+        }
+        while (space(loc) < state_.amis.last_prepare[loc.id].length) {
+            state_.amis.last_prepare[loc.id].pop();
+        }
+        var frag = document.createDocumentFragment();
+        frag.append(...state_.amis.last_prepare[loc.id]);
+        loc.appendChild(frag);
+        reorderChildren(loc);
         stackChildren(loc);
+        for (const ami of state_.amis.last_prepare[loc.id]) {
+            setWidth(ami);
+        }
+        refs_.reset.disabled = false;
     }
+    reorderChildren(refs_.lesamis);
+    stackChildren(refs_.lesamis);
+    setLabels();
     if (!hasChildren(refs_.lesamis) || (!hasSpace(refs_.corinthe) && !hasSpace(refs_.rightside) && !barricadeHasSpace()) || (hasChildren(refs_.lesamis) == 1 && state_.javert.ami && state_.javert.ami.parentElement == refs_.lesamis && javertDiscovered())) {
         refs_.autofill.disabled = true;
     }
@@ -4983,6 +5262,7 @@ async function prepareForNextWave() {
     if (!state_.reloading) {
         saveGame();
     }
+    endTimer("prepare");
     tutorial("prepare" + getWave());
 }
 
