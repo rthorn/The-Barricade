@@ -2791,7 +2791,7 @@ function getAmmo() {
 }
 
 function setAmmo(value) {
-    refs_.ammo.textContent = Math.max(value, 0).toString();
+    refs_.ammo.textContent = Math.max(Math.floor(value), 0).toString();
     if (value <= settings_.ammo_warning_threshold) {
         refs_.ammo.style.color = "red";
     } else {
@@ -2821,7 +2821,7 @@ function getFood() {
 }
 
 function setFood(value) {
-    refs_.food.textContent = Math.max(value, 0).toString();
+    refs_.food.textContent = Math.max(Math.floor(value), 0).toString();
     if (value <= settings_.food_warning_threshold) {
         refs_.food.style.color = "red";
     } else {
@@ -2885,7 +2885,7 @@ function getHope() {
 }
 
 function setHope(value) {
-    refs_.hope.textContent = Math.max(value, 0).toString();
+    refs_.hope.textContent = Math.max(Math.floor(value), 0).toString();
     if (value <= settings_.hope_warning_threshold) {
         refs_.hope.style.color = "red";
     } else {
