@@ -456,26 +456,26 @@ body::-webkit-scrollbar {
 }
 
 #lesenemiesmondetour1 {
-    left: calc(50% - 47.35vw);
-    top: 9.63vw;
+    left: calc(50% - 49.35vw);
+    top: 10.43vw;
     width: 14.45vw;
 }
 
 #lesenemiesmondetour2 {
-    left: calc(50% - 47.35vw);
-    top: 13.24vw;
+    left: calc(50% - 49.35vw);
+    top: 14.04vw;
     width: 14.45vw;
 }
 
 #lesenemiesprecheurs1 {
-    left: calc(50% + 32.91vw);
-    top: 9.63vw;
+    left: calc(50% + 34.91vw);
+    top: 10.43vw;
     width: 14.45vw;
 }
 
 #lesenemiesprecheurs2 {
-    left: calc(50% + 32.91vw);
-    top: 13.24vw;
+    left: calc(50% + 34.91vw);
+    top: 14.04vw;
     width: 14.45vw;
 }
 

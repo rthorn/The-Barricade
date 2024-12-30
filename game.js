@@ -2169,6 +2169,7 @@ function addNewRecruit(name) {
 }
 
 function addNewEnemy(name, loc) {
+    console.log(name + " " + loc.id)
     return loc.appendChild(newEnemy(name));
 }
 
@@ -3269,14 +3270,16 @@ function enemiesPerWave(type, wave) {
     }
     var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * adjust)
     if (type != EnemyType.SOLDIER) {
+        console.log(Math.ceil(num/5) + " " + num + " " + adjusted_wave + " " + wave);
         return Math.ceil(num/5);
     }
     return num;
 }
 
-function addEnemies(type, wave, foresight = false) {
+function addEnemies(type, wave, foresight, sides) {
     if (!foresight) {
-        for (let i = 1; i <= enemiesPerWave(type, wave); i++) {
+        var num = enemiesPerWave(type, wave);
+        for (let i = 1; i <= num; i++) {
             if (type == EnemyType.SOLDIER) {
                 addNewEnemy(type, refs_.lesenemies2);
             } else {
@@ -3298,7 +3301,8 @@ function addEnemies(type, wave, foresight = false) {
     }
     if (state_.challenge == 5) {
         if (wave >= settings_.mondetour_opens) {
-            for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
+            var num = enemiesPerWave(type, mondetour);
+            for (let i = 1; i <= num; i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemies2);
                 } else {
@@ -3307,7 +3311,8 @@ function addEnemies(type, wave, foresight = false) {
             }
         }
         if (wave >= settings_.precheurs_opens) {
-            for (let i = 1; i <= enemiesPerWave(type, precheurs); i++) {
+            var num = enemiesPerWave(type, precheurs);
+            for (let i = 1; i <= num; i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemies2);
                 } else {
@@ -3317,9 +3322,10 @@ function addEnemies(type, wave, foresight = false) {
         }
         return;
     }
-    if (!refs_.lesenemiesmondetour2.children.length) {
+    if (sides) {
         if (state_.structures.mondetour_open) {
-            for (let i = 1; i <= enemiesPerWave(type, mondetour); i++) {
+            var num = enemiesPerWave(type, mondetour);
+            for (let i = 1; i <= num; i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesmondetour2);
                     if (foresight) {
@@ -3334,7 +3340,8 @@ function addEnemies(type, wave, foresight = false) {
             }
             tutorial("mondetour");
         } else if (foresight) {
-            for (let i = 1; i <= enemiesPerWave(type, state_.difficulty == Difficulty.HARD ? 2 : 5); i++) {
+            var num = enemiesPerWave(type, state_.difficulty == Difficulty.HARD ? 2 : 5);
+            for (let i = 1; i <= num; i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesmondetour2);
                     refs_.lesenemiesmondetour2.style.color = "white";
@@ -3347,9 +3354,10 @@ function addEnemies(type, wave, foresight = false) {
             refs_.lesenemiesmondetour2.style.opacity = Math.max(0, 0.5 - 0.17 * (settings_.mondetour_opens - wave));
         }
     }
-    if (!refs_.lesenemiesprecheurs2.children.length) {
+    if (sides) {
         if (state_.structures.precheurs_open) {
-            for (let i = 1; i <= enemiesPerWave(type, precheurs); i++) {
+            var num = enemiesPerWave(type, precheurs);
+            for (let i = 1; i <= num; i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesprecheurs2);
                     if (foresight) {
@@ -3363,7 +3371,8 @@ function addEnemies(type, wave, foresight = false) {
                 }
             }
         } else if (foresight) {
-            for (let i = 1; i <= enemiesPerWave(type, state_.difficulty == Difficulty.HARD ? 2 : 5); i++) {
+            var num = enemiesPerWave(type, state_.difficulty == Difficulty.HARD ? 2 : 5);
+            for (let i = 1; i <= num; i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesprecheurs2);
                     refs_.lesenemiesprecheurs2.style.color = "white";
@@ -3381,9 +3390,10 @@ function addEnemies(type, wave, foresight = false) {
 function initEnemies(foresight = false) {
     startTimer("initializing enemies");
     var wave = getWave() + (foresight ? 1 : 0)
+    var sides = !refs_.lesenemiesmondetour2.children.length;
     for (const enemy in settings_.enemies) {
         if (settings_.enemies[enemy].level <= wave) {
-            addEnemies(enemy, wave, foresight);
+            addEnemies(enemy, wave, foresight, sides);
         }
     }
     while (state_.sabotage > 0) {
