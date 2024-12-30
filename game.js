@@ -1404,6 +1404,9 @@ function dropAmi(ev) {
     if (dragged_list.length > 1 && state_.dragging.ctrl_key && (refs_.chanvrerie.has(target) || (refs_.barricade.has(target) && state_.structures.mondetour_open))) {
         index = state_.structures.mondetour_open ? refs_.barricade_ordered.indexOf(target) : refs_.chanvrerie_ordered.indexOf(target);
     }
+    if (dragged_list.length > 1 && state_.dragging.ctrl_key && (target == refs_.rightside || target == refs_.corinthe) && space(refs_.rightside) != 0) {
+        index = target == refs_.rightside ? -1 : -2;
+    }
     var dragged = null;
     while (dragged_list.length) {
         if (target == state_.dragging.last_parent && index == null) {
@@ -1420,16 +1423,28 @@ function dropAmi(ev) {
                 if (index == null) {
                     break;
                 } else {
-                    var no = 0;
-                    while (!hasSpace(target) && no < (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
-                        no++;
-                        index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
-                        target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
+                    if (index < 0) {
+                        if (target == refs_.rightside) {
+                            target = refs_.corinthe;
+                        } else {
+                            target = refs_.rightside;
+                        }
+                        if (!hasSpace(target)) {
+                            break;
+                        }
+                        continue;
+                    } else {
+                        var no = 0;
+                        while (!hasSpace(target) && no < (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
+                            no++;
+                            index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
+                            target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
+                        }
+                        if (no >= (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
+                            break;
+                        }
+                        continue;
                     }
-                    if (no >= (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
-                        break;
-                    }
-                    continue;
                 }
             }
         }
@@ -1457,8 +1472,16 @@ function dropAmi(ev) {
         insertChild(dragged, target);
         setWidth(dragged);
         if (index != null) {
-            index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
-            target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
+            if (index < 0) {
+                if (target == refs_.rightside) {
+                    target = refs_.corinthe;
+                } else {
+                    target = refs_.rightside;
+                }
+            } else {
+                index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
+                target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
+            }
         }
     }
     while (dragged_list.length) {
@@ -1470,9 +1493,16 @@ function dropAmi(ev) {
         setWidth(dragged);
     }
     if (index != null) {
-        for (const wall of (state_.structures.mondetour_open ? refs_.barricade : refs_.chanvrerie)) {
-            setLabel(wall);
-            stackChildren(wall);
+        if (index < 0) {
+            setLabel(refs_.rightside);
+            stackChildren(refs_.rightside);
+            setLabel(refs_.corinthe);
+            stackChildren(refs_.corinthe);
+        } else {
+            for (const wall of (state_.structures.mondetour_open ? refs_.barricade : refs_.chanvrerie)) {
+                setLabel(wall);
+                stackChildren(wall);
+            }
         }
     } else {
         setLabel(target);
@@ -1569,6 +1599,9 @@ function space(target) {
     if (getWaveState() == WaveState.RECOVER) {
         if (target == refs_.trainer) {
             return state_.trainers - hasChildren(refs_.trainer);
+        }
+        if (target == refs_.rightside && !state_.training) {
+            return 0;
         }
         return null;
     }
