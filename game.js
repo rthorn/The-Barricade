@@ -2018,7 +2018,8 @@ function newAmi(name) {
         state_.achievements.drunk = true;
     }
     if (name == "Mme Thenardier") {
-        ami.children[0].style.fontSize = "0.68vw";
+        ami.children[0].style.width = "120%";
+        ami.children[0].style.marginLeft = "-10%";
     }
     if (!(ami.id in refs_.specials)) {
         var stacker = document.createElement("div");
