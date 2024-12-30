@@ -4210,7 +4210,7 @@ function recruitMe(ev) {
         state_.order[id] = order;
         state_.recruits += 1;
         ev.target.parentElement.remove();
-        if ((getWave() >= 30 && hasChildren(refs_.recruit_screen) == 1) || (getWave() >= 40 && hasChildren(refs_.recruit_screen) == 2)) {
+        if (getWave() >= 40 && hasChildren(refs_.recruit_screen) == 1) {
             achieve("recruiter");
         }
         ami = addNewAmi(id);
@@ -4756,7 +4756,7 @@ function upgradeMe(ev) {
     }
     ev.target.parentElement.remove();
     updateUpgrade();
-    if (hasChildren(refs_.upgrade_screen) == 1 && state_.structures.precheurs_open && state_.citizens.next_i) {
+    if (!hasChildren(refs_.upgrade_screen) && state_.structures.precheurs_open && state_.citizens.next_i) {
         achieve("upgrader");
     }
 
