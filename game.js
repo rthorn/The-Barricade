@@ -182,6 +182,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     refs_.thebrick.style.pointerEvents = "auto";
     refs_.achievements.style.pointerEvents = "auto";
     refs_.load.style.pointerEvents = "auto";
+    if (hasAchieved("easy")) {
+        refs_.normal.disabled = false;
+        refs_.normallabel.textContent = "";
+    }
     if (hasAchieved("normal")) {
         refs_.hard.disabled = false;
         refs_.hardlabel.textContent = "";
@@ -240,6 +244,19 @@ function updateChallenges() {
     }
 }
 
+function updateDifficulty() {
+    if (hasAchieved("easy") && refs_.normallabel.textContent) {
+        refs_.normal.disabled = false;
+        refs_.normallabel.textContent = "";
+    }
+    if (hasAchieved("normal") && refs_.hardlabel.textContent) {
+        refs_.hard.disabled = false;
+        refs_.hardlabel.textContent = "";
+        refs_.challengeslabel.textContent = "Achievements disabled";
+        initializeChallenges();
+    }
+}
+
 function initializeVars() {
     var ran = getRandomInt(settings_.opening_variance*2 + 1) - settings_.opening_variance;
     settings_.mondetour_opens += ran;
@@ -260,7 +277,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street', "gameover-screen", "result", "finalwave", "tip"]) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'normal', 'normallabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street', "gameover-screen", "result", "finalwave", "tip"]) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name.replace("-", "_")];
     }
@@ -5545,6 +5562,7 @@ function revolution() {
         case Difficulty.EASY:
             achieve("easy");
     }
+    updateDifficulty();
     var pedantic = true;
     for (const recruit of ["Montparnasse", "Babet", "Gueulemer", "Thenardier", "Mme Thenardier", "Cosette"]) {
         if (recruit in state_.amis.lookup) {

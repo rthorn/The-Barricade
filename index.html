@@ -18,10 +18,10 @@
           <input type="text" id="game"><button id="load"onClick="loadGame()" disabled>Load</button>
           <div class="newgameLabel" id="difficulty-label">Select difficulty:</div>
           <button class="difficulty" type="button" id="easy" onClick="setDifficulty(event)">Easy</button>
-          <button class="difficulty" type="button" id="normal" onClick="setDifficulty(event)">Normal</button>
+          <button class="difficulty" type="button" id="normal" onClick="setDifficulty(event)" disabled>Normal</button>
           <button class="difficulty" type="button" id="hard" onClick="setDifficulty(event)" disabled>Hard</button>
           <div class="difficultysub">Achievements disabled</div>
-          <div class="difficultysub"></div>
+          <div class="difficultysub" id="normallabel">Win a game on Easy difficulty to unlock</div>
           <div class="difficultysub" id="hardlabel">Win a game on Normal difficulty to unlock</div>
           <div class="newgameLabel" id="challenges-label">Challenges:</div>
           <div class="difficultysub" id="challengeslabel">Win a game on Normal difficulty to unlock</div>
