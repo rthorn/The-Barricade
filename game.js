@@ -134,6 +134,14 @@ const Difficulty = Object.freeze({
     HARD: 3
 });
 
+const GiftType = Object.freeze({
+    AMMO: 0,
+    FOOD: 1,
+    HOPE: 2,
+    HEALTH: 3,
+    BUILD: 4
+});
+
 // Initialization
 
 async function logSha1(str) {
@@ -2929,7 +2937,9 @@ function setHope(value) {
 }
 
 function heal(person, amount) {
+    console.log(amount + " " + getHealth(person));
     setHealth(person, getHealth(person) + amount);
+    console.log(getHealth(person));
 }
 
 function damage(person, attacker) {
@@ -4211,7 +4221,77 @@ function transitionToRecover() {
         refs_.load.disabled = false;
     }
     endTimer("prep recover");
-    tutorial("recover" + getWave());
+    if (!tutorial("recover" + getWave())) {
+        if (state_.difficulty != Difficulty.HARD && getWave() >= 10 && getWave()%5 == 0) {
+            gift();
+        }
+    }
+}
+
+function gift() {
+    var type = GiftType[Object.keys(GiftType)[getRandomInt(5)]];
+    var text = "";
+    switch (type) {
+        case GiftType.AMMO:
+            text = "The soldiers dropped some clips right next to the barricade during the battle.<br/><br/>You gain 1000 <p style=\"color: darkred\">Ammo<p/>!";
+            setAmmo(getAmmo() + 1000);
+            break;
+        case GiftType.FOOD:
+            text = "One of your Amis found a stash in the Corinthe cellar.<br/><br/>You gain 100 <p style=\"color: darkred\">Food<p/>!";
+            setFood(getFood() + 100);
+            break;
+        case GiftType.HOPE:
+            text = "An Ami gives a rousing speech.<br/><br/>You gain 100 <p style=\"color: darkred\">Hope<p/>!";
+            setHope(getHope() + 100);
+            break;
+        case GiftType.HEALTH:
+            text = "Someone found a first aid kit in the attic of Corinthe.<br/><br/>Every Ami heals 50 health!";
+            var locations = new Set([]);
+            for (const ami of state_.amis.needs_food) {
+                heal(ami, 50 / getHealthMax(ami));
+                if (isCitizen(ami)) {
+                    locations.add(ami.parentElement);
+                }
+            }
+            for (const ami of state_.amis.needs_food) {
+                if (getHealth(ami) >= 100) {
+                    var feed = getFeed(ami);
+                    feed.style.display = "none";
+                    state_.amis.needs_food.delete(ami);
+                    updateFood();
+                }
+            }
+            for (const loc of locations) {
+                stackChildren(loc);
+            }
+            break;
+        case GiftType.BUILD:
+            text = "Your amis convinced someone living in a nearby building to drop some furniture out of a window for you.<br/><br/>All barricade walls have been built 10% up!";
+            for (const wall of refs_.barricade) {
+                setHeight(wall, getHeight(wall) + 10);
+            }
+            break;
+    }
+    refs_.tutorial_text.innerHTML = text;
+    refs_.tutorial_text.style.marginTop = "1.3vw";
+    refs_.ok_tutorial.onclick = function() { closeGift() };
+    refs_.disable_tutorials.hidden = true;
+    refs_.ok_tutorial.textContent = "OK!";
+    refs_.ok_tutorial.style.marginLeft = "calc(50% - 3vw)";
+    window.scrollTo(0, 0);
+    refs_.tutorial.hidden = false;
+    refs_.tutorial_screen.hidden = false;
+    document.body.style.overflow = "hidden";
+    disableButtons();
+}
+
+function closeGift() {
+    refs_.tutorial.hidden = true;
+    refs_.tutorial_screen.hidden = true;
+    refs_.ok_tutorial.style.marginLeft = null;
+    reenableButtons();
+    document.body.style.overflow = null;
+    refs_.disable_tutorials.hidden = false;
 }
 
 function recruitMe(ev) {
