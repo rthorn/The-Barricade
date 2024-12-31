@@ -179,17 +179,17 @@ var settings_ = {
 		"barricade-limit-right": {
 			"description": "2x positions on right of <i>Chanvrerie</i> barricade",
 			"cost_type": "AMMO",
-			"cost_value": 1000
+			"cost_value": 500
 		},
 		"barricade-limit-center": {
 			"description": "2x positions on center of the <i>Chanvrerie</i> barricade",
 			"cost_type": "AMMO",
-			"cost_value": 1000
+			"cost_value": 500
 		},
 		"barricade-limit-left": {
 			"description": "2x positions on left of the <i>Chanvrerie</i> barricade",
 			"cost_type": "AMMO",
-			"cost_value": 1000
+			"cost_value": 500
 		},
 		"mondetour-limit-right": {
 			"description": "2x positions on right side of the <i>Mondétour</i> barricade",
