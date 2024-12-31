@@ -2223,7 +2223,7 @@ function enablePrecheurs() {
 function newRecruit(name) {
     var cost = settings_.amis[name].cost;
     var ami = newPerson(name, "recruit");
-    if (name == "Citizen") {
+    if (name == "Citizen" || name == "Marius") {
         refs_.lookup[name] = ami;
     }
     var stats = document.createElement("div");
@@ -4311,6 +4311,9 @@ function recruit() {
     if (getWave() >= 4) {
         tutorial("citizens");
     }
+    if (getWave() >= 10) {
+        tutorial("zmarius");
+    }
 }
 
 function getTutorials() {
@@ -5422,7 +5425,7 @@ function nextTutorial(name, i, oldZIndexes, oldBorders) {
 }
 
 function tutorial(name) {
-    if (!(name in settings_.tutorials) || hasTutorialed(name) || state_.reloading || state_.debug) {
+    if (!(name in settings_.tutorials) || hasTutorialed(name) || state_.reloading) {
         return !refs_.tutorial_screen.hidden;
     }
     if (!refs_.tutorial_screen.hidden) {

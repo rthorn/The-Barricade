@@ -813,6 +813,16 @@ var settings_ = {
 				"highlight": ["Citizen", "dismiss"]
 			}
 		],
+		"zmarius": [
+			{
+				"text": 'Marius is a powerful unique Ami if you\'re in a tight spot. He can end a battle halfway through, letting your Amis live to see another day.<br/><br/>To do so, he must be on a barricade wall when the fight is at least halfway through. A button will appear underneath him to end the Wave early at the cost of 100 <p style="color: darkred">Ammo</p>.',
+				"highlight": ["Marius"]
+			},
+			{
+				"text": 'But Marius should be used sparingly! His <p style="color: darkred">Ammo<p/> cost will double with each use, and you won\'t earn the normal amount of <p style="color: darkred">Hope</p> for Waves ended early.',
+				"highlight": ["Marius"]
+			}
+		],
 		"training": [
 			{
 				"text": 'You can now train individual citizens in the special abilities of unique Amis. To do so, place a unique Ami in the <p style="color: goldenrod">Trainer</p> box and one or more Citizens in the <p style="color: goldenrod">Train</p> building.<br/><br/>Citizens cannot train other Citizens, so if a unique Ami dies or is dismissed, it will no longer be possible to train new Citizens in their ability. Unique Amis cannot be trained in the abilities of other Amis.',
