@@ -1048,8 +1048,16 @@ h4 {
 #newgame {
     text-align: center;
     font-size: 1.5vw;
-    width: 10vw;
-    margin-left: calc(50% - 5vw);
+    width: 12vw;
+    margin-left: calc(50% - 6vw);
+    margin-top: 6vw;
+}
+
+#endless {
+    text-align: center;
+    font-size: 1.5vw;
+    width: 12vw;
+    margin-left: calc(50% - 6vw);
     margin-top: 6vw;
 }
 

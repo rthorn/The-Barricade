@@ -19,6 +19,7 @@ var state_ = {
         upgrader_buttons: new Set([]),
         eponines: new Set([]),
         bossuets: new Set([]),
+        hugo: false,
         last_recover: {},
         last_prepare: {},
         dead: 0
@@ -81,7 +82,9 @@ var state_ = {
     tutorial_queue: [],
     timers: {},
     health: {},
-    healthmax: {}
+    healthmax: {},
+    endless: false,
+    saved: false
 };
 
 var initials_ = {};
@@ -277,7 +280,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'normal', 'normallabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street', "gameover-screen", "result", "finalwave", "tip"]) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'normal', 'normallabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street', "gameover-screen", "result", "finalwave", "tip", "endless"]) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name.replace("-", "_")];
     }
@@ -902,6 +905,9 @@ function loadGame(newgame) {
     state_.max_food = save.k;
     if ("j" in save) {
         state_.javert.dead = true;
+    }
+    if ("en" in save) {
+        state_.endless = true;
     }
     if ("q" in save) {
         state_.javert.dismissals = save.q;
@@ -2194,7 +2200,6 @@ function addNewRecruit(name) {
 }
 
 function addNewEnemy(name, loc) {
-    console.log(name + " " + loc.id)
     return loc.appendChild(newEnemy(name));
 }
 
@@ -2755,6 +2760,10 @@ function setHeight(wall, value) {
       default:
         wall.style.filter = "brightness(90%)";
     }
+    if (getHeight(wall) <= 0 && state_.amis.hugo && !state_.saved) {
+        setHeight(wall, 50);
+        state_.saved = true;
+    }
     if (state_.structures.precheurs_open && getHeight(wall) + 0.5 >= 100) {
         for (const i of refs_.barricade) {
             if (getHeight(i) + 0.5 < 100) {
@@ -2954,9 +2963,7 @@ function setHope(value) {
 }
 
 function heal(person, amount) {
-    console.log(amount + " " + getHealth(person));
     setHealth(person, getHealth(person) + amount);
-    console.log(getHealth(person));
 }
 
 function damage(person, attacker) {
@@ -3044,6 +3051,9 @@ function deleteAmiState(ami) {
     }
     if (state_.amis.bossuets.has(ami)) {
         state_.amis.bossuets.delete(ami);
+    }
+    if (ami.id == "Victor Hugo") {
+        state_.amis.hugo = false;
     }
     if (ami.id in state_.amis.temp_damage) {
         delete state_.amis.temp_damage[ami.id];
@@ -3297,7 +3307,6 @@ function enemiesPerWave(type, wave) {
     }
     var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * adjust)
     if (type != EnemyType.SOLDIER) {
-        console.log(Math.ceil(num/5) + " " + num + " " + adjusted_wave + " " + wave);
         return Math.ceil(num/5);
     }
     return num;
@@ -3462,6 +3471,9 @@ function saveGame() {
     }
     if (state_.javert.dead) {
         save.j = 1;
+    }
+    if (state_.endless) {
+        save.en = 1;
     }
     if (state_.marius.uses) {
         save.u = state_.marius.uses;
@@ -3647,6 +3659,7 @@ function feedAll() {
 function startWave() {
     startTimer("prep prep fight");
     refs_.load.disabled = true;
+    state_.saved = false;
     $("#ready").hide();
     clearLabels();
     for (const loc of refs_.ami_locations) {
@@ -4392,8 +4405,14 @@ function recruitMe(ev) {
     }
     updateRecruit();
     if (id == "Victor Hugo") {
-        achieve("hugo");
-        revolution();
+        state_.amis.hugo = true;
+        if (!state_.endless || state_.reloading) {
+            achieve("hugo");
+            revolution();
+            if (state_.reloading && state_.endless) {
+                endless();
+            }
+        }
     } else if (id == "Grantaire" && getWave() < settings_.amis["Citizen"].level) {
         refs_.recruit.disabled = true;
         closeRecruit();
@@ -4602,7 +4621,7 @@ function theBrick(ami) {
             if (child.nodeType != Node.ELEMENT_NODE) {
                 continue;
             }
-            for (var i = 32; i > maxWave(); i--) {
+            for (var i = 40; i > maxWave(); i--) {
                 if (child.classList.contains("hidden" + i)) {
                     child.children[0].textContent = "???";
                     child.childNodes[2].textContent = "Keep playing to unlock this content.";
@@ -4981,6 +5000,9 @@ function upgradeMe(ev) {
         achieve("revolution");
         closeUpgrade();
         revolution();
+        if (state_.reloading && state_.endless) {
+            endless();
+        }
     }
     updateFood();
     endTimer("upgrade " + ev.target.parentElement.id);
@@ -5536,6 +5558,7 @@ function tutorial(name) {
 }
 
 function revolution() {
+    refs_.endless.hidden = false;
     if (getWave() < 30) {
         achieve("speedrun");
     }
@@ -5592,6 +5615,7 @@ function revolution() {
 }
 
 function gameOver() {
+    refs_.endless.hidden = true;
     refs_.finalwave.innerHTML = "<i>Wave " + getWave() + "</i>";
     refs_.result.innerHTML = "Game Over";
     var tip = "";
@@ -5623,6 +5647,29 @@ function gameOver() {
     refs_.game.value = "";
     if (!state_.amis.all.size) {
         achieve("bookaccurate");
+    }
+}
+
+function endless() {
+    document.body.appendChild(refs_.game);
+    document.body.appendChild(refs_.load);
+    refs_.game.style.top = "8.8vw";
+    refs_.load.style.top = "8.8vw";
+    refs_.gameover_screen.style.display = "none";
+    state_.endless = true;
+    reenableButtons();
+    settings_.amis["Victor Hugo"].special[3] = "Saves a single fallen barricade wall per Wave";
+    for (const upgrade of getChildren(refs_.upgrade_screen)) {
+        if (upgrade.id == "revolution") {
+            upgrade.remove();
+            break;
+        }
+    }
+    for (const recruit of getChildren(refs_.recruit_screen)) {
+        if (recruit.id == "Victor Hugo") {
+            recruit.children[2].innerHTML = getStats(recruit) + refs_.info_button;
+            break;
+        }
     }
 }
 
