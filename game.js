@@ -3298,9 +3298,9 @@ function enemiesPerWave(type, wave) {
     if (wave >= 40) {
         adjusted_wave += (wave - 39) * 5;
     }
-    adjusted_wave += state_.difficulty == Difficulty.HARD ? 2 : 0;
+    adjusted_wave += 2;
     var adjust = 4/5;
-    if (state_.difficulty == Difficulty.EASY) {
+    if (state_.difficulty == Difficulty.EASY && getWave() > 12) {
         adjust = 3/5;
     } else if (state_.difficulty == Difficulty.HARD) {
         adjust = 5/5;
@@ -3329,8 +3329,8 @@ function addEnemies(type, wave, foresight, sides) {
         }
     }
     var side = wave >= settings_.precheurs_opens + 5 ? getRandomInt(2) : 1;
-    var mondetour = side ? wave - settings_.mondetour_opens + (state_.challenge == 4 ? 0 : state_.difficulty == Difficulty.HARD ? 2 : 5) : wave - settings_.precheurs_opens + (state_.challenge == 4 ? 0 : state_.difficulty == Difficulty.HARD ? 2 : 5);
-    var precheurs = side ? wave - settings_.precheurs_opens + (state_.challenge == 4 ? 1 : state_.difficulty == Difficulty.HARD ? 2 : 5) : wave - settings_.mondetour_opens + (state_.challenge == 4 ? 1 : state_.difficulty == Difficulty.HARD ? 2 : 5);
+    var mondetour = side ? wave - settings_.mondetour_opens + (state_.challenge == 4 ? 0 : 2) : wave - settings_.precheurs_opens + (state_.challenge == 4 ? 0 : 2);
+    var precheurs = side ? wave - settings_.precheurs_opens + (state_.challenge == 4 ? 1 : 2) : wave - settings_.mondetour_opens + (state_.challenge == 4 ? 1 : 2);
     if (state_.challenge == 4) {
         mondetour = Math.ceil(mondetour * 2/3);
         precheurs = Math.ceil(precheurs * 2/3);
@@ -3376,7 +3376,7 @@ function addEnemies(type, wave, foresight, sides) {
             }
             tutorial("mondetour");
         } else if (foresight) {
-            var num = enemiesPerWave(type, state_.difficulty == Difficulty.HARD ? 2 : 5);
+            var num = enemiesPerWave(type, 2);
             for (let i = 1; i <= num; i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesmondetour2);
@@ -3407,7 +3407,7 @@ function addEnemies(type, wave, foresight, sides) {
                 }
             }
         } else if (foresight) {
-            var num = enemiesPerWave(type, state_.difficulty == Difficulty.HARD ? 2 : 5);
+            var num = enemiesPerWave(type, 2);
             for (let i = 1; i <= num; i++) {
                 if (type == EnemyType.SOLDIER) {
                     addNewEnemy(type, refs_.lesenemiesprecheurs2);
