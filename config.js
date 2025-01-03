@@ -741,7 +741,7 @@ var settings_ = {
 				"highlight": ["lesamis", "chanvrerie1", "chanvrerie2", "chanvrerie3", "corinthe"]
 			},
 			{
-				"text": '<p style="color: goldenrod">Drag and drop</p> Amis to put them in position, or use the <p style="color: goldenrod">Auto-fill</p> button to place any Amis not yet in position if you\'re in a hurry. Press the <p style="color: goldenrod">Reset</p> button to reset all placed Amis. Press an individual location\'s <p style="color: goldenrod">Reset</p> button, which appears on hover, to reset just the Amis located there.<br/><br/>Press <p style="color: goldenrod">Ready</p> when you\'re prepared to start this Wave\'s battle.',
+				"text": '<p style="color: goldenrod">Drag and drop</p> Amis to put them in position, or use the <p style="color: goldenrod">Auto-fill</p> button to place any Amis not yet in position if you\'re in a hurry. Press the <p style="color: goldenrod">&#x21bb;</p> button to reset all placed Amis. Press an individual location\'s <p style="color: goldenrod">Reset</p> button, which appears on hover, to reset just the Amis located there.<br/><br/>Press <p style="color: goldenrod">Ready</p> when you\'re prepared to start this Wave\'s battle.',
 				"highlight": ["ready", "autofill", "reset", "lesamis"]
 			}
 		],
@@ -857,7 +857,7 @@ var settings_ = {
 				"highlight": ["precheurs1", "precheurs2"]
 			},
 			{
-				"text": 'From this point forward, your Amis are surrounded and all looting will come with a 20% risk of death, just like scouting.',
+				"text": 'From this point forward, your Amis are surrounded and all looting will come with a 20% risk of death, just like scouting. Maybe there\'s a unique Ami that can help with this...',
 				"highlight": ["lootammo", "lootfood"]
 			}
 		]
