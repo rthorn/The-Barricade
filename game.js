@@ -3300,12 +3300,15 @@ function enemiesPerWave(type, wave) {
     }
     adjusted_wave += 2;
     var adjust = 4/5;
-    if (state_.difficulty == Difficulty.EASY && getWave() > 12) {
+    if (state_.difficulty == Difficulty.EASY && wave > 12) {
         adjust = 3/5;
     } else if (state_.difficulty == Difficulty.HARD) {
         adjust = 5/5;
     }
     var num = Math.floor((adjusted_wave + 2.58) * Math.log10(adjusted_wave + 2.58) * adjust)
+    if (adjust == 3/5 && num < 16 && type == EnemyType.SOLDIER) {
+        num = 16;
+    }
     if (type != EnemyType.SOLDIER) {
         return Math.ceil(num/5);
     }
