@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="height=device-height, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>The Barricade</title>
     <script>document.write("<link rel='stylesheet' href='./style.css?v=" + Date.now() + "'>");</script>
@@ -11,6 +11,13 @@
   </head>
   <body>
     <main>
+      <div id="tutorial-screen" hidden></div>
+      <div id="tutorial" hidden>
+        <div id="tutorial-text"></div>
+        <button type="button" id="disable-tutorials">Disable all tutorials</button>
+        <button type="button" id="ok-tutorial">OK!</button>
+      </div>
+      <div id="container">
         <h1 class="backgroundText" id="title">The Barricade&emsp;<button class="metaButton" id="achievements" onClick="achievements()">&#x1F3C6</button> <button class="metaButton" id="thebrick" onClick="theBrick()">&#x1F4D6</button></h1>
         <h2 class="backgroundText" id="state">Wave 1</h2>
         <h3 class="backgroundText" id="substate">Prepare</h3>
@@ -20,7 +27,7 @@
           <button class="difficulty" type="button" id="easy" onClick="setDifficulty(event)">Easy</button>
           <button class="difficulty" type="button" id="normal" onClick="setDifficulty(event)" disabled>Normal</button>
           <button class="difficulty" type="button" id="hard" onClick="setDifficulty(event)" disabled>Hard</button>
-          <div class="difficultysub">Achievements disabled</div>
+          <div class="difficultysub" id="easylabel">Achievements disabled</div>
           <div class="difficultysub" id="normallabel">Win a game on Easy difficulty to unlock</div>
           <div class="difficultysub" id="hardlabel">Win a game on Normal difficulty to unlock</div>
           <div class="newgameLabel" id="challenges-label">Challenges:</div>
@@ -97,18 +104,14 @@
         <div id="hopelabel" class="backgroundText label">Hope
           <div id="hope" class="number">1</div>
         </div>
-        <div id="tutorial-screen" hidden></div>
-        <div id="tutorial" hidden>
-          <div id="tutorial-text"></div>
-          <button type="button" id="disable-tutorials">Disable all tutorials</button>
-          <button type="button" id="ok-tutorial">OK!</button>
-        </div>
         <div class="backgroundText streetsign" id="chanvrerie-street">Rue de la Chanvrerie</div>
         <div class="backgroundText streetsign" id="mondetour-street">Rue Mondétour</div>
         <div class="backgroundText streetsign" id="precheurs-street">Rue des Prêcheurs --></div>
         <div class="backgroundText streetsign" id="corinthe-street">Corinthe</div>
+      </div>
     </main>
   <script>document.write("<script type='text/javascript' src='config.js?v=" + Date.now() + "'><\/script>");</script>
+  <script>document.write("<script type='text/javascript' src='style.js?v=" + Date.now() + "'><\/script>");</script>
   <script>document.write("<script type='text/javascript' src='game.js?v=" + Date.now() + "'><\/script>");</script>
   </body>
 </html>

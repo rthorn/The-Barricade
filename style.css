@@ -18,6 +18,13 @@ body::-webkit-scrollbar {
     display: none;
 }
 
+#container {
+    aspect-ratio: 8/5;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .backgroundText {
     cursor: default;
     -webkit-transition: color 300ms linear;
@@ -27,99 +34,53 @@ body::-webkit-scrollbar {
 }
 
 #title {
-    top: 0.7vw;
-	font-size: 1.2vw;
     left: calc(50% - 48.15%);
 }
 
 #state {
-	font-size: 3.2vw;
     margin: 0;
-    top: 2.8vw;
     left: calc(50% - 48.15%);
 }
 
 #substate {
-    font-size: 1.6vw;
     margin: 0;
-    top: 6.8vw;
     left: calc(50% - 48.15% + 0.16%);
 }
 
 .metaButton {
     position: absolute;
-    top: 0vw;
-}
-
-#thebrick {
-    left: 11.6vw;
+    top: 0;
 }
 
 #load {
-    font-size: 1vw;
     text-align: center;
     position: absolute;
-    top: 0.8vw;
     left: calc(50% - 37%);
 }
 
 #game {
     width: 10%;
     position: absolute;
-    top: 0.8vw;
     left: calc(50% - 48.15% + 0.16%);
 }
 
 .controlButton {
-    font-size: 0.88vw;
     width: calc(6%);
     margin-left: calc((100% - 6%) / 2);
-    margin-top: 1.6vw;
     z-index: 10;
     position: absolute;
 }
 
 #ready {
-    font-size: 0.88vw;
-    width: calc(6%);
-    margin-left: calc((100% - 6%) / 2);
-    margin-top: 1.6vw;
-    z-index: 10;
-    position: absolute;
     left: -4%;
-    top: 48.15vw;
-}
-
-#recruit {
-    left: 12vw;
-    top: 48.96vw;
-}
-
-#upgrade {
-    left: -12vw;
-    top: 48.96vw;
-}
-
-#autofill {
-    left: 4vw;
-    top: 48.15vw;
 }
 
 #reset {
-    width: 1.6vw;
-    margin-left: calc(50% - 1.4vw);
-    top: 51.52vw;
-    padding-left: .08vw;
-    padding-right: .08vw;
     margin-top: 0;
 }
 
 #progressbar {
-    width: 16vw;
-    top: 8.83vw;
     position: absolute;
-    margin-left: calc((100% - 16vw) / 2);
-    height: 0.4vw;
     display: none;
     left: 0;
     background: lightgreen;
@@ -155,32 +116,16 @@ body::-webkit-scrollbar {
 }
 
 #recruit-limit {
-    width: calc(50% - 15.4vw - 0.6vw);
     text-align: left;
-    font-size: 1.2vw;
-    padding-left: 15.4vw;
 }
 
 #achievements-progress {
     width: 100%;
     text-align: center;
-    font-size: 1.6vw;
-    height: 3vw;
     font-style: italic;
 }
 
-.difficulty {
-    font-size: 1.5vw;
-    padding: 0.5vw 1vw;
-    width: 10vw;
-    margin-left: calc((100% - 30vw)/4);
-}
-
 .difficultysub {
-    font-size: 1vw;
-    padding: 0.5vw 0vw;
-    width: 10vw;
-    margin-left: calc((100% - 30vw)/4);
     font-style: italic;
     text-align: center;
     display: inline-block;
@@ -190,13 +135,7 @@ body::-webkit-scrollbar {
 .newgameLabel {
     width: 100%;
     text-align: center;
-    font-size: 1.6vw;
-    padding-top: 5vw;
     font-weight: bold;
-}
-
-#difficulty-label {
-    height: 5vw;
 }
 
 #challengeslabel {
@@ -207,51 +146,31 @@ body::-webkit-scrollbar {
 .challenge {
     width: 33%;
     text-align: center;
-    font-size: 1.6vw;
-    padding: 2vw 0vw;
     display: inline-block;
     vertical-align: top;
 }
 
 .challengeButton {
     text-align: center;
-    font-size: 1.5vw;
-    padding: 0.5vw 1vw;
-    margin: 1vw 0vw;
     vertical-align: bottom;
 }
 
 .label {
-    right: calc(50% - 48.15vw);
     display:inline-block;
-    width: 14.45vw;
     text-align: right;
 }
 
-#ammolabel {
-    top: 2.4vw;
-}
-
 #foodlabel {
-    top: 4.41vw;
     width: auto;
-}
-
-#hopelabel {
-    top: 6.42vw;
 }
 
 .number {
     display: inline;
-    width:100%;
+    width: 100%;
     font-weight: bold;
     -webkit-transition: color 300ms linear;
     -ms-transition: color 300ms linear;
     transition: color 300ms linear;
-}
-
-#feed {
-    padding: 0.3vw 0.4vw;
 }
 
 .bar {
@@ -264,16 +183,11 @@ body::-webkit-scrollbar {
 }
 
 .closeButton {
-    margin: .16vw;
     display: block;
-    font-size: 1.6vw;
 }
 
 .ami .bar {
-    width: 3.2vw;
-	height: 0.8vw;
 	position: static;
-	margin-left: calc((100% - 3.2vw) / 2);
 }
 
 .ami .bar-fill {
@@ -281,10 +195,7 @@ body::-webkit-scrollbar {
 }
 
 .enemy .bar {
-    width: 2vw;
-	height: 0.48vw;
 	position: static;
-	margin-left: calc((100% - 2vw) / 2);
 }
 
 .enemy .bar-fill {
@@ -296,7 +207,6 @@ body::-webkit-scrollbar {
     background-color: brown;
     transition: background 0.05s ease-in-out;
     position: absolute;
-    height: 16vw;
     display: inline-block;
     text-align: center;
     filter: brightness(110%);
@@ -308,59 +218,16 @@ body::-webkit-scrollbar {
     display: none;
 }
 
-.chanvrerie {
-    width: calc(32.1vw/3);
-    top: 32.1vw;
-}
-
-#chanvrerie1 {
-    left: calc(50% - (32.1vw/3)/2*3);
-}
-
-#chanvrerie2 {
-    left: calc(50% - (32.1vw/3)/2);
-}
-
-#chanvrerie3 {
-    left: calc(50% + (32.1vw/3)/2);
-}
-
 .mondetour {
-    width: 9.63vw;
     transform: skewY(-20deg);
 }
 
-#mondetour1 {
-    top: 39.33vw;
-    right: calc(50% + (32.1vw/3)/2*3 + 14.77vw);
-}
-
-#mondetour2 {
-    top: 42.82vw;
-    right: calc(50% + (32.1vw/3)/2*3 + 24.40vw);
-}
-
 .precheurs {
-    width: 9.63vw;
-    height: 4vw;
     transform: skewY(20deg);
-}
-
-#precheurs2 {
-    top: 54.86vw;
-    right: calc(50% - (32.1vw/3)/2*3 - 34.03vw);
-}
-
-#precheurs1 {
-    top: 51.36vw;
-    right: calc(50% - (32.1vw/3)/2*3 - 24.40vw);
 }
 
 .building {
     position: absolute;
-    top: 9.63vw;
-    width: 16vw;
-    height: 41.73vw;
     display: inline-block;
     overflow: scroll;
     text-align: center;
@@ -374,12 +241,10 @@ body::-webkit-scrollbar {
 
 #corinthe {
     background: teal;
-    left: calc(50% - (32.1vw/3)/2*3 - 16vw);
 }
 
 #rightside {
     background: grey;
-    left: calc(50% + (32.1vw/3)*1.5);
 }
 
 .recoverBox {
@@ -396,102 +261,29 @@ body::-webkit-scrollbar {
     display: none;
 }
 
-#lootammo {
-    right: calc(50% - 46.95vw);
-    top: 36.92vw;
-    width: 12.84vw;
-    height: 14.45vw;
-}
-
-#scout {
-    left: calc(50% - 10.03vw);
-    top: 0.8vw;
-    width: 20.06vw;
-    height: 8vw;
-}
-
-#lootfood {
-    right: calc(50% - 46.95vw);
-    top: 20.06vw;
-    width: 12.84vw;
-    height: 14.45vw;
-}
-
-#dismiss {
-    right: calc(50% - 45.35vw);
-    top: 53.77vw;
-    width: 9.63vw;
-    height: 7.22vw;
-}
-
 #trainer {
     background: lightgray;
-    width: 8vw;
-    height: 8vw;
     border: solid;
     overflow: hidden;
     text-align: center;
-    margin-left: calc(50% - 4.13vw);
-    margin-top: 0.4vw;
-    margin-bottom: 0.4vw;
 }
 
 .enemies {
     position: absolute;
     display: inline-block;
     text-align: center;
-    height: 3.61vw;
-}
-
-#lesenemies2 {
-    left: calc(50% - 32.1vw);
-    top: 4.41vw;
-    width: 64.21vw;
-}
-
-#lesenemies1 {
-    left: calc(50% - 32.1vw);
-    top: 0.8vw;
-    width: 64.21vw;
-}
-
-#lesenemiesmondetour1 {
-    left: calc(50% - 49.35vw);
-    top: 10.43vw;
-    width: 14.45vw;
-}
-
-#lesenemiesmondetour2 {
-    left: calc(50% - 49.35vw);
-    top: 14.04vw;
-    width: 14.45vw;
-}
-
-#lesenemiesprecheurs1 {
-    left: calc(50% + 34.91vw);
-    top: 10.43vw;
-    width: 14.45vw;
-}
-
-#lesenemiesprecheurs2 {
-    left: calc(50% + 34.91vw);
-    top: 14.04vw;
-    width: 14.45vw;
 }
 
 .enemy {
     vertical-align: top;
-    margin: 0.4vw;
     display: inline-block;
-    font-size: 1.2vw;
     text-align: center;
     cursor: default;
 }
 
-.enemytype {
+.enemyname {
     width: 100%;
     text-align: center;
-    font-size: 0.8vw;
 }
 
 button[type=button]:enabled {
@@ -501,219 +293,138 @@ button[type=button]:enabled {
 #lesamis {
     background: white;
 	position: absolute;
-	left: calc(50% - 60.19vw/2);
-	top: 53.37vw;
-	width: 60.19vw;
-    min-height: 8vw;
 	display: inline-block;
     text-align: center;
     border: 1px dotted lightgray;
+    overflow: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#lesamis::-webkit-scrollbar { 
+    display: none;
 }
 
 .ami {
     display: inline-block;
     transition: color 0.2s ease-in-out;
-    width: 4.815vw;
-    font-size: 2.81vw;
     text-align: center;
     z-index: 1;
     vertical-align: top;
-    height: 6.42vw;
     cursor: pointer;
 }
 
 .upgraderami {
     display: inline-block;
     width: 10%;
-    font-size: 3.2vw;
     text-align: center;
     height: 100%;
-    margin-top: 3vw;
 }
 
 .recruit {
-    font-size: 2.81vw;
     text-align: center;
-    width: calc(50% - 0.6vw);
     display: inline-block;
 }
 
 .upgrade {
-    font-size: 2.81vw;
     text-align: center;
     width: 50%;
     display: inline-block;
 }
 
 .achievement {
-    min-height: 6vw;
-    font-size: 1.3vw;
     text-align: center;
-    width: calc(33% - 1vw);
     display: inline-block;
     cursor: default;
     vertical-align: top;
-    padding: 0vw 0.5vw;
 }
 
 .upgraderUpgradeContainer {
     width: 100%;
     display: inline-block;
-    height: 10vw;
 }
 
 .upgraderUpgrade {
-    font-size: 2.81vw;
     text-align: center;
     width: 30%;
     display: inline-block;
     height: 100%;
-    margin-top: 3vw;
 }
 
 .upgraderUpgradeEmpty {
-    font-size: 1.2vw;
     text-align: center;
     width: 30%;
     display: inline-block;
     height: 100%;
-    margin-top: 4vw;
     vertical-align: middle;
-}
-
-.upgraderUpgrade .stats {
-    padding: 0vw 1.6vw;
-    font-size: 1.2vw;
 }
 
 .aminame {
     width: 100%;
     text-align: center;
-    font-size: 0.8vw;
 }
 
 .upgraderaminame {
     width: 100%;
     text-align: center;
-    font-size: 1.2vw;
 }
 
 .recruitname {
     width: 100%;
     text-align: center;
-    font-size: 0.8vw;
 }
 
 .foodButton {
-    width: calc(3.3vw + 4px);
-    margin-top: .16vw;
     position: absolute;
-    font-size: 0.64vw;
-    margin-left: calc(0.35vw + 2px);
     z-index: 4;
-    padding-left: 0.30vw;
-    padding-right: 0.30vw;
     box-shadow: auto;
 }
 
-.recruitButton {
-    font-size: 0.88vw;
-    width: 10.43vw;
-    margin-top: 0.4vw;
-}
-
 .mariusButton {
-    width: 4.815vw;
-    height: 2.25vw;
-    margin-top: .16vw;
-    margin-left: 0vw;
+    margin-left: 0;
     position: absolute;
-    padding: 0.08vw;
-    font-size: 0.64vw;
     z-index: 3;
 }
 
 .ami .stacker {
     position: absolute;
-    font-size: 1.2vw;
-    margin-top: -5.62vw;
-    margin-left: 3.61vw;
     color: black;
 }
 
 .ami .upgrader {
     position: absolute;
-    font-size: 0.96vw;
-    margin-top: -5.62vw;
     padding: 0;
 }
 
 .enemy .stacker {
     position: relative;
-    font-size: 0.96vw;
-    top: -3.61vw;
-    right: -1.2vw;
 }
 
 .upgradeButton {
-    font-size: 0.88vw;
-    width: 12.04vw;
-    margin-top: 0vw;
-    margin-bottom: 2.4vw;
+    margin-top: 0;
 }
 
 .upgraderButton {
-    font-size: 0.88vw;
-    width: 12.04vw;
-    margin-top: 0vw;
-    margin-bottom: 2.4vw;
-}
-
-.ami .stats {
-    z-index: 15;
-    padding: .24vw;
-    font-size: 0.72vw;
-    position: fixed;
-    background-color: lightgray;
-    width: 7.54vw;
-    margin-top: -9.23vw;
+    margin-top: 0;
 }
 
 #hovertext {
     z-index: 15;
-    padding: .24vw;
-    font-size: 0.72vw;
     position: fixed;
     background-color: lightgray;
-    width: 7.54vw;
-    margin-top: -9.23vw;
     text-align: center;
     pointer-events: none;
-}
-
-.recruit .stats {
-    padding: 0.8vw 1.6vw;
-    font-size: 0.72vw;
-}
-
-.upgrade .stats {
-    padding: 0vw 1.6vw;
-    font-size: 1.2vw;
 }
 
 .recoverLabel {
     cursor: default;
     display: block;
-    font-size: 1.12vw;
-    min-height: 1.4vw;
-    padding-right: 1.2vw;
-    padding-left: 1.2vw;
 }
 
 .deathrisk {
     display: inline;
-    padding: 0vw;
-    margin: 0vw;
+    padding: 0;
+    margin: 0;
     cursor: pointer;
 }
 
@@ -721,46 +432,47 @@ button[type=button]:enabled {
     color: red;
 }
 
-.amiLoc:hover .recoverLabel .fakeResetButton {
-    width: 0.96vw;
+.fakeResetButton {
     display: inline;
     float: right;
     padding: 0;
-    margin-right: .24vw;
-    margin-top: .24vw;
     vertical-align: top;
     height: 100%;
 }
 
+.amiLoc:hover .fakeResetButton {
+    display: none;
+}
+
 .amiLoc:hover .resetButton {
-    width: 0.96vw;
-    height: 1.1vw;
-    min-height: 0.96vw;
     display: inline;
     float: right;
-    font-size: 0.7vw;
     padding: 0;
-    margin-right: .24vw;
-    margin-top: .24vw;
     vertical-align: top;
     background: white;
     border-color: white;
     border-style: solid;
-    border-width: 0.16vw;
-    border-radius: 0.32vw;
 }
 
-.amiLoc:hover .recoverLabel {
-    padding-right: 0vw;
+.resetFakeButton {
+    display: none;
+}
+
+.amiLoc:hover .resetFakeButton {
+    display: inline;
+    height: 100%;
+    float: right;
+    padding: 0;
+    vertical-align: top;
+}
+
+.recoverLabel {
+    padding-right: 0;
 }
 
 .dot {
-    height: 0.8vw;
-    width: 0.8vw;
     border-radius: 50%;
     position: absolute;
-    margin-top: -2.65vw;
-    margin-left: -1.61vw;
 }
 
 .EnjolrasPower {
@@ -848,11 +560,8 @@ button[type=button]:enabled {
 }
 
 .bullets {
-    font-size: 0.96vw;
-    width: 4.815vw;
     text-align: center;
     position: absolute;
-    margin-left: -2.4vw;
 }
 
 #toc {
@@ -866,7 +575,6 @@ button[type=button]:enabled {
     width: 79%;
     padding: 5% 1%;
     overflow: scroll;
-    font-size: 1.4vw;
 }
 
 #brick a {
@@ -879,7 +587,7 @@ button[type=button]:enabled {
 }
 
 .toc li {
-    margin: 1vw 0;
+    margin: 1% 0;
 }
 
 .toc {
@@ -887,7 +595,7 @@ button[type=button]:enabled {
 }
 
 .tocsmall li {
-    margin: 0.5vw 0;
+    margin: 0.5% 0;
 }
 
 .tocsmall {
@@ -919,19 +627,19 @@ p {
 }
 
 h1 {
-    font-size: 2.7vw;
+    font-size: 2.7%;
 }
 
 h2 {
-    font-size: 2vw;
+    font-size: 2%;
 }
 
 h3 {
-    font-size: 1.7vw;
+    font-size: 1.7%;
 }
 
 h4 {
-    font-size: 1.5vw;
+    font-size: 1.5%;
 }
 
 #tutorial {
@@ -955,72 +663,39 @@ h4 {
 
 #tutorial-text {
     background-color: rgb(255,255,255,1);
-    margin: 1.3vw 35%;
-    font-size: 1.3vw;
-    width: calc(30% - 2vw);
     z-index: 9999;
-    padding: 1vw;
 }
 
 #ok-tutorial {
-    width: 6vw;
-    margin-left: 3.5vw;
     font-weight: bold;
-    font-size: 1.2vw;
     z-index: 9999;
 }
 
 #disable-tutorials {
     color: red;
-    width: 13vw;
-    font-size: 1.2vw;
     font-style: italic;
-    margin-left: calc((100% - 26vw) / 2);
     z-index: 9999;
 }
 
 #reset-tutorials {
-    height: 2vw;
-    width: 14vw;
-    font-size: 1.2vw;
     color: red;
     font-style: italic;
-    margin-left: calc((100% - 14vw)/2);
 }
 
 .streetsign {
-    width: 14vw;
     text-align: center;
-    font-size: 1vw;
     font-style: italic;
     z-index: -1;
 }
 
-#chanvrerie-street {
-    left: calc(50% - 7vw);
-    top: 48vw;
-}
-
-#precheurs-street {
-    top: 51.5vw;
-    left: calc(50% + 19vw);
-}
-
-#mondetour-street {
-    top: 51.5vw;
-    left: calc(50% - 33vw);
-}
-
 #corinthe-street {
     writing-mode: vertical-rl;
-    top: 11vw;
-    left: calc(50% - 44.7vw);
 }
 
 .infoButton {
-    font-size: 0.7vw;
+    font-size: 0.7%;
     padding: 0;
-    margin-left: 0.5vw;
+    margin-left: 0.5%;
     border: none;
     background-color: gray;
 }
@@ -1033,38 +708,23 @@ h4 {
     width: 100%;
     text-align: center;
     font-weight: bold;
-    font-size: 4vw;
-    padding-top: 3vw;
-    padding-bottom: 1.5vw;
 }
 
 #finalwave {
     width: 100%;
     text-align: center;
     font-weight: bold;
-    font-size: 2vw;
 }
 
 #newgame {
     text-align: center;
-    font-size: 1.5vw;
-    width: 12vw;
-    margin-left: calc(50% - 6vw);
-    margin-top: 6vw;
 }
 
 #endless {
     text-align: center;
-    font-size: 1.5vw;
-    width: 12vw;
-    margin-left: calc(50% - 6vw);
-    margin-top: 6vw;
 }
 
 #tip {
     font-style: italic;
-    font-size: 1.2vw;
-    width: calc(100% - 16vw);
     text-align: center;
-    padding: 2vw 8vw;
 }

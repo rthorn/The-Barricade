@@ -84,7 +84,8 @@ var state_ = {
     health: {},
     healthmax: {},
     endless: false,
-    saved: false
+    saved: false,
+    vw: 0
 };
 
 var initials_ = {};
@@ -97,9 +98,7 @@ var refs_ = {
     mme_amounts: [0, 0.005, 0.01, 0.02, 0.05, 0.05],
     reset_button: '<button type="button" class="resetButton" onClick="resetLoc(this)" hidden>&#x21bb;</button>',
     info_button:  '<button type="button" class="infoButton" onClick="info(this)">&#x24D8</button>',
-    deathrisk: '<div class="deathrisk" onmouseenter="showHovertext(event)" onmouseleave="hideHovertext(event)">&#x2620</div> ',
-    full_width: 'calc((100% - 4.82vw) / 2)',
-    half_width: 'calc((100% - 9.65vw) / 4)'
+    deathrisk: '<div class="deathrisk" onmouseenter="showHovertext(event)" onmouseleave="hideHovertext(event)">&#x2620</div> '
 };
 
 const WaveState = Object.freeze({
@@ -179,8 +178,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     initials_.settings = JSON.parse(JSON.stringify(settings_));
     initials_.refs = JSON.parse(JSON.stringify(refs_));
     initials_.state = JSON.parse(JSON.stringify(state_));
+    initials_.style = JSON.parse(JSON.stringify(style_));
     initials_.state.timers = {};
     startNewGame();
+    setDimensions();
     disableButtons();
     refs_.thebrick.style.pointerEvents = "auto";
     refs_.achievements.style.pointerEvents = "auto";
@@ -217,16 +218,26 @@ function initializeChallenges() {
     for (const challenge of settings_.challenges) {
         var achieved = hasAchievedChallenge(i);
         var div = document.createElement("div");
+        div.style.fontSize = 1.6 * state_.vw + "px";
+        div.style.padding = 2 * state_.vw + "px 0";
         div.className = "challenge";
         div.id = "challenge" + i++;
+        refs_[div.id] = div;
+        style_[div.id] = { "padding": [2, " 0"], "fontSize": 1.6 };
         var html = '<p style="color: ' + (achieved ? "gold" : "black") + '"> ' + (achieved ? "&#9733;" : "&#9734;") + ' </p>' + challenge.name + '<br/>';
         for (const rule of challenge.rules) {
-            html += '&ensp;<i style="font-size: 1vw">'  + rule + "</i></br>"
+            html += '&ensp;<i style="font-size: 70%">'  + rule + "</i></br>"
         }
         div.innerHTML = html;
         var button = document.createElement("button");
+        button.style.fontSize = 1.5 * state_.vw + "px";
+        button.style.padding = 0.5 * state_.vw + "px " + 1 * state_.vw + "px";
+        button.style.margin = 1 * state_.vw + "px 0";
         button.type = "button";
         button.className = "challengeButton";
+        button.id = div.id + "button";
+        refs_[button.id] = button;
+        style_[button.id] = { "padding": [0.5, " ", 1], "margin": [1, " 0"], "fontSize": 1.5 };
         button.onclick = function(){ startChallenge(event) };
         button.textContent = "Start";
         div.appendChild(button);
@@ -280,7 +291,7 @@ function initializeVars() {
         state_.dragging.droppable.add(refs_[name]);
         refs_.lookup[name] = refs_[name];
     }
-    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'normal', 'normallabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street', "gameover-screen", "result", "finalwave", "tip", "endless"]) {
+    for (const name of ['lesenemies1', 'lesenemies2', 'lesenemiesmondetour1','lesenemiesmondetour2', 'lesenemiesprecheurs1', 'lesenemiesprecheurs2', 'progress', 'ammo', 'food', 'hope', 'newgame-screen', 'upgrade-screen', 'upgrader-screen', 'recruit-screen', 'achievements-screen', 'thebrick-screen', 'achievements-progress', 'recruit', 'feed', 'recruit-limit', 'ready', 'reset', 'upgrade', 'progressbar', 'state', 'substate', 'autofill', 'hovertext', 'title', 'ammolabel', 'foodlabel', 'hopelabel', 'load', 'game', 'achievements', 'hard', 'hardlabel', 'normal', 'normallabel', 'challengeslabel', 'thebrick', 'tutorial', 'tutorial-text', 'ok-tutorial', 'tutorial-screen', 'close-recruit', 'disable-tutorials', 'chanvrerie-street', 'mondetour-street', 'precheurs-street', "gameover-screen", "result", "finalwave", "tip", "endless", "container", "easylabel", "difficulty-label", "challenges-label", "easy", "close-achievements", "close-upgrade", "close-upgrader", "chanvrerie1", "chanvrerie2", "chanvrerie3", "mondetour1", "mondetour2", "precheurs1", "precheurs2", "chanvrerie1-label", "chanvrerie2-label", "chanvrerie3-label", "mondetour1-label", "mondetour2-label", "precheurs1-label", "precheurs2-label", "corinthe-street", "finalwave", "newgame"]) {
         refs_[name.replace("-", "_")] = document.getElementById(name);
         refs_.lookup[name] = refs_[name.replace("-", "_")];
     }
@@ -298,7 +309,8 @@ function initializeVars() {
         state_.amis.last_prepare[wall.id] = [];
         state_.dragging.droppable.add(wall);
         refs_.lookup[wall.id] = wall;
-        wall.style.height = "16vw";
+        wall.style.height = 16 * state_.vw + "px";
+        wall.style.top = 32.1 * state_.vw + "px";
         state_.health[wall.id] = 41.5;
     }
     refs_.chanvrerie_ordered = [...refs_.chanvrerie].sort();
@@ -311,7 +323,8 @@ function initializeVars() {
         state_.amis.last_prepare[wall.id] = [];
         state_.dragging.droppable.add(wall);
         refs_.lookup[wall.id] = wall;
-        wall.style.height = "16vw";
+        wall.style.height = 16 * state_.vw + "px";
+        wall.style.top = (wall.id.includes("1") ? 39.33 : 42.82) * state_.vw + "px";
         state_.health[wall.id] = 41.5;
     }
     refs_.ami_locations_ordered = [...refs_.ami_locations].sort();
@@ -323,7 +336,8 @@ function initializeVars() {
     for (const wall of refs_.precheurs) {
         refs_.precheurs_labels[wall.id] = document.getElementById(wall.id + "-label");
         refs_.lookup[wall.id] = wall;
-        wall.style.height = "4vw";
+        wall.style.height = 4 * state_.vw + "px";
+        wall.style.top = (wall.id.includes("1") ? 51.36 : 54.86) * state_.vw + "px";
         state_.health[wall.id] = 10.4;
     }
     refs_.specials = {};
@@ -405,7 +419,12 @@ function initializeAmis() {
 function initializeAmisUpgrades() {
     for (const ami of [...state_.amis.all].sort((a, b) => sort_order(a, b))) {
         var container = document.createElement("div");
+        container.style.height = 10 * state_.vw + "px";
         var amid = newPerson(ami.id + "1", "upgraderami");
+        amid.style.fontSize = 3.2 * state_.vw + "px";
+        amid.style.marginTop = 3 * state_.vw + "px";
+        var namediv = getChild(amid, "upgraderaminame");
+        namediv.style.fontSize = 1.2 * state_.vw + "px";
         container.appendChild(amid);
         container.id = ami.id + "-upgradecontainer";
         container.className = "upgraderUpgradeContainer";
@@ -413,6 +432,8 @@ function initializeAmisUpgrades() {
             container.appendChild(newUpgrader(ami, UpgraderType.DAMAGE));
         } else {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>Damage: " + getDamage(ami) + "x</i>";
             container.appendChild(empty);
@@ -421,12 +442,16 @@ function initializeAmisUpgrades() {
             container.appendChild(newUpgrader(ami, UpgraderType.HEALTH));
         } else {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>Health: " + getHealthMax(ami) + "x</i>";
             container.appendChild(empty);
         }
         if (specialLevel(ami, ami.id) >= 4) {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>" + refs_.info_button;
             container.appendChild(empty);
@@ -570,8 +595,240 @@ function toVW(px) {
     return 100 * px / window.innerWidth;
 }
 
+function setDimension(obj, style) {
+    if (style_[obj][style].constructor === Array) {
+        var val = "";
+        for (const part of style_[obj][style]) {
+            if (typeof part === 'string') {
+                val += part;
+            } else {
+                val += part * state_.vw + "px";
+            }
+        }
+        refs_[obj].style[style] = val;
+    } else {
+        refs_[obj].style[style] = style_[obj][style] * state_.vw + "px";
+    }
+}
+
+function resetDimension(obj, style) {
+    if (!(obj in initials_.style)) {
+        delete style_[obj];
+        refs_[obj].style[style] = null;
+        return;
+    }
+    if (!(style in initials_.style[obj])) {
+        delete style_[obj][state];
+        refs_[obj].style[style] = null;
+        return;
+    }
+    style_[obj][style] = initials_.style[obj][style];
+    setDimension(obj, style);
+}
+
+function setDimensions() {
+    startTimer("dimensions");
+    var vw = null;
+    var ratio = document.documentElement.clientWidth / document.documentElement.clientHeight;
+    if (ratio > 8/5) {
+        if (document.documentElement.clientHeight / 5 * 8 < 700) {
+            refs_.container.style.height = "437.5px";
+            vw = 7;
+        } else {
+            refs_.container.style.height = "100%";
+            vw = document.documentElement.clientHeight / 5 * 8 / 100;
+        }
+        refs_.container.style.width = null;
+        refs_.container.style.marginLeft = "calc((100% - " + refs_.container.clientWidth + "px) / 2)";
+    } else {
+        if (document.documentElement.clientWidth < 700) {
+            refs_.container.style.width = "700px";
+            vw = 7;
+        } else {
+            refs_.container.style.width = "100%";
+            vw = document.documentElement.clientWidth / 100;
+        }
+        refs_.container.style.height = null;
+        refs_.container.style.marginLeft = null;
+    }
+    if (document.documentElement.clientHeight > refs_.container.clientHeight + 6 * vw) {
+        refs_.lesamis.style.maxHeight = null;
+    } else {
+        refs_.lesamis.style.maxHeight = 8 * vw + "px";
+    }
+    if (state_.vw == vw) {
+        endTimer("dimensions");
+        return;
+    }
+    state_.vw = vw;
+    for (const obj in style_) {
+        for (const style in style_[obj]) {
+            setDimension(obj, style);
+        }
+    }
+    for (const wall of [...refs_.chanvrerie, ...refs_.mondetour, ...refs_.precheurs]) {
+        setHeight(wall, getHeight(wall));
+    }
+    for (const ami of state_.amis.all) {
+        ami.style.width = 4.815 * state_.vw + "px";
+        setWidth(ami);
+        ami.style.height = 6.42 * vw + "px";
+        ami.style.fontSize = 2.81 * vw + "px";
+        var namediv = getChild(ami, "aminame");
+        namediv.style.fontSize = 0.8 * vw + "px";
+        var feed = getChild(ami, "foodButton");
+        feed.style.width = 3.3 * vw + 4 + "px";
+        feed.style.fontSize = 0.6 * vw + "px";
+        feed.style.marginTop = 0.16 * vw + "px";
+        feed.style.marginLeft = 0.35 * vw + 2 + "px";
+        feed.style.paddingLeft = 0.3 * vw + "px";
+        feed.style.paddingRight = 0.3 * vw + "px";
+        var bar = getChild(ami, "bar");
+        bar.style.width = 3.2 * vw + "px";
+        bar.style.height = 0.8 * vw + "px";
+        bar.style.marginLeft = "calc((100% - " + 3.2 * vw + "px) / 2)";
+        if (isCitizen(ami)) {
+            var stacker = getChild(ami, "stacker");
+            stacker.style.fontSize = 1.2 * vw + "px";
+            stacker.style.marginTop = -5.62 * vw + "px";
+            stacker.style.marginLeft = 3.61 * vw + "px";
+        } else {
+            var upgrader = getChild(ami, "upgrader");
+            upgrader.style.fontSize = 0.96 * vw + "px";
+            upgrader.style.marginTop = -5.62 * vw + "px";
+        }
+        var marginLeft = -1.6;
+        for (const child of ami.children) {
+            if (child.classList.contains("dot")) {
+                child.style.height = 0.8 * vw + "px";
+                child.style.width = 0.8 * vw + "px";
+                child.style.marginTop = -2.65 * vw + "px";
+                child.style.marginLeft = marginLeft * vw + "px";
+                marginLeft += 0.8;
+            }
+        }
+        var bullets = getChild(ami, "bullets");
+        bullets.style.fontSize = 0.96 * vw + "px";
+        bullets.style.width = 4.816 * vw + "px";
+        bullets.style.marginLeft = -2.4 * vw + "px";
+    }
+    for (const button of state_.marius.buttons) {
+        button.style.width = 4.815 * vw + "px";
+        button.style.height = 2.25 * vw + "px";
+        button.style.marginTop = 0.16 * vw + "px";
+        button.style.padding = 0.08 * vw + "px";
+        button.style.fontSize = 0.64 * vw + "px";
+    }
+    for (const enemy of getEnemies()) {
+        enemy.style.margin = 0.4 * vw + "px";
+        enemy.style.fontSize = 1.2 * vw + "px";
+        var bar = getChild(enemy, "bar");
+        bar.style.width = 2 * vw + "px";
+        bar.style.height = 0.48 * vw + "px";
+        bar.style.marginLeft = "calc((100% - " + 2 * vw + "px) / 2)";
+        var name = getChild(enemy, "enemyname");
+        name.style.fontSize = 0.8 * vw + "px";
+        var stacker = getChild(enemy, "stacker");
+        stacker.style.fontSize = 0.96 * vw + "px";
+        stacker.style.top = -3.61 * vw + "px";
+        stacker.style.right = -1.2 * vw + "px";
+    }
+    for (const recruit of getChildren(refs_.recruit_screen)) {
+        recruit.style.fontSize = 2.81 * vw + "px";
+        recruit.style.width = "calc(50% - " + 0.6 * vw + "px)";
+        var name = getChild(recruit, "recruitname");
+        name.style.fontSize = 0.8 * vw + "px";
+        var button = getChild(recruit, "recruitButton");
+        button.style.fontSize = 0.88 * vw + "px";
+        button.style.width = 12.43 * vw + "px";
+        button.style.marginTop = 0.4 * vw + "px";
+        var stats = getChild(recruit, "stats");
+        stats.style.padding = 0.8 * vw + "px " + 1.6 * vw + "px";
+        stats.style.fontSize = 0.72 * vw + "px";
+    }
+    for (const upgrade of getChildren(refs_.upgrade_screen)) {
+        upgrade.style.fontSize = 2.81 * vw + "px";
+        var button = getChild(upgrade, "upgradeButton");
+        button.style.fontSize = 0.88 * vw + "px";
+        button.style.width = 14.04 * vw + "px";
+        button.style.marginBottom = 2.4 * vw + "px";
+        var stats = getChild(upgrade, "stats");
+        stats.style.padding = "0 " + 1.6 * vw + "px";
+        stats.style.fontSize = 1.2 * vw + "px";
+    }
+    for (const ctr of getChildren(refs_.upgrader_screen)) {
+        ctr.style.height = 10 * vw + "px";
+        for (const upgrader of ctr.children) {
+            if (upgrader.classList.contains("upgraderami")) {
+                upgrader.style.fontSize = 3.2 * vw + "px";
+                upgrader.style.marginTop = 3 * vw + "px";
+                var name = getChild(upgrader, "upgraderaminame");
+                name.style.fontSize = 1.2 * vw + "px";
+            } else if (upgrader.classList.contains("upgraderUpgradeEmpty")) {
+                upgrader.style.fontSize = 1.2 * vw + "px";
+                upgrader.style.marginTop = 4 * vw + "px";
+            } else {
+                upgrader.style.fontSize = 2.81 * vw + "px";
+                upgrader.style.marginTop = 3 * vw + "px";
+                var stats = getChild(upgrader, "stats");
+                stats.style.padding = "0 " + 1.6 * vw + "px";
+                stats.style.fontSize = 1.2 * vw + "px";
+                var button = getChild(upgrader, "upgraderButton");
+                button.style.fontSize = 0.88 * vw + "px";
+                button.style.width = 12.04 * vw + "px";
+                button.style.marginBottom = 2.4 * vw + "px";
+            }
+        }
+    }
+    for (const achievement of getChildren(refs_.achievements_screen)) {
+        achievement.style.fontSize = 1.3 * vw + "px";
+        achievement.style.minHeight = 6 * vw + "px";
+        achievement.style.padding = "0 " + 0.5 * vw + "px";
+        achievement.style.width = "calc(33% - " + 1 * vw + "px)";
+    }
+    for (const loc of refs_.ami_locations) {
+        const label = loc == refs_.rightside ? loc.children[1] : loc.firstChild;
+        for (const child of label.children) {
+            if (child.classList.contains("fakeResetButton") || child.classList.contains("resetFakeButton")) {
+                child.style.width = 0.96 * vw + "px";
+                child.style.marginRight = 0.24 * vw + "px";
+                if (child.classList.contains("fakeResetButton")) {
+                    child.style.marginTop = 0.24 * state_.vw + "px";
+                } else {
+                    child.style.height = 1.1 * state_.vw + "px";
+                }
+            } else if (child.classList.contains("resetButton")) {
+                child.style.width = 0.96 * vw + "px";
+                child.style.height = 1.1 * vw + "px";
+                child.style.fontSize = 0.7 * vw + "px";
+                child.style.marginRight = 0.24 * vw + "px";
+                child.style.marginTop = 0.24 * vw + "px";
+                child.style.borderWidth = 0.16 * vw + "px";
+                child.style.borderRadius = 0.32 * vw + "px";
+            }
+        }
+    }
+    for (const child of refs_.newgame_screen.children) {
+        if (child.classList.contains("challenge")) {
+            child.style.fontSize = 1.6 * vw + "px";
+            child.style.padding = 2 * vw + "px 0";
+            for (const grandchild of child.children) {
+                if (grandchild.classList.contains("challengeButton")) {
+                    grandchild.style.padding = 0.5 * vw + "px " + 1 * vw + "px";
+                    grandchild.style.margin = 1 * vw + "px 0";
+                }
+            }
+        }
+    }
+    endTimer("dimensions");
+}
+
 
 // Event handlers
+
+window.addEventListener('resize', function(event) {
+    setDimensions();
+}, true);
 
 function setDifficulty(ev) {
     startTimer("starting difficulty " + ev.target.id);
@@ -587,10 +844,12 @@ function setDifficulty(ev) {
     if (refs_.newgame_screen.style.display != "none") {
         refs_.newgame_screen.style.display = "none";
         reenableButtons();
-        document.body.appendChild(refs_.game);
-        document.body.appendChild(refs_.load);
-        refs_.game.style.top = "8.8vw";
-        refs_.load.style.top = "8.8vw";
+        refs_.container.appendChild(refs_.game);
+        refs_.container.appendChild(refs_.load);
+        refs_.game.style.top = 8.8 * state_.vw + "px";
+        refs_.load.style.top = 8.8 * state_.vw + "px";
+        style_["game"]["top"] = 8.8;
+        style_["load"]["top"] = 8.8;
         tutorial("start");
     }
     initializeDebugMode();
@@ -720,10 +979,12 @@ function startChallenge(ev) {
     if (refs_.newgame_screen.style.display != "none") {
         refs_.newgame_screen.style.display = "none";
         reenableButtons();
-        document.body.appendChild(refs_.game);
-        document.body.appendChild(refs_.load);
-        refs_.game.style.top = "8.8vw";
-        refs_.load.style.top = "8.8vw";
+        refs_.container.appendChild(refs_.game);
+        refs_.container.appendChild(refs_.load);
+        refs_.game.style.top = 8.8 * state_.vw + "px";
+        refs_.load.style.top = 8.8 * state_.vw + "px";
+        style_["game"]["top"] = 8.8;
+        style_["load"]["top"] = 8.8;
     }
     initializeDebugMode();
     endTimer("starting challenge " + ev.target.parentElement.id.slice(ev.target.parentElement.id.length - 1));
@@ -805,6 +1066,7 @@ function loadGame(newgame) {
     refs_ = JSON.parse(JSON.stringify(initials_.refs));
     state_ = JSON.parse(JSON.stringify(initials_.state));
     settings_ = JSON.parse(JSON.stringify(initials_.settings));
+    style_ = JSON.parse(JSON.stringify(initials_.style));
     state_.timers["load"] = time;
     state_.reloading = true;
     state_.dragging.draggable = new Set([]);
@@ -845,16 +1107,16 @@ function loadGame(newgame) {
     startNewGame();
     refs_.rightside.style.background = "grey";
     refs_.precheurs_container.style.display = "none";
-    refs_.lootammo.style.top = null;
-    refs_.lootammo.style.height = null;
-    refs_.lootammo.style.width = null;
-    refs_.lootammo.style.right = null;
-    refs_.lootfood.style.top = null;
-    refs_.lootfood.style.height = null;
-    refs_.lootfood.style.width = null;
-    refs_.lootfood.style.right = null;
-    refs_.trainer.style.width = null;
-    refs_.trainer.style.marginLeft = null;
+    resetDimension("lootammo", "top");
+    resetDimension("lootammo", "height");
+    resetDimension("lootammo", "width");
+    resetDimension("lootammo", "right");
+    resetDimension("lootfood", "top");
+    resetDimension("lootfood", "height");
+    resetDimension("lootfood", "width");
+    resetDimension("lootfood", "right");
+    resetDimension("trainer", "width");
+    resetDimension("trainer", "marginLeft");
     $("#trainer").hide();
     refs_.dismiss.style.visibility = "visible";
     if (newgame) {
@@ -865,10 +1127,13 @@ function loadGame(newgame) {
         setLabels();
         state_.reloading = false;
         refs_.load.disabled = false;
-        document.body.appendChild(refs_.game);
-        document.body.appendChild(refs_.load);
-        refs_.game.style.top = "8.8vw";
-        refs_.load.style.top = "8.8vw";
+        refs_.container.appendChild(refs_.game);
+        refs_.container.appendChild(refs_.load);
+        refs_.game.style.top = 8.8 * state_.vw + "px";
+        refs_.load.style.top = 8.8 * state_.vw + "px";
+        style_["game"]["top"] = 8.8;
+        style_["load"]["top"] = 8.8;
+        setDimensions();
         endTimer("load");
         return;
     }
@@ -1179,6 +1444,7 @@ function loadGame(newgame) {
         refs_.autofill.disabled = disable;
     }
     setLabels();
+    setDimensions();
     state_.reloading = false;
     refs_.load.disabled = false;
     refs_.tutorial_screen.hidden = true;
@@ -1218,8 +1484,8 @@ async function showHovertext(e) {
     var heightTarget = toVW(target.getBoundingClientRect().height);
     var widthHover = toVW(refs_.hovertext.getBoundingClientRect().width);
     var heightHover = toVW(refs_.hovertext.getBoundingClientRect().height);
-    refs_.hovertext.style.top = (topPos > 0.8 + heightHover ? topPos - 0.4 - heightHover : topPos + heightTarget) + 9.63 + "vw";
-    refs_.hovertext.style.left = leftPos + widthTarget/2 - widthHover/2 + "vw";
+    refs_.hovertext.style.top = ((topPos > 0.8 + heightHover ? topPos - 0.4 - heightHover : topPos + heightTarget) + 9.63) * state_.vw + "px";
+    refs_.hovertext.style.left = (leftPos + widthTarget/2 - widthHover/2) * state_.vw + "px";
 }
 
 function hideHovertext(e) {
@@ -1935,8 +2201,8 @@ function setWidth(ami) {
         getChild(ami, "mariusButton").style.display = "none";
     }
     if (ami.parentElement == refs_.trainer && state_.trainers > 3) {
-        ami.style.marginLeft = refs_.half_width;
-        ami.style.marginRight = refs_.half_width;
+        ami.style.marginLeft = "calc((100% - " + 9.65 * state_.vw + "px) / 4)";
+        ami.style.marginRight = "calc((100% - " + 9.65 * state_.vw + "px) / 4)";
     }
     if (getWaveState() == WaveState.RECOVER || ami.parentElement == document.body || ami.parentElement == refs_.lesamis) {
         return;
@@ -1944,16 +2210,16 @@ function setWidth(ami) {
     if (isInBuilding(ami)) {
         var max = ami.parentElement == refs_.rightside ? state_.structures.rightside_max : state_.structures.corinthe_max;
         if (max == settings_.starting_building_limit) {
-            ami.style.marginLeft = refs_.full_width;
-            ami.style.marginRight = refs_.full_width;
+            ami.style.marginLeft = "calc((100% - " + 4.82 * state_.vw + "px) / 2)";
+            ami.style.marginRight = "calc((100% - " + 4.82 * state_.vw + "px) / 2)";
         } else if (max == (settings_.starting_building_limit * 2)) {
-            ami.style.marginLeft = refs_.half_width;
-            ami.style.marginRight = refs_.half_width;
+            ami.style.marginLeft = "calc((100% - " + 9.65 * state_.vw + "px) / 4)";
+            ami.style.marginRight = "calc((100% - " + 9.65 * state_.vw + "px) / 4)";
         }
     } else if (isOnBarricade(ami)) {
         if (state_.structures.wall_num[ami.parentElement.id] == 1) {
-            ami.style.marginLeft = refs_.full_width;
-            ami.style.marginRight = refs_.full_width;
+            ami.style.marginLeft = "calc((100% - " + 4.82 * state_.vw + "px) / 2)";
+            ami.style.marginRight = "calc((100% - " + 4.82 * state_.vw + "px) / 2)";
         }
     }
 }
@@ -1962,7 +2228,7 @@ function setLabel(loc) {
     if (getWaveState() == WaveState.FIGHT) {
         return;
     }
-    var button = hasChildren(loc) ? refs_.reset_button : '<div class="fakeResetButton"></div>';
+    var button = '<div class="fakeResetButton"></div>' + (hasChildren(loc) ? refs_.reset_button : '<div class="resetFakeButton"></div>');
     if (getWaveState() == WaveState.RECOVER) {
         if (loc == refs_.lesamis) {
             refs_.lesamis_label.innerHTML = "Drink (+Hope)";
@@ -2000,6 +2266,26 @@ function setLabel(loc) {
             refs_.precheurs_labels[loc.id].innerHTML = hasChildren(loc) + "/" + wallMax(loc) + button;
         }
     }
+    const label = loc == refs_.rightside ? loc.children[1] : loc.firstChild;
+    for (const child of label.children) {
+        if (child.classList.contains("fakeResetButton") || child.classList.contains("resetFakeButton")) {
+            child.style.width = 0.96 * state_.vw + "px";
+            child.style.marginRight = 0.24 * state_.vw + "px";
+            if (child.classList.contains("fakeResetButton")) {
+                child.style.marginTop = 0.24 * state_.vw + "px";
+            } else {
+                child.style.height = 1.1 * state_.vw + "px";
+            }
+        } else if (child.classList.contains("resetButton")) {
+            child.style.width = 0.96 * state_.vw + "px";
+            child.style.height = 1.1 * state_.vw + "px";
+            child.style.fontSize = 0.7 * state_.vw + "px";
+            child.style.marginRight = 0.24 * state_.vw + "px";
+            child.style.marginTop = 0.24 * state_.vw + "px";
+            child.style.borderWidth = 0.16 * state_.vw + "px";
+            child.style.borderRadius = 0.32 * state_.vw + "px";
+        }
+    }
 }
 
 function getResetButtons() {
@@ -2021,6 +2307,11 @@ function setLabels() {
 
 function newMariusButton(ami) {
     var power = document.createElement("button");
+    power.style.width = 4.815 * state_.vw + "px";
+    power.style.height = 2.25 * state_.vw + "px";
+    power.style.marginTop = 0.16 * state_.vw + "px";
+    power.style.padding = 0.08 * state_.vw + "px";
+    power.style.fontSize = 0.64 * state_.vw + "px";
     power.type = "button";
     power.className = "mariusButton";
     power.id = ami.id + "-mariuspower";
@@ -2044,7 +2335,7 @@ function newPerson(id, type) {
     var health = document.createElement("div");
     health.className = "bar";
     health.id = id + "-healthbar"
-    health.style.width = (2.4 * getHealthMax(person)) + "vw";
+    health.style.width = (2.4 * getHealthMax(person)) * state_.vw + "px";
     health.style.marginLeft = "calc((100% - " + health.style.width + ") / 2)";
     var healthfill = document.createElement("div");
     healthfill.className = "bar-fill";
@@ -2058,7 +2349,22 @@ function newPerson(id, type) {
 
 function newAmi(name) {
     var ami = newPerson(name, "ami");
+    ami.style.width = 4.815 * state_.vw + "px";
+    ami.style.height = 6.42 * state_.vw + "px";
+    ami.style.fontSize = 2.81 * state_.vw + "px";
+    var namediv = getChild(ami, "aminame");
+    namediv.style.fontSize = 0.8 * state_.vw + "px";
+    var bar = getChild(ami, "bar");
+    bar.style.width = 3.2 * state_.vw + "px";
+    bar.style.height = 0.8 * state_.vw + "px";
+    bar.style.marginLeft = "calc((100% - " + 3.2 * state_.vw + "px) / 2)";
     var button = document.createElement("button");
+    button.style.width = 3.3 * state_.vw + 4 + "px";
+    button.style.fontSize = 0.6 * state_.vw + "px";
+    button.style.marginTop = 0.16 * state_.vw + "px";
+    button.style.marginLeft = 0.35 * state_.vw + 2 + "px";
+    button.style.paddingLeft = 0.3 * state_.vw + "px";
+    button.style.paddingRight = 0.3 * state_.vw + "px";
     button.type = "button";
     button.className = "foodButton";
     button.id = ami.id + "-feed";
@@ -2087,6 +2393,9 @@ function newAmi(name) {
     }
     if (!(ami.id in refs_.specials)) {
         var stacker = document.createElement("div");
+        stacker.style.fontSize = 1.2 * state_.vw + "px";
+        stacker.style.marginTop = -5.62 * state_.vw + "px";
+        stacker.style.marginLeft = 3.61 * state_.vw + "px";
         stacker.id = ami.id + "-stacker";
         stacker.className = "stacker";
         stacker.innerHTML = "1";
@@ -2094,9 +2403,15 @@ function newAmi(name) {
         ami.appendChild(stacker);
     } else {
         var dot = document.createElement("span");
+        dot.style.height = 0.8 * state_.vw + "px";
+        dot.style.width = 0.8 * state_.vw + "px";
+        dot.style.marginTop = -2.65 * state_.vw + "px";
+        dot.style.marginLeft = -1.61 * state_.vw + "px";
         dot.classList.add("dot", getName(ami).replace(" ", "") + "Power");
         ami.appendChild(dot);
         var upgrader = document.createElement("button");
+        upgrader.style.fontSize = 0.96 * state_.vw + "px";
+        upgrader.style.marginTop = -5.62 * state_.vw + "px";
         upgrader.type = "button";
         upgrader.className = "upgrader";
         upgrader.id = ami.id + "-upgrader";
@@ -2112,6 +2427,9 @@ function newAmi(name) {
     var bullets = document.createElement("span");
     bullets.id = ami.id + "-bullets";
     bullets.className = "bullets";
+    bullets.style.fontSize = 0.96 * state_.vw + "px";
+    bullets.style.width = 4.816 * state_.vw + "px";
+    bullets.style.marginLeft = -2.4 * state_.vw + "px";
     var damage = getDamage(ami);
     var color = damage >= 8.5 ? "gold" : damage >= 4.5 ? "silver" : "black";
     bullets.innerHTML = '<p style="color: ' + color + '">&#8269;</p>';
@@ -2133,12 +2451,23 @@ function newEnemy(type) {
     }
     var name = type + number;
     var enemy = newPerson(name, "enemy");
+    enemy.style.margin = 0.4 * state_.vw + "px";
+    enemy.style.fontSize = 1.2 * state_.vw + "px";
+    var bar = getChild(enemy, "bar");
+    bar.style.width = 2 * state_.vw + "px";
+    bar.style.height = 0.48 * state_.vw + "px";
+    bar.style.marginLeft = "calc((100% - " + 2 * state_.vw + "px) / 2)";
+    var namediv = getChild(enemy, "enemyname");
+    namediv.style.fontSize = 0.8 * state_.vw + "px";
     refs_.lookup[name] = enemy;
     var stacker = document.createElement("div");
     stacker.id = enemy.id + "-stacker";
     stacker.className = "stacker";
     stacker.innerHTML = "1";
     stacker.style.display = "none";
+    stacker.style.fontSize = 0.96 * state_.vw + "px";
+    stacker.style.top = -3.61 * state_.vw + "px";
+    stacker.style.right = -1.2 * state_.vw + "px";
     enemy.appendChild(stacker);
     return enemy;
 }
@@ -2238,14 +2567,22 @@ function enablePrecheurs() {
             refs_.upgrade_screen.insertBefore(refs_.upgrade_screen.children[refs_.upgrade_screen.children.length - 1], state_.after_precheurs_upgrades[0]);
         }
     }
-    refs_.lootammo.style.top = "0.803vw";
-    refs_.lootammo.style.height = "8.03vw";
-    refs_.lootammo.style.width = "20.06vw";
-    refs_.lootammo.style.right = "calc(50% - 34.35vw)";
-    refs_.lootfood.style.top = "0.803vw";
-    refs_.lootfood.style.height = "8.03vw";
-    refs_.lootfood.style.width = "20.06vw";
-    refs_.lootfood.style.right = "calc(50% + 13.80vw)";
+    refs_.lootammo.style.top = 0.803 * state_.vw + "px";
+    refs_.lootammo.style.height = 8.03 * state_.vw + "px";
+    refs_.lootammo.style.width = 20.06 * state_.vw + "px";
+    refs_.lootammo.style.right = "calc(50% - " + 32.09 * state_.vw + "px)";
+    refs_.lootfood.style.top = 0.803 * state_.vw + "px";
+    refs_.lootfood.style.height = 8.03 * state_.vw + "px";
+    refs_.lootfood.style.width = 20.06 * state_.vw + "px";
+    refs_.lootfood.style.right = "calc(50% + " + 12.03 * state_.vw + "px)";
+    style_["lootammo"]["top"] = 0.803;
+    style_["lootammo"]["height"] = 8.03;
+    style_["lootammo"]["width"] = 20.06;
+    style_["lootammo"]["right"] = ["calc(50% - ", 32.09, ")"];
+    style_["lootfood"]["top"] = 0.803;
+    style_["lootfood"]["height"] = 8.03;
+    style_["lootfood"]["width"] = 20.06;
+    style_["lootfood"]["right"] = ["calc(50% + ", 12.03, ")"];;
     refs_.dismiss.style.visibility = "hidden";
     tutorial("precheurs");
 }
@@ -2253,10 +2590,16 @@ function enablePrecheurs() {
 function newRecruit(name) {
     var cost = settings_.amis[name].cost;
     var ami = newPerson(name, "recruit");
+    ami.style.fontSize = 2.81 * state_.vw + "px";
+    ami.style.width = "calc(50% - " + 0.6 * state_.vw + "px)";
+    var namediv = getChild(ami, "recruitname");
+    namediv.style.fontSize = 0.8 * state_.vw + "px";
     if (name == "Citizen" || name == "Marius") {
         refs_.lookup[name] = ami;
     }
     var stats = document.createElement("div");
+    stats.style.padding = 0.8 * state_.vw + "px " + 1.6 * state_.vw + "px";
+    stats.style.fontSize = 0.72 * state_.vw + "px";
     stats.id = ami.id + "-stats";
     stats.className = "stats";
     stats.innerHTML = getStats(ami) + (name == "Citizen" ? "" : refs_.info_button);
@@ -2265,6 +2608,9 @@ function newRecruit(name) {
         state_.citizens.stats = stats;
     }
     var button = document.createElement("button");
+    button.style.fontSize = 0.88 * state_.vw + "px";
+    button.style.width = 12.43 * state_.vw + "px";
+    button.style.marginTop = 0.4 * state_.vw + "px";
     button.type = "button";
     button.className = "recruitButton";
     button.id = ami.id + "-recruit";
@@ -2288,14 +2634,20 @@ function addNewUpgrade(name) {
 function newUpgrade(name) {
     var cost = settings_.upgrades[name].cost_value + " " + settings_.upgrades[name].cost_type.toLowerCase();
     var upgrade = document.createElement("div");
+    upgrade.style.fontSize = 2.81 * state_.vw + "px";
     upgrade.id = name;
     upgrade.className = "upgrade";
     var stats = document.createElement("div");
+    stats.style.padding = "0 " + 1.6 * state_.vw + "px";
+    stats.style.fontSize = 1.2 * state_.vw + "px";
     stats.id = name + "-stats";
     stats.className = "stats";
     stats.innerHTML = "<i>" + settings_.upgrades[name].description + "</i>";
     upgrade.appendChild(stats);
     var button = document.createElement("button");
+    button.style.fontSize = 0.88 * state_.vw + "px";
+    button.style.width = 14.04 * state_.vw + "px";
+    button.style.marginBottom = 2.4 * state_.vw + "px";
     button.type = "button";
     button.className = "upgradeButton";
     button.id = name + "-upgrade";
@@ -2338,6 +2690,8 @@ function newUpgrader(ami, type) {
         desc = refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "<br>-&gt<br>" + refs_.specials[ami.id][specialLevel(ami, ami.id)] + refs_.info_button;
     }
     var upgrade = document.createElement("div");
+    upgrade.style.fontSize = 2.81 * state_.vw + "px";
+    upgrade.style.marginTop = 3 * state_.vw + "px";
     upgrade.id = ami.id + "-upgrader" + type;
     upgrade.className = "upgraderUpgrade";
     upgrade.cost_type = cost_type;
@@ -2349,8 +2703,13 @@ function newUpgrader(ami, type) {
     stats.id = ami.id + "-upgraderstats" + type;
     stats.className = "stats";
     stats.innerHTML = "<i>" + desc + "</i>";
+    stats.style.padding = "0 " + 1.6 * state_.vw + "px";
+    stats.style.fontSize = 1.2 * state_.vw + "px";
     upgrade.appendChild(stats);
     var button = document.createElement("button");
+    button.style.fontSize = 0.88 * state_.vw + "px";
+    button.style.width = 12.04 * state_.vw + "px";
+    button.style.marginBottom = 2.4 * state_.vw + "px";
     button.cost = cost;
     button.cost_type = type;
     button.type = "button";
@@ -2737,12 +3096,12 @@ function getHeight(wall) {
 
 function setHeight(wall, value) {
     state_.health[wall.id] = Math.min(Math.max(value, 0), 100);
-    var vw = Math.min(Math.max(state_.health[wall.id] * settings_.max_height / 100, 0), settings_.max_height);
-    wall.style.height = vw + "vw";
+    var vw = Math.min(Math.max(state_.health[wall.id] * settings_.max_height * state_.vw / 100, 0), settings_.max_height * state_.vw);
+    wall.style.height = vw + "px";
     if (refs_.mondetour.has(wall) || refs_.precheurs.has(wall)) {
-        wall.style.top = ((wall.id.includes("1") ? 16.85 : 20.35) + settings_.max_height - vw) + "vw";
+        wall.style.top = ((wall.id.includes("1") ? 16.85 : 20.35) * state_.vw + settings_.max_height * state_.vw - vw) + "px";
     } else {
-        wall.style.top = (9.63 + settings_.max_height - vw) + "vw";
+        wall.style.top = (9.63 * state_.vw + settings_.max_height * state_.vw - vw) + "px";
     }
     switch (wallMax(wall) / state_.structures.wall_num[wall.id]) {
       case 1:
@@ -3182,13 +3541,13 @@ function enemiesDead() {
 function dotStyle(sl) {
     switch (sl) {
       case 2:
-        return "0.08vw solid black";
+        return 0.08 * state_.vw + "px solid black";
       case 3:
-        return "0.08vw solid silver";
+        return 0.08 * state_.vw + "px solid silver";
       case 4:
-        return "0.08vw solid gold";
+        return 0.08 * state_.vw + "px solid gold";
       case 5:
-        return "0.16vw solid gold";
+        return 0.16 * state_.vw + "px solid gold";
       default:
         return null;
     }
@@ -3200,7 +3559,7 @@ function updateStats(ami) {
     var oldHealthMax = state_.healthmax[ami.id];
     if (healthMax - oldHealthMax > 0.1) {
         var currHealth = getHealth(ami);
-        health.parentElement.style.width = (2.4 * getHealthMax(ami)) + "vw";
+        health.parentElement.style.width = (2.4 * getHealthMax(ami)) * state_.vw + "px";
         health.parentElement.style.marginLeft = "calc((100% - " + health.parentElement.style.width + ") / 2)";
         setHealth(ami, (currHealth * oldHealthMax / 100 + (healthMax - oldHealthMax)) * 100 / healthMax);
         state_.healthmax[ami.id] = getHealthMax(ami);
@@ -3238,10 +3597,13 @@ function updateStats(ami) {
             for (const learned_special of state_.citizens.learned_specials[ami.id]) {
                 var special = refs_.specials_backwards[learned_special];
                 var dot = document.createElement("span");
+                dot.style.height = 0.8 * state_.vw + "px";
+                dot.style.width = 0.8 * state_.vw + "px";
+                dot.style.marginTop = -2.65 * state_.vw + "px";
+                dot.style.marginLeft = marginLeft * state_.vw + "px";
                 dot.classList.add("dot", special.replace(" ", "") + "Power");
                 dot.style.border = dotStyle(specialLevel(ami, special));
                 ami.appendChild(dot);
-                dot.style.marginLeft = marginLeft + "vw";
                 marginLeft += 0.8;
             }
         }
@@ -3695,8 +4057,8 @@ function startWave() {
 async function startFight() {
     startTimer("prep fight");
     for (const wall of refs_.barricade) {
-        wall.style.padding = "30px 0px";
-        wall.style.margin = "-30px 0px";
+        style_[wall.id]["padding"] = 3 * state_.vw + "px 0";
+        style_[wall.id]["margin"] = -3 * state_.vw + "px 0";
     }
     state_.finished_early = false;
     updateProgress(-1);
@@ -3800,8 +4162,8 @@ async function startFight() {
         achieve("impenetrable");
     }
     for (const wall of refs_.barricade) {
-        wall.style.padding = null;
-        wall.style.margin = null;
+        resetDimension(wall.id, "padding");
+        resetDimension(wall.id, "margin");
     }
     endTimer("end fight");
     transitionToRecover();
@@ -4306,11 +4668,13 @@ function gift() {
             break;
     }
     refs_.tutorial_text.innerHTML = text;
-    refs_.tutorial_text.style.marginTop = "1.3vw";
+    refs_.tutorial_text.style.marginTop = 1.3 * state_.vw + "px";
+    style_["tutorial_text"]["marginTop"] = 1.3;
     refs_.ok_tutorial.onclick = function() { closeGift() };
     refs_.disable_tutorials.hidden = true;
     refs_.ok_tutorial.textContent = "OK!";
-    refs_.ok_tutorial.style.marginLeft = "calc(50% - 3vw)";
+    refs_.ok_tutorial.style.marginLeft = "calc(50% - " + 3 * state_.vw + "px)";
+    style_["ok_tutorial"]["marginLeft"] = ["calc50% - ", 3, ")"];
     window.scrollTo(0, 0);
     refs_.tutorial.hidden = false;
     refs_.tutorial_screen.hidden = false;
@@ -4321,7 +4685,7 @@ function gift() {
 function closeGift() {
     refs_.tutorial.hidden = true;
     refs_.tutorial_screen.hidden = true;
-    refs_.ok_tutorial.style.marginLeft = null;
+    resetDimension("ok_tutorial", "marginLeft");
     reenableButtons();
     document.body.style.overflow = null;
     refs_.disable_tutorials.hidden = false;
@@ -4372,7 +4736,12 @@ function recruitMe(ev) {
         }
         ami = addNewAmi(id);
         var container = document.createElement("div");
+        container.style.height = 10 * state_.vw + "px";
         var amid = newPerson(ami.id + "1", "upgraderami");
+        amid.style.fontSize = 3.2 * state_.vw + "px";
+        amid.style.marginTop = 3 * state_.vw + "px";
+        var namediv = getChild(amid, "upgraderaminame");
+        namediv.style.fontSize = 1.2 * state_.vw + "px";
         container.appendChild(amid);
         container.id = ami.id + "-upgradecontainer";
         container.className = "upgraderUpgradeContainer";
@@ -4380,6 +4749,8 @@ function recruitMe(ev) {
             container.appendChild(newUpgrader(ami, UpgraderType.DAMAGE));
         } else {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>Damage: " + getDamage(ami) + "x</i>";
             container.appendChild(empty);
@@ -4388,12 +4759,16 @@ function recruitMe(ev) {
             container.appendChild(newUpgrader(ami, UpgraderType.HEALTH));
         } else {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>Health: " + getHealthMax(ami) + "x</i>";
             container.appendChild(empty);
         }
         if (specialLevel(ami, ami.id) >= 4) {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>" + refs_.info_button;
             container.appendChild(empty);
@@ -4577,6 +4952,10 @@ function achievements() {
             achieveds += 1;
         }
         total += 1;
+        div.style.fontSize = 1.3 * state_.vw + "px";
+        div.style.minHeight = 6 * state_.vw + "px";
+        div.style.padding = "0 " + 0.5 * state_.vw + "px";
+        div.style.width = "calc(33% - " + 1 * state_.vw + "px)";
     }
     refs_.achievements_progress.innerHTML = achieveds + "/" + total + " achievements unlocked";
     refs_.achievements_screen.style.display = "inline-block";
@@ -4620,6 +4999,12 @@ function info(button) {
 function theBrick(ami) {
     startTimer("initialize the brick");
     $("#thebrick-screen").load("brick.html?v=" + Date.now(), function() {
+        refs_["close_thebrick"] = document.getElementById('close-thebrick');
+        style_["close_thebrick"] = { "margin": 0.16, "fontSize": 1.6 };
+        refs_["brick"] = document.getElementById('brick');
+        style_["brick"] = { "fontSize": 1.4 };
+        refs_["reset_tutorials"] = document.getElementById('reset-tutorials');
+        style_["reset_tutorials"] = { "height": 2, "width": 14, "fontSize": 1.2, "marginLeft": ["calc((100% - ", 14, ")/2)"] };
         for (const child of refs_.thebrick_screen.childNodes[2].childNodes) {
             if (child.nodeType != Node.ELEMENT_NODE) {
                 continue;
@@ -4770,6 +5155,10 @@ function closeTheBrick() {
     for (const child of getChildren(refs_.thebrick_screen)) {
         child.remove();
     }
+    delete refs_["close_thebrick"];
+    delete style_["close_thebrick"];
+    delete refs_["brick"];
+    delete style_["brick"];
     if (refs_.newgame_screen.style.display == "none") {
         reenableButtons();
     } else {
@@ -4835,6 +5224,8 @@ function upgraderMeMe(ev) {
             container.insertBefore(newUpgrader(ami, UpgraderType.DAMAGE), ev.target.parentElement);
         } else {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>Damage: " + getDamage(ami) + "x</i>";
             container.insertBefore(empty, ev.target.parentElement);
@@ -4846,6 +5237,8 @@ function upgraderMeMe(ev) {
             container.insertBefore(newUpgrader(ami, UpgraderType.HEALTH), ev.target.parentElement);
         } else {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>Health: " + getHealthMax(ami) + "x</i>";
             container.insertBefore(empty, ev.target.parentElement);
@@ -4857,6 +5250,8 @@ function upgraderMeMe(ev) {
             container.insertBefore(newUpgrader(ami, UpgraderType.SPECIAL), ev.target.parentElement);
         } else {
             var empty = document.createElement("div");
+            empty.style.fontSize = 1.2 * state_.vw + "px";
+            empty.style.marginTop = 4 * state_.vw + "px";
             empty.className = "upgraderUpgradeEmpty";
             empty.innerHTML = "<i>" + refs_.specials[ami.id][specialLevel(ami, ami.id) - 1] + "</i>" + refs_.info_button;
             container.insertBefore(empty, ev.target.parentElement);
@@ -4867,7 +5262,7 @@ function upgraderMeMe(ev) {
 }
 
 function upgraderMe(ev) {
-    for (const ctr of refs_.upgrader_screen.children) {
+    for (const ctr of getChildren(refs_.upgrader_screen)) {
         for (const child of ctr.children) {
             if (child.cost_type == CostType.HOPE) {
                 child.children[child.children.length - 1].disabled = child.cost > getHope();
@@ -4962,17 +5357,23 @@ function upgradeMe(ev) {
     } else if (name.includes("training")) {
         if (name == "training3") {
             state_.trainers += 1;
-            refs_.trainer.style.width = "10vw";
-            refs_.trainer.style.marginLeft = "calc(50% - 5.13vw)";
+            refs_.trainer.style.width = 10 * state_.vw + "px";
+            refs_.trainer.style.marginLeft = "calc(50% - " + 5.13 * state_.vw + "px)";
+            style_["trainer"]["width"] = 10;
+            style_["trainer"]["marginLeft"] = ["calc(50% - ", 5.13, ")"];
         } else if (name == "training4") {
             state_.training += 1;
             state_.trainers += 1;
-            refs_.trainer.style.width = "15vw";
-            refs_.trainer.style.marginLeft = "calc(50% - 7.73vw)";
+            refs_.trainer.style.width = 15 * state_.vw + "px";
+            refs_.trainer.style.marginLeft = "calc(50% - " + 7.73 * state_.vw + "px)";
+            style_["trainer"]["width"] = 15;
+            style_["trainer"]["marginLeft"] = ["calc(50% - ", 7.73, ")"];
         } else if (name == "training5") {
             state_.training += 1;
             state_.trainers += 1;
             refs_.trainer.style.height = "16vw";
+            refs_.trainer.style.height = 16 * state_.vw + "px";
+            style_["trainer"]["height"] = 16;
         } else {
             state_.training += 1;
         }
@@ -5353,7 +5754,7 @@ async function prepareForNextWave() {
     }
     transitionToDawn();
     $("#substate").text("Prepare");
-    refs_.lesamis.style.border = "0.08vw dotted lightgray";
+    refs_.lesamis.style.border = "1px dotted lightgray";
     $("#state").text("Wave " + (getWave() + 1));
     if (getWave() == settings_.mondetour_opens && state_.challenge != 5) {
         enableMondetour();
@@ -5504,7 +5905,7 @@ function nextTutorial(name, i, oldZIndexes, oldBorders) {
         var object = refs_.lookup[element];
         var style = getComputedStyle(object);
         borders.push(style.border);
-        object.style.border = "solid gold 0.3vw";
+        object.style.border = "solid gold 1px";
         if (style.position == "static") {
             while (object.parentElement.parentElement != document.body) {
                 object = object.parentElement;
@@ -5525,15 +5926,19 @@ function nextTutorial(name, i, oldZIndexes, oldBorders) {
         object.style.zIndex = 9998;
     }
     refs_.tutorial_text.innerHTML = tutorial.text;
-    refs_.tutorial_text.style.marginTop = "1.3vw";
+    refs_.tutorial_text.style.marginTop = 1.3 * state_.vw + "px";
+    style_["tutorial_text"]["marginTop"] = 1.3;
     if (tutorial.highlight.includes("Soldier0") || tutorial.highlight.includes("Sniper0") || tutorial.highlight.includes("Cannon0") || tutorial.highlight.includes("scout") || tutorial.highlight.includes("progressbar")) {
-        refs_.tutorial_text.style.marginTop = "11vw";
+        refs_.tutorial_text.style.marginTop = 11 * state_.vw + "px";
+        style_["tutorial_text"]["marginTop"] = 11;
     }
     if (tutorial.highlight.includes("lootammo") && state_.structures.precheurs_open && getWaveState() == WaveState.RECOVER) {
-        refs_.tutorial_text.style.marginTop = "11vw";
+        refs_.tutorial_text.style.marginTop = 11 * state_.vw + "px";
+        style_["tutorial_text"]["marginTop"] = 11;
     }
     if (tutorial.highlight.includes("Citizen")) {
-        refs_.tutorial_text.style.marginTop = "24vw";
+        refs_.tutorial_text.style.marginTop = 24 * state_.vw + "px";
+        style_["tutorial_text"]["marginTop"] = 24;
     }
     refs_.ok_tutorial.onclick = function() { nextTutorial(name, i + 1, zIndexes, borders); };
     refs_.disable_tutorials.onclick = function() { disableTutorials(name, i, zIndexes, borders); };
@@ -5577,8 +5982,8 @@ function revolution() {
     refs_.tip.textContent = "";
     refs_.gameover_screen.appendChild(refs_.game);
     refs_.gameover_screen.appendChild(refs_.load);
-    refs_.game.style.top = null;
-    refs_.load.style.top = null;
+    resetDimension("game", "top");
+    resetDimension("load", "top");
     refs_.gameover_screen.style.display = "block";
     switch (state_.difficulty) {
         case Difficulty.HARD:
@@ -5640,8 +6045,8 @@ function gameOver() {
     refs_.tip.innerHTML = tips.random() + "<br>- Jack";
     refs_.gameover_screen.appendChild(refs_.game);
     refs_.gameover_screen.appendChild(refs_.load);
-    refs_.game.style.top = null;
-    refs_.load.style.top = null;
+    resetDimension("game", "top");
+    resetDimension("load", "top");
     refs_.gameover_screen.style.display = "block";
     disableButtons();
     refs_.thebrick.style.pointerEvents = "auto";
@@ -5654,10 +6059,12 @@ function gameOver() {
 }
 
 function endless() {
-    document.body.appendChild(refs_.game);
-    document.body.appendChild(refs_.load);
-    refs_.game.style.top = "8.8vw";
-    refs_.load.style.top = "8.8vw";
+    refs_.container.appendChild(refs_.game);
+    refs_.container.appendChild(refs_.load);
+    refs_.game.style.top = 8.8 * state_.vw + "px";
+    refs_.load.style.top = 8.8 * state_.vw + "px";
+    style_["game"]["top"] = 8.8;
+    style_["load"]["top"] = 8.8;
     refs_.gameover_screen.style.display = "none";
     state_.endless = true;
     reenableButtons();
@@ -5681,7 +6088,7 @@ function restart() {
     refs_.gameover_screen.style.display = "none";
     refs_.newgame_screen.appendChild(refs_.game);
     refs_.newgame_screen.appendChild(refs_.load);
-    refs_.game.style.top = null;
-    refs_.load.style.top = null;
+    resetDimension("game", "top");
+    resetDimension("load", "top");
     refs_.newgame_screen.style.display = "block";
 }
