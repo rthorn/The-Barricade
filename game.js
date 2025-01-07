@@ -628,10 +628,11 @@ function resetDimension(obj, style) {
 
 function setDimensions() {
     startTimer("dimensions");
+    var mobile = !window.matchMedia("(min-width: 700px)").matches;
     var vw = null;
     var ratio = document.documentElement.clientWidth / document.documentElement.clientHeight;
     if (ratio > 8/5) {
-        if (document.documentElement.clientHeight / 5 * 8 < 700) {
+        if (document.documentElement.clientHeight / 5 * 8 < 700 && !mobile) {
             refs_.container.style.height = "437.5px";
             vw = 7;
         } else {
@@ -641,7 +642,7 @@ function setDimensions() {
         refs_.container.style.width = null;
         refs_.container.style.marginLeft = "calc((100% - " + refs_.container.clientWidth + "px) / 2)";
     } else {
-        if (document.documentElement.clientWidth < 700) {
+        if (document.documentElement.clientWidth < 700 && !mobile) {
             refs_.container.style.width = "700px";
             vw = 7;
         } else {
