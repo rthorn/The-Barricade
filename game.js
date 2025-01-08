@@ -632,7 +632,7 @@ function setDimensions() {
     var width = document.documentElement.clientWidth;
     var height = document.documentElement.clientHeight;
     if (mobile && document.documentElement.clientWidth < document.documentElement.clientHeight) {
-        refs_.container.style.webkitTransform = "rotate(90deg)";
+        refs_.container.style.webkitTransform = "rotate(90deg) translate(" + height/5 + "px)";
         var save = width;
         width = height;
         height = save;
