@@ -629,7 +629,6 @@ function resetDimension(obj, style) {
 function setDimensions() {
     startTimer("dimensions");
     var mobile = screen.width <= 700;
-    console.log(mobile);
     var width = document.documentElement.clientWidth;
     var height = document.documentElement.clientHeight;
     if (mobile && document.documentElement.clientWidth < document.documentElement.clientHeight) {
@@ -5027,12 +5026,15 @@ function theBrick(ami) {
         style_["brick"] = { "fontSize": 1.4 };
         refs_["titlebrick"] = document.getElementById('titlebrick');
         style_["titlebrick"] = { "fontSize": 2.7 };
+        refs_["toc"] = document.getElementById('toc');
+        style_["toc"] = { "fontSize": 2 };
         refs_["reset_tutorials"] = document.getElementById('reset-tutorials');
         style_["reset_tutorials"] = { "height": 2, "width": 14, "fontSize": 1.2, "marginLeft": ["calc((100% - ", 14, ")/2)"] };
         setDimension("titlebrick", "fontSize");
         setDimension("close_thebrick", "margin");
         setDimension("close_thebrick", "fontSize");
         setDimension("brick", "fontSize");
+        setDimension("toc", "fontSize");
         setDimension("reset_tutorials", "height");
         setDimension("reset_tutorials", "width");
         setDimension("reset_tutorials", "fontSize");
@@ -5191,6 +5193,12 @@ function closeTheBrick() {
     delete style_["close_thebrick"];
     delete refs_["brick"];
     delete style_["brick"];
+    delete refs_["titlebrick"];
+    delete style_["titlebrick"];
+    delete refs_["toc"];
+    delete style_["toc"];
+    delete refs_["reset_tutorials"];
+    delete style_["reset_tutorials"];
     if (refs_.newgame_screen.style.display == "none") {
         reenableButtons();
     } else {
