@@ -628,7 +628,11 @@ function resetDimension(obj, style) {
 
 function setDimensions() {
     startTimer("dimensions");
-    var mobile = screen.width <= 700;
+    var mobile = true//screen.width <= 700;
+    refs_.container.style.webkitTransform = null;
+    refs_.container.style.transformOrigin = null;
+    refs_.tutorial.style.webkitTransform = null;
+    refs_.tutorial.style.transformOrigin = null;
     var width = document.documentElement.clientWidth;
     var height = document.documentElement.clientHeight;
     if (mobile && document.documentElement.clientWidth < document.documentElement.clientHeight) {
@@ -669,14 +673,14 @@ function setDimensions() {
             var extraTop = (width - height/5*8) / 2;
             refs_.container.style.webkitTransform = "translate(100%) rotate(90deg) translate(" + extraTop + "px, " + (height/2 + 40) + "px)";
             refs_.container.style.transformOrigin = "left top";
+            refs_.tutorial.style.webkitTransform = "translate(100%) rotate(90deg) translate(" + extraTop + "px, 0px)";
+            refs_.tutorial.style.transformOrigin = "left top";
         } else {
             var extraLeft = -height + width/8*5;
             refs_.container.style.webkitTransform = "rotate(90deg) translate(" + (width/5 - 8) + "px, " + (width/5 - 8 + extraLeft) + "px)";
-            refs_.container.style.transformOrigin = null;
+            refs_.tutorial.style.webkitTransform = "rotate(90deg) translate(" + (height/2 - width/2) + "px, " + (height/2 + extraLeft - width/8 + 8) + "px)";
         }
         refs_.container.style.marginLeft = null;
-    } else {
-        refs_.container.style.webkitTransform = null;
     }
     if (height > refs_.container.clientHeight + 6 * vw) {
         refs_.lesamis.style.maxHeight = null;
