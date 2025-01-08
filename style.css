@@ -6,7 +6,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    overflow: scroll;
+    overflow: hidden;
     -webkit-transition: background-color 300ms linear;
     -ms-transition: background-color 300ms linear;
     transition: background-color 300ms linear;

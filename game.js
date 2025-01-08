@@ -641,8 +641,10 @@ function setDimensions() {
     }
     var vw = null;
     var ratio = width / height;
+    document.body.style.overflow = null;
     if (ratio > 8/5) {
         if (height / 5 * 8 < 700 && !mobile) {
+            document.body.style.overflow = "scroll";
             refs_.container.style.height = "437.5px";
             vw = 7;
             refs_.container.style.marginLeft = "calc((100% - 700px) / 2)";
@@ -655,6 +657,7 @@ function setDimensions() {
     } else {
         if (width < 700 && !mobile) {
             refs_.container.style.width = "700px";
+            document.body.style.overflow = "scroll";
             vw = 7;
             refs_.container.style.marginLeft = "calc((100% - 700px) / 2)";
         } else {
