@@ -628,31 +628,44 @@ function resetDimension(obj, style) {
 
 function setDimensions() {
     startTimer("dimensions");
-    var mobile = !window.matchMedia("(min-width: 700px)").matches;
+    var mobile = screen.width <= 700;
+    console.log(mobile);
+    var width = document.documentElement.clientWidth;
+    var height = document.documentElement.clientHeight;
+    if (mobile && document.documentElement.clientWidth < document.documentElement.clientHeight) {
+        refs_.container.style.webkitTransform = "rotate(90deg)";
+        var save = width;
+        width = height;
+        height = save;
+    } else {
+        refs_.container.style.webkitTransform = null;
+    }
     var vw = null;
-    var ratio = document.documentElement.clientWidth / document.documentElement.clientHeight;
+    var ratio = width / height;
     if (ratio > 8/5) {
-        if (document.documentElement.clientHeight / 5 * 8 < 700 && !mobile) {
+        if (height / 5 * 8 < 700 && !mobile) {
             refs_.container.style.height = "437.5px";
             vw = 7;
+            refs_.container.style.marginLeft = "calc((100% - 700px) / 2)";
         } else {
             refs_.container.style.height = "100%";
-            vw = document.documentElement.clientHeight / 5 * 8 / 100;
+            vw = height / 5 * 8 / 100;
+            refs_.container.style.marginLeft = "calc((100% - " + height / 5 * 8 + "px) / 2)";
         }
         refs_.container.style.width = null;
-        refs_.container.style.marginLeft = "calc((100% - " + refs_.container.clientWidth + "px) / 2)";
     } else {
-        if (document.documentElement.clientWidth < 700 && !mobile) {
+        if (width < 700 && !mobile) {
             refs_.container.style.width = "700px";
             vw = 7;
+            refs_.container.style.marginLeft = "calc((100% - 700px) / 2)";
         } else {
             refs_.container.style.width = "100%";
-            vw = document.documentElement.clientWidth / 100;
+            vw = width / 100;
+            refs_.container.style.marginLeft = null;
         }
         refs_.container.style.height = null;
-        refs_.container.style.marginLeft = null;
     }
-    if (document.documentElement.clientHeight > refs_.container.clientHeight + 6 * vw) {
+    if (height > refs_.container.clientHeight + 6 * vw) {
         refs_.lesamis.style.maxHeight = null;
     } else {
         refs_.lesamis.style.maxHeight = 8 * vw + "px";
@@ -830,6 +843,14 @@ function setDimensions() {
 window.addEventListener('resize', function(event) {
     setDimensions();
 }, true);
+
+window.addEventListener('orientationchange', function(event) {
+    setDimensions();
+}, true);
+
+screen.orientation.addEventListener("change", (event) => {
+    setDimensions();
+});
 
 function setDifficulty(ev) {
     startTimer("starting difficulty " + ev.target.id);
@@ -5004,8 +5025,18 @@ function theBrick(ami) {
         style_["close_thebrick"] = { "margin": 0.16, "fontSize": 1.6 };
         refs_["brick"] = document.getElementById('brick');
         style_["brick"] = { "fontSize": 1.4 };
+        refs_["titlebrick"] = document.getElementById('titlebrick');
+        style_["titlebrick"] = { "fontSize": 2.7 };
         refs_["reset_tutorials"] = document.getElementById('reset-tutorials');
         style_["reset_tutorials"] = { "height": 2, "width": 14, "fontSize": 1.2, "marginLeft": ["calc((100% - ", 14, ")/2)"] };
+        setDimension("titlebrick", "fontSize");
+        setDimension("close_thebrick", "margin");
+        setDimension("close_thebrick", "fontSize");
+        setDimension("brick", "fontSize");
+        setDimension("reset_tutorials", "height");
+        setDimension("reset_tutorials", "width");
+        setDimension("reset_tutorials", "fontSize");
+        setDimension("reset_tutorials", "marginLeft");
         for (const child of refs_.thebrick_screen.childNodes[2].childNodes) {
             if (child.nodeType != Node.ELEMENT_NODE) {
                 continue;

@@ -79,5 +79,5 @@ style_ = {
     "result": { "fontSize": 4, "paddingTop": 3, "paddingBottom": 1.5 },
     "newgame": { "fontSize": 1.5, "width": 12, "marginTop": 6, "marginLeft": ["calc(50% - ", 6, ")"] },
     "endless": { "fontSize": 1.5, "width": 12, "marginTop": 6, "marginLeft": ["calc(50% - ", 6, ")"] },
-    "tip": { "fontSize": 1.2, "width": ["calc(100% - ", 16, ")"], "padding": [2, " ", 8] },
+    "tip": { "fontSize": 1.2, "width": ["calc(100% - ", 16, ")"], "padding": [2, " ", 8] }
 }

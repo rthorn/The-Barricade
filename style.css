@@ -585,18 +585,18 @@ button[type=button]:enabled {
 #brick a:hover {
     color: silver;
 }
-
+/*
 .toc li {
     margin: 1% 0;
-}
+}*/
 
 .toc {
     list-style-type: "> ";
 }
 
-.tocsmall li {
+.t/*ocsmall li {
     margin: 0.5% 0;
-}
+}*/
 
 .tocsmall {
     list-style-type: "- ";
@@ -604,13 +604,15 @@ button[type=button]:enabled {
 
 li a {
     color: black;
-    font-size: 2vw;
     text-decoration-line: none;
+}
+
+ul {
+    padding-inline-start: 15%;
 }
 
 .tocsmall li a {
     color: black;
-    font-size: 1.5vw;
     text-decoration-line: none;
 }
 
@@ -624,22 +626,6 @@ a:hover {
 
 p {
     display: inline;
-}
-
-h1 {
-    font-size: 2.7%;
-}
-
-h2 {
-    font-size: 2%;
-}
-
-h3 {
-    font-size: 1.7%;
-}
-
-h4 {
-    font-size: 1.5%;
 }
 
 #tutorial {
