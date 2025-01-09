@@ -628,7 +628,7 @@ function resetDimension(obj, style) {
 
 function setDimensions() {
     startTimer("dimensions");
-    var mobile = true//screen.width <= 700;
+    var mobile = screen.width <= 700;
     refs_.container.style.webkitTransform = null;
     refs_.container.style.transformOrigin = null;
     refs_.tutorial.style.webkitTransform = null;
