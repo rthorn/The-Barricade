@@ -681,6 +681,12 @@ function setDimensions() {
             refs_.tutorial.style.webkitTransform = "rotate(90deg) translate(" + (height/2 - width/2) + "px, " + (height/2 + extraLeft - width/8 + 8) + "px)";
         }
         refs_.container.style.marginLeft = null;
+        refs_.tutorial_text.style.marginLeft = (100 * vw - 30 * vw)/2 + "px";
+        refs_.disable_tutorials.style.marginLeft = "calc((" + 100 * vw + "px - " + 22.5 * vw + "px) / 2)";
+    } else {
+        refs_.tutorial_text.style.marginLeft = "auto";
+        refs_.tutorial_text.style.marginRight = "auto";
+        refs_.disable_tutorials.style.marginLeft = "calc((100% - " + 22.5 * vw + "px) / 2)";
     }
     if (height > refs_.container.clientHeight + 6 * vw) {
         refs_.lesamis.style.maxHeight = null;
