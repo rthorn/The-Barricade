@@ -1597,7 +1597,7 @@ function isScreen(element) {
     return element == refs_.recruit_screen || element == refs_.upgrade_screen || element == refs_.upgrader_screen || element == refs_.achievements_screen || element == refs_.thebrick_screen || element == refs_.tutorial || element == refs_.tutorial_screen;
 }
 
-$(document).on('mousedown', function(e) {
+$(document).on('mousedown touchstart', function(e) {
     var screen = isScreen(e.target);
     var target = e.target;
     if (["foodButton", "upgrader", "mariusButton"].includes(e.target.className)) {
@@ -1635,11 +1635,12 @@ $(document).on('mousedown', function(e) {
         startTimer("dragstart");
         dragstartAmi(e);
         document.addEventListener('mousemove', mouseMove);
+        document.addEventListener('touchmove', mouseMove);
         endTimer("dragstart")
     }
 });
 
-$(document).on('mouseup', function(e) {
+$(document).on('mouseup touchend', function(e) {
     var target = e.target;
     while (target.parentElement && !state_.dragging.droppable.has(target)) {
         target = target.parentElement;
@@ -1649,6 +1650,7 @@ $(document).on('mouseup', function(e) {
     }
     startTimer("drop");
     document.removeEventListener('mousemove', mouseMove);
+    document.removeEventListener('touchmove', mouseMove);
     if (state_.dragging.droppable.has(target)) {
         dropAmi(e);
     }
@@ -4522,6 +4524,7 @@ function transitionToRecover() {
     state_.achievements.permetstu = null;
     if (state_.dragging.data_transfer.length) {
         document.removeEventListener('mousemove', mouseMove);
+        document.removeEventListener('touchmove', mouseMove);
     }
     if (state_.training) {
         refs_.rightside.style.background = "teal";

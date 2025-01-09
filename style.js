@@ -70,7 +70,7 @@ style_ = {
     "precheurs2_label": { "fontSize": 1.12, "minHeight": 1.4, "paddingLeft": 1.2 },
     "tutorial_text": { "marginTop": 1.3, "marginBottom": 1.3, "fontSize": 1.3, "width": 28, "padding": 1 },
     "ok_tutorial": { "width": 6, "marginLeft": 3.5, "fontSize": 1.2 },
-    "disable_tutorials": { "width": 13, "fontSize": 1.2 },
+    "disable_tutorials": { "width": 13, "fontSize": 1 },
     "chanvrerie_street": { "width": 14, "fontSize": 1, "left": ["calc(50% - ", 7, ")"], "top": 48 },
     "mondetour_street": { "width": 14, "fontSize": 1, "left": ["calc(50% - ", 33, ")"], "top": 51.5 },
     "precheurs_street": { "width": 14, "fontSize": 1, "left": ["calc(50% + ", 19, ")"], "top": 51.5 },
