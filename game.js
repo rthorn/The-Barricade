@@ -1641,29 +1641,28 @@ $(document).on('mousedown touchstart', function(e) {
 });
 
 $(document).on('touchend', function(e) {
-    var target = document.elementFromPoint(event.clientX, event.clientY);
-    while (target.parentElement && !state_.dragging.droppable.has(target)) {
-        target = target.parentElement;
+    if (state_.debug) {
+        refs_.substate.textContent = document.elementFromPoint(event.clientX, event.clientY).id;
     }
-    endDrag(target);
+    endDrag(document.elementFromPoint(event.clientX, event.clientY));
 });
 
 $(document).on('mouseup', function(e) {
-    var target = e.target;
-    while (target.parentElement && !state_.dragging.droppable.has(target)) {
-        target = target.parentElement;
-    }
-    endDrag(target);
+    endDrag(document.elementFromPoint(event.clientX, event.clientY));
 });
 
 function endDrag(target) {
+    var droppable = target;
+    while (droppable.parentElement && !state_.dragging.droppable.has(droppable)) {
+        droppable = droppable.parentElement;
+    }
     if (!state_.dragging.data_transfer.length) {
         return;
     }
     startTimer("drop");
     document.removeEventListener('mousemove', mouseMove);
     document.removeEventListener('touchmove', mouseMove);
-    if (state_.dragging.droppable.has(target)) {
+    if (state_.dragging.droppable.has(droppable)) {
         dropAmi(target);
     }
     var tr = false;
@@ -1743,6 +1742,10 @@ function dragstartAmi(ev) {
 }
 
 function dropAmi(target) {
+    var droppable = target;
+    while (!refs_.ami_locations.has(droppable)) {
+        droppable = droppable.parentElement;
+    }
     var dragged_list = [];
     while (state_.dragging.data_transfer.length) {
         const dragged = state_.dragging.data_transfer.pop();
@@ -1758,44 +1761,44 @@ function dropAmi(target) {
     var lastParent = false;
     var lesamis = false;
     var index = null;
-    if (dragged_list.length > 1 && state_.dragging.ctrl_key && (refs_.chanvrerie.has(target) || (refs_.barricade.has(target) && state_.structures.mondetour_open))) {
-        index = state_.structures.mondetour_open ? refs_.barricade_ordered.indexOf(target) : refs_.chanvrerie_ordered.indexOf(target);
+    if (dragged_list.length > 1 && state_.dragging.ctrl_key && (refs_.chanvrerie.has(droppable) || (refs_.barricade.has(droppable) && state_.structures.mondetour_open))) {
+        index = state_.structures.mondetour_open ? refs_.barricade_ordered.indexOf(droppable) : refs_.chanvrerie_ordered.indexOf(droppable);
     }
-    if (dragged_list.length > 1 && state_.dragging.ctrl_key && (target == refs_.rightside || target == refs_.corinthe) && space(refs_.rightside) != 0) {
-        index = target == refs_.rightside ? -1 : -2;
+    if (dragged_list.length > 1 && state_.dragging.ctrl_key && (droppable == refs_.rightside || droppable == refs_.corinthe) && space(refs_.rightside) != 0) {
+        index = droppable == refs_.rightside ? -1 : -2;
     }
     var dragged = null;
     while (dragged_list.length) {
-        if (target == state_.dragging.last_parent && index == null) {
+        if (droppable == state_.dragging.last_parent && index == null) {
             break;
         }
-        if (target == refs_.trainer && cit) {
+        if (droppable == refs_.trainer && cit) {
             break;
         }
-        if (target == refs_.rightside && !cit && getWaveState() == WaveState.RECOVER) {
+        if (droppable == refs_.rightside && !cit && getWaveState() == WaveState.RECOVER) {
             break;
         }
-        if (!hasSpace(target)) {
-            if (!hasChildren(target) || state_.dragging.shift_key) {
+        if (!hasSpace(droppable)) {
+            if (!hasChildren(droppable) || state_.dragging.shift_key) {
                 if (index == null) {
                     break;
                 } else {
                     if (index < 0) {
-                        if (target == refs_.rightside) {
-                            target = refs_.corinthe;
+                        if (droppable == refs_.rightside) {
+                            droppable = refs_.corinthe;
                         } else {
-                            target = refs_.rightside;
+                            droppable = refs_.rightside;
                         }
-                        if (!hasSpace(target)) {
+                        if (!hasSpace(droppable)) {
                             break;
                         }
                         continue;
                     } else {
                         var no = 0;
-                        while (!hasSpace(target) && no < (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
+                        while (!hasSpace(droppable) && no < (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
                             no++;
                             index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
-                            target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
+                            droppable = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
                         }
                         if (no >= (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size)) {
                             break;
@@ -1806,13 +1809,13 @@ function dropAmi(target) {
             }
         }
         dragged = dragged_list.pop();
-        if (!hasSpace(target)) {
+        if (!hasSpace(droppable)) {
             var ami = target.parentElement;
             if (isAmi(target)) {
                 ami = target;
             }
             if (isAmi(ami)) {
-                target.insertBefore(dragged, ami);
+                droppable.insertBefore(dragged, ami);
                 insertChild(ami, state_.dragging.last_parent);
                 if (isCitizen(ami)) {
                     lastParent = true;
@@ -1821,23 +1824,23 @@ function dropAmi(target) {
                 setWidth(ami);
                 break;
             }
-            var swap = getChildren(target)[0];
+            var swap = getChildren(droppable)[0];
             insertChild(swap, refs_.lesamis);
             lesamis = true;
             setWidth(swap);
         }
-        insertChild(dragged, target);
+        insertChild(dragged, droppable);
         setWidth(dragged);
         if (index != null) {
             if (index < 0) {
-                if (target == refs_.rightside) {
-                    target = refs_.corinthe;
+                if (droppable == refs_.rightside) {
+                    droppable = refs_.corinthe;
                 } else {
-                    target = refs_.rightside;
+                    droppable = refs_.rightside;
                 }
             } else {
                 index = (index + 1) % (state_.structures.mondetour_open ? refs_.barricade.size : refs_.chanvrerie.size);
-                target = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
+                droppable = state_.structures.mondetour_open ? refs_.barricade_ordered[index] : refs_.chanvrerie_ordered[index];
             }
         }
     }
@@ -1862,9 +1865,9 @@ function dropAmi(target) {
             }
         }
     } else {
-        setLabel(target);
+        setLabel(droppable);
         if (cit) {
-            stackChildren(target);
+            stackChildren(droppable);
         }
     }
     if (lastParent) {
@@ -1875,7 +1878,7 @@ function dropAmi(target) {
     }
     setLabel(state_.dragging.last_parent);
     if (getWaveState() == WaveState.RECOVER) {
-        if (target == refs_.trainer || state_.dragging.last_parent == refs_.trainer || target == refs_.rightside || state_.dragging.last_parent == refs_.rightside) {
+        if (droppable == refs_.trainer || state_.dragging.last_parent == refs_.trainer || droppable == refs_.rightside || state_.dragging.last_parent == refs_.rightside) {
             if (!hasChildren(refs_.rightside)) {
                 refs_.rightside_label.style.color = hasChildren(refs_.trainer) ? "red" : "black";
                 refs_.trainer_label.style.color = "black";
@@ -1888,7 +1891,7 @@ function dropAmi(target) {
             }
         }
     }
-    if (target == refs_.lesamis) {
+    if (droppable == refs_.lesamis) {
         refs_.autofill.disabled = false;
         if (hasChildren(refs_.lesamis) == state_.amis.all.size) {
             refs_.reset.disabled = true;
