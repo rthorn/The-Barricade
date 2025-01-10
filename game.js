@@ -1642,6 +1642,13 @@ $(document).on('mousedown touchstart', function(e) {
 });
 
 $(document).on('touchend', function(e) {
+    if (state_.debug) {
+        if (!document.elementFromPoint(e.clientX, e.clientY)) {
+            refs_.substate.innerHTML = "none";
+        } else {
+            refs_.substate.innerHTML = document.elementFromPoint(e.clientX, e.clientY).id;
+        }
+    }
     endDrag(document.elementFromPoint(e.clientX, e.clientY));
 });
 
