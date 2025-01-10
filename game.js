@@ -85,7 +85,8 @@ var state_ = {
     healthmax: {},
     endless: false,
     saved: false,
-    vw: 0
+    vw: 0,
+    mobile: false
 };
 
 var initials_ = {};
@@ -175,6 +176,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }
     }
+    state_.mobile = screen.width <= 700;
     initials_.settings = JSON.parse(JSON.stringify(settings_));
     initials_.refs = JSON.parse(JSON.stringify(refs_));
     initials_.state = JSON.parse(JSON.stringify(state_));
@@ -628,14 +630,13 @@ function resetDimension(obj, style) {
 
 function setDimensions() {
     startTimer("dimensions");
-    var mobile = screen.width <= 700;
     refs_.container.style.webkitTransform = null;
     refs_.container.style.transformOrigin = null;
     refs_.tutorial.style.webkitTransform = null;
     refs_.tutorial.style.transformOrigin = null;
     var width = document.documentElement.clientWidth;
     var height = document.documentElement.clientHeight;
-    if (mobile && document.documentElement.clientWidth < document.documentElement.clientHeight) {
+    if (state_.mobile && document.documentElement.clientWidth < document.documentElement.clientHeight) {
         var save = width;
         width = height;
         height = save;
@@ -644,7 +645,7 @@ function setDimensions() {
     var ratio = width / height;
     document.body.style.overflow = null;
     if (ratio > 8/5) {
-        if (height / 5 * 8 < 700 && !mobile) {
+        if (height / 5 * 8 < 700 && !state_.mobile) {
             document.body.style.overflow = "scroll";
             refs_.container.style.height = "437.5px";
             vw = 7;
@@ -656,7 +657,7 @@ function setDimensions() {
         }
         refs_.container.style.width = null;
     } else {
-        if (width < 700 && !mobile) {
+        if (width < 700 && !state_.mobile) {
             refs_.container.style.width = "700px";
             document.body.style.overflow = "scroll";
             vw = 7;
@@ -668,7 +669,7 @@ function setDimensions() {
         }
         refs_.container.style.height = null;
     }
-    if (mobile && document.documentElement.clientWidth < document.documentElement.clientHeight) {
+    if (state_.mobile && document.documentElement.clientWidth < document.documentElement.clientHeight) {
         if (ratio > 8/5) {
             var extraTop = (width - height/5*8) / 2;
             refs_.container.style.webkitTransform = "translate(100%) rotate(90deg) translate(" + extraTop + "px, " + (height/2 + 40) + "px)";
@@ -1642,13 +1643,13 @@ $(document).on('mousedown touchstart', function(e) {
 
 $(document).on('touchend', function(e) {
     if (state_.debug) {
-        refs_.substate.textContent = document.elementFromPoint(event.clientX, event.clientY).id;
+        refs_.substate.textContent = document.elementFromPoint(e.clientX, e.clientY).id;
     }
-    endDrag(document.elementFromPoint(event.clientX, event.clientY));
+    endDrag(document.elementFromPoint(e.clientX, e.clientY));
 });
 
 $(document).on('mouseup', function(e) {
-    endDrag(document.elementFromPoint(event.clientX, event.clientY));
+    endDrag(document.elementFromPoint(e.clientX, e.clientY));
 });
 
 function endDrag(target) {
@@ -1692,6 +1693,10 @@ function endDrag(target) {
 function mouseMove(e) {
     if (!state_.dragging.data_transfer.length || e.clientY <= 0 || e.clientX <= 0 || (e.clientX >= window.innerWidth || e.clientY >= window.innerHeight)) {
         return;
+    }
+    if (state_.mobile && e.has("changedTouches")) {
+        state_.dragging.touchx = e.changedTouches[e.changedTouches.length - 1].clientX;
+        state_.dragging.touchy = e.changedTouches[e.changedTouches.length - 1].clientY;
     }
     var newX = e.pageX - state_.dragging.mouse_diffs[0];
     var newY = e.pageY - state_.dragging.mouse_diffs[1];
