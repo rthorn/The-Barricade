@@ -1661,6 +1661,7 @@ $(document).on('mouseup touchend', function(e) {
         var dropped = state_.dragging.data_transfer.pop();
         cit = isCitizen(dropped);
         dropped.style.position = "static";
+        dropped.style.webkitTransform = null;
         dropped.style.pointerEvents = "auto";
         insertChild(dropped, state_.dragging.last_parent);
         setWidth(dropped);
@@ -1718,6 +1719,10 @@ function dragstartAmi(ev) {
     target.style.position = "absolute";
     target.style.left = leftPos + scrollLeft() + "px";
     target.style.top = topPos + scrollTop() + "px";
+    console.log(refs_.container.style.webkitTransform);
+    if (refs_.container.style.webkitTransform != null && refs_.container.style.webkitTransform != "") {
+        target.style.webkitTransform = "rotate(90deg)";
+    }
     state_.dragging.mouse_diffs = [ev.originalEvent.pageX - leftPos - scrollLeft(), ev.originalEvent.pageY - topPos - scrollTop()];
     setWidth(target);
     if (isCitizen(target) && !state_.dragging.shift_key) {
@@ -1736,6 +1741,7 @@ function dropAmi(ev) {
         const dragged = state_.dragging.data_transfer.pop();
         dragged.style.pointerEvents = 'auto';
         dragged.style.position = "static";
+        dragged.style.webkitTransform = null;
         dragged_list.push(dragged);
     }
     if (!dragged_list.length) {
@@ -4534,6 +4540,7 @@ function transitionToRecover() {
     while (state_.dragging.data_transfer.length) {
         var dropped = state_.dragging.data_transfer.pop();
         dropped.style.position = "static";
+        dropped.style.webkitTransform = null;
         dropped.style.pointerEvents = "auto";
         insertChild(dropped, state_.dragging.last_parent);
     }
