@@ -1642,14 +1642,11 @@ $(document).on('mousedown touchstart', function(e) {
 });
 
 $(document).on('touchend', function(e) {
-    if (state_.debug) {
-        refs_.substate.textContent = document.elementFromPoint(e.clientX, e.clientY).id;
-    }
     endDrag(document.elementFromPoint(e.clientX, e.clientY));
 });
 
 $(document).on('mouseup', function(e) {
-    endDrag(document.elementFromPoint(e.clientX, e.clientY));
+    endDrag(e.target);
 });
 
 function endDrag(target) {
@@ -1693,10 +1690,6 @@ function endDrag(target) {
 function mouseMove(e) {
     if (!state_.dragging.data_transfer.length || e.clientY <= 0 || e.clientX <= 0 || (e.clientX >= window.innerWidth || e.clientY >= window.innerHeight)) {
         return;
-    }
-    if (state_.mobile && e.has("changedTouches")) {
-        state_.dragging.touchx = e.changedTouches[e.changedTouches.length - 1].clientX;
-        state_.dragging.touchy = e.changedTouches[e.changedTouches.length - 1].clientY;
     }
     var newX = e.pageX - state_.dragging.mouse_diffs[0];
     var newY = e.pageY - state_.dragging.mouse_diffs[1];
