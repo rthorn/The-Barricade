@@ -8,7 +8,9 @@ var state_ = {
         ctrl_key: false,
         data_transfer: [],
         last_parent: null,
-        mouse_diffs: []
+        mouse_diffs: [],
+        touchx: 0,
+        touchy: 0
     },
     amis: {
         all: new Set([]),
@@ -1641,8 +1643,8 @@ $(document).on('mousedown touchstart', function(e) {
     }
 });
 
-$(document).on('touchend touchcancel', function(e) {
-    endDrag(document.elementFromPoint(e.clientX, e.clientY));
+$(document).on('touchend', function(e) {
+    endDrag(document.elementFromPoint(state_.dragging.touchx, state_.dragging.touchy));
 });
 
 $(document).on('mouseup', function(e) {
@@ -1696,6 +1698,10 @@ function mouseMove(e) {
     var dragging = state_.dragging.data_transfer[0];
     dragging.style.left = newX +'px';
     dragging.style.top = newY +'px';
+    if (state_.mobile && "changedTouches" in e) {
+        state_.dragging.touchx = e.changedTouches[e.changedTouches.length - 1].clientX;
+        state_.dragging.touchy = e.changedTouches[e.changedTouches.length - 1].clientY;
+    }
 }
 
 function dragstartAmi(ev) {
