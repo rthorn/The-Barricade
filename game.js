@@ -1640,11 +1640,23 @@ $(document).on('mousedown touchstart', function(e) {
     }
 });
 
-$(document).on('mouseup touchend', function(e) {
+$(document).on('touchend', function(e) {
+    var target = document.elementFromPoint(event.clientX, event.clientY);
+    while (target.parentElement && !state_.dragging.droppable.has(target)) {
+        target = target.parentElement;
+    }
+    endDrag(target);
+});
+
+$(document).on('mouseup', function(e) {
     var target = e.target;
     while (target.parentElement && !state_.dragging.droppable.has(target)) {
         target = target.parentElement;
     }
+    endDrag(target);
+});
+
+function endDrag(target) {
     if (!state_.dragging.data_transfer.length) {
         return;
     }
@@ -1652,7 +1664,7 @@ $(document).on('mouseup touchend', function(e) {
     document.removeEventListener('mousemove', mouseMove);
     document.removeEventListener('touchmove', mouseMove);
     if (state_.dragging.droppable.has(target)) {
-        dropAmi(e);
+        dropAmi(target);
     }
     var tr = false;
     var cit = false;
@@ -1676,7 +1688,7 @@ $(document).on('mouseup touchend', function(e) {
     state_.dragging.mouse_diffs = [];
     state_.dragging.last_parent = null;
     endTimer("drop");
-});
+}
 
 function mouseMove(e) {
     if (!state_.dragging.data_transfer.length || e.clientY <= 0 || e.clientX <= 0 || (e.clientX >= window.innerWidth || e.clientY >= window.innerHeight)) {
@@ -1719,7 +1731,6 @@ function dragstartAmi(ev) {
     target.style.position = "absolute";
     target.style.left = leftPos + scrollLeft() + "px";
     target.style.top = topPos + scrollTop() + "px";
-    console.log(refs_.container.style.webkitTransform);
     if (refs_.container.style.webkitTransform != null && refs_.container.style.webkitTransform != "") {
         target.style.webkitTransform = "rotate(90deg)";
     }
@@ -1731,11 +1742,7 @@ function dragstartAmi(ev) {
     setLabel(state_.dragging.last_parent);
 }
 
-function dropAmi(ev) {
-    var target = ev.target;
-    while (!refs_.ami_locations.has(target)) {
-        target = target.parentElement;
-    }
+function dropAmi(target) {
     var dragged_list = [];
     while (state_.dragging.data_transfer.length) {
         const dragged = state_.dragging.data_transfer.pop();
@@ -1800,9 +1807,9 @@ function dropAmi(ev) {
         }
         dragged = dragged_list.pop();
         if (!hasSpace(target)) {
-            var ami = ev.target.parentElement;
-            if (isAmi(ev.target)) {
-                ami = ev.target;
+            var ami = target.parentElement;
+            if (isAmi(target)) {
+                ami = target;
             }
             if (isAmi(ami)) {
                 target.insertBefore(dragged, ami);
